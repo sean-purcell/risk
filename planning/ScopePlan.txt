@@ -1,4 +1,4 @@
 Scope Plan:
 Part 1: Description of Problem and Needs Assessment:
 Project Background:
-	Our goal is to create a program that simulates the popular board game Risk.  It will likely have 
+	Our goal is to create a program that simulates the popular board game Risk.  It will have modifications to make it different from normal risk, modifications tbd.
