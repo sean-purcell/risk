@@ -1,4 +1,6 @@
 Scope Plan:
 Part 1: Description of Problem and Needs Assessment:
 Project Background:
-	Our goal is to create a program that simulates the popular board game Risk.  It will have modifications to make it different from normal risk, modifications tbd.
+	Our goal is to create a program that simulates the popular board game Risk, which was originally created in 1957.  It will have modifications to make it different from normal risk, but be based on the same concept of capturing all the territories.  There have already been several digital implementations of this board game, and while only two licensed programs have been made recently, one for the popular iOS operating system and one as a web based game, many games with the same concept but other branding etc. have been created.  This will be created to be a working desktop version of the game, possibly supporting internet or LAN based multiplayer as well, as well as having some differences in 'personality' from other versions, thus differentiating it.
+
+Needs Assessment
