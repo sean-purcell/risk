@@ -6,7 +6,14 @@ Project Background:
 Needs Assessment:
 The potential users of this program include: Users, or "players" of the game, and other developers.  The needs of the users include having a working graphical user interface to interact with the game so they can play it.  Preferably anything complicated should be taken care of for them.  The needs of developers include documentation of the source code for the program as well as well formatted code so that creating modifications to the game or learning from it is easier.
 Part 2:
-Vision Statement
+Vision Statement:
 This program simulates the classic board game Risk ™.  The general characteristics of the original version of the game are transferred to recreate the experience in a computerized version.  A visual component includes the board to be played on.  One potential change to the classic game is a different type of board.  The territories may be different, or the theme altogether may change.  
-Features to be developed
+
+Features to be developed:
 The minimum to be included includes instructions and a guide to how to play.  Common techniques and strategies are also included to aid beginners to develop their own strategies.  A board must be included to visually display adjacent territories along with colours to denote ownership between each player for clarity and enjoyment.  This will likely be included through importing an image, although manually drawing the territories may be viable.  Most options will be available through the use of buttons, as well as text fields or spinners may be used where numbers are required.  To represent Risk cards, a visual representation including the type are represented using rectangles.  Players are forced to turn in a set of cards when they hold five cards.
+
+Features that may be developed:
+It is possible that given the opportunity AI and/or non-local multiplayer may be added, as those are features which are not quite necessary but could be added if given the time.
+
+Non-Features:
+3D graphics, animated battles, and animated dice are all likely slightly beyond what would be capable in this time-span.
