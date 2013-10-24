@@ -1,0 +1,6 @@
+Class Outlines:
+Game: Contains main game loop.  It will be the centre of all main game logic, and contain all references to game objects and variables.
+Renderer: Contains all graphical logic.  Should only be called directly from Game during the render part of the game loop.
+Map: Contains the list of all countries in a given map, as well as the texture for the map.
+Country: Represents a given country on the board.  Will contain a affinity (i.e. army that currently owns it), as well as a List of soldiers currently in that spot.  Will also have a graphical location of itself for rendering.
+Soldier
