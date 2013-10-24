@@ -1,6 +1,14 @@
 Class Outlines:
 Game: Contains main game loop.  It will be the centre of all main game logic, and contain all references to game objects and variables.
-Renderer: Contains all graphical logic.  Should only be called directly from Game during the render part of the game loop.
+
+Renderer: Contains all graphical logic as well as the JFrame used to interface with the computer.  Should only be called directly from Game during the render part of the game loop.
+
+Input: Used for all input to the game, implementing the necessary AWT event interfaces.
+
 Map: Contains the list of all countries in a given map, as well as the texture for the map.
-Country: Represents a given country on the board.  Will contain a affinity (i.e. army that currently owns it), as well as a List of soldiers currently in that spot.  Will also have a graphical location of itself for rendering.
-Soldier
+
+Country: Represents a given country on the board.  Will contain a affinity (i.e. army that currently owns it), as well as a Unit object representing the soldiers currently in that spot.  Will also have a graphical location of itself for rendering.
+
+Unit: Represents a given subset of an army.  Contains the total number of troops, as well as a number of soldiers, horses, and cannons, for visual consistency when moving units around, etc.  Can be combined with other Units as well as split.
+
+Army: Represents an Army, with a List of all Units, as well as a List of all countries owned, cards owned, etc.
