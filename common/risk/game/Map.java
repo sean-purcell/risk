@@ -13,4 +13,12 @@ public class Map {
 	 * The list of Country's within the map
 	 */
 	private List<Country> countries;
+
+	public Image getTexture() {
+		return texture;
+	}
+
+	public void setTexture(Image texture) {
+		this.texture = texture;
+	}
 }

@@ -50,4 +50,12 @@ public class Renderer extends Canvas{
 		}
 		game.draw(g);
 	}
+	
+	public void drawMap(Graphics2D g){
+		g.drawImage(game.getMap().getTexture(),0,0,null);
+	}
+	
+	public static void draw(Drawable d,Graphics g){
+		g.drawImage(d.getTexture(),d.getX(),d.getY(),null);
+	}
 }

@@ -18,6 +18,8 @@ public class Game {
 	private Renderer r;
 	private Input i;
 	
+	private Map map;
+	
 	/**
 	 * Represents the current mode that the game is in
 	 */
@@ -33,5 +35,13 @@ public class Game {
 	
 	public void draw(Graphics2D g){
 		
+	}
+
+	public Map getMap() {
+		return map;
+	}
+
+	public void setMap(Map map) {
+		this.map = map;
 	}
 }
