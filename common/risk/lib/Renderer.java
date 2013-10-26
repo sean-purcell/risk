@@ -1,7 +1,7 @@
 package risk.lib;
 
 import java.awt.Canvas;
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -23,7 +23,6 @@ public class Renderer extends Canvas{
 	
 	public Renderer(Game game,Input i){
 		frame = new JFrame("Risk");
-		frame.setPreferredSize(new Dimension(1280,720));
 		
 		frame.getContentPane().add(this);
 		this.setBounds(new Rectangle(1280,720));
@@ -32,9 +31,12 @@ public class Renderer extends Canvas{
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		frame.setBackground(Color.WHITE);
+		
 		this.addMouseListener(i);
 		this.addKeyListener(i);
 		this.addMouseMotionListener(i);
+		
 		
 		this.game = game;
 	}
@@ -52,10 +54,14 @@ public class Renderer extends Canvas{
 	}
 	
 	public void drawMap(Graphics2D g){
-		g.drawImage(game.getMap().getTexture(),0,0,null);
+		if(game.getMap().getTexture()!=null){
+			g.drawImage(game.getMap().getTexture(),0,0,null);
+		}
 	}
 	
 	public static void draw(Drawable d,Graphics g){
-		g.drawImage(d.getTexture(),d.getX(),d.getY(),null);
+		if(d.getTexture() != null){
+			g.drawImage(d.getTexture(),d.getX(),d.getY(),null);
+		}
 	}
 }

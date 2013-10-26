@@ -30,11 +30,12 @@ public class Game {
 	public Game(){
 		i = new Input(this);
 		r = new Renderer(this,i);
+		map = new Map();
 		r.repaint();
 	}
 	
 	public void draw(Graphics2D g){
-		
+		r.drawMap(g);
 	}
 
 	public Map getMap() {

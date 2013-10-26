@@ -1,9 +1,9 @@
 package risk.lib;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public interface Drawable {
-	public Image getTexture();
+	public BufferedImage getTexture();
 	
 	public int getX();
 	
