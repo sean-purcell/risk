@@ -1,6 +1,7 @@
 package risk.game;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 
 import risk.Risk;
@@ -18,6 +19,12 @@ public class Map {
 
 	public Map(){
 		texture = Risk.loadImage("resources/map.png");
+		countries = new ArrayList<Country>();
+		initCountries();
+	}
+	
+	private void initCountries(){
+		for(int )
 	}
 	
 	public BufferedImage getTexture() {
@@ -26,5 +33,23 @@ public class Map {
 
 	public void setTexture(BufferedImage texture) {
 		this.texture = texture;
+	}
+	
+	public Country getCountryById(int id){
+		for(Country c : countries){
+			if(c.getId() == id){
+				return c;
+			}
+		}
+		return null;
+	}
+	
+	public Country getCountryByColor(int color){
+		for(Country c : countries){
+			if(c.getClickColor() == color){
+				return c;
+			}
+		}
+		return null;
 	}
 }

@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 
 import risk.lib.Input;
 import risk.lib.Renderer;
+import risk.lib.ThreadLocks;
 
 /**
  * Represents the main game logic and loops
@@ -14,6 +15,8 @@ import risk.lib.Renderer;
  *
  */
 public class Game {
+	
+	private final int THREAD_ID = 1;
 	
 	private Renderer r;
 	private Input i;
@@ -62,6 +65,7 @@ public class Game {
 			long time = System.currentTimeMillis();
 			int delta = (int) (time - lastTime);
 			
+			ThreadLocks.requestLock(ThreadLocks.UPDATE,THREAD_ID);
 			//Runs the update method with the given delta
 			this.update(delta);
 			

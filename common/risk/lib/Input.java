@@ -1,6 +1,5 @@
 package risk.lib;
 
-import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -9,11 +8,17 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 import risk.Risk;
+import risk.game.Country;
 import risk.game.Game;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	
 	private static final String clickMapAddress = "resources/clickMap.png";
+	
+	/**
+	 * The id to be used when requesting locks from ThreadHandler
+	 */
+	private final int THREAD_ID = 2;
 	
 	private Game g;
 	
@@ -27,12 +32,15 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	}
 	
 	// SPECIFIC HANDLING METHODS
-	private void testClickedCountry(int x,int y){
+	private Country getClickedCountry(int x,int y){
 		if(y <= 621){
-			int c = clickMap.getRGB(x, y);
-			c += 0x1000000; //Shift values to match the range 0x000000 to 0xffffff
-			System.out.println(Integer.toString(c,16));
+			int color = clickMap.getRGB(x, y);
+			color += 0x1000000; //Shift values to match the range 0x000000 to 0xffffff
+			System.out.println(Integer.toString(color,16));
+			Country country = g.getMap().getCountryByColor(color);
+			return country;
 		}
+		return null;
 	}
 	
 	// LISTENER METHOD IMPLMENTATIONS
@@ -56,7 +64,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		int y = e.getY();
 		System.out.println("Mouse Clicked: (" + x + "," + y + ")");
 		if(e.getButton() == MouseEvent.BUTTON1){
-			testClickedCountry(x,y);
+			getClickedCountry(x,y);
 		}
 	}
 
