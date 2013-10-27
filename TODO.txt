@@ -1,3 +1,7 @@
 TODO:
+Gantt Chart
+Screenshots
+
+
 Add tasks that need to be done here:
 Make textures for Soldiers, buttons, etc. (more detail soon)
