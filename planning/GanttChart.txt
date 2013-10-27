@@ -1,0 +1,22 @@
+Gantt Chart:
+Main things to be coded:
+-Basic struct classes:
+	This must be done basically before main game logic
+	Applicable classes:
+	risk.game.Army
+	risk.game.Unit
+	risk.gameMap
+	risk.gameCountry
+-Sprite creation:
+	Should be done fairly soon to help with adding rendering features etc.
+	Sprites needed:
+	Unit sprites
+	Button sprites (e.g. for moving, attacking, etc.)
+	
+	
+-Rendering:
+	-This can be done over time, adding rendering features as their logic counterparts are added
+	Applicable classes:
+	risk.Rendering
+-Game Logic:
+	Main part that needs to be coded, including main game loop, etc.
