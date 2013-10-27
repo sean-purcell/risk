@@ -42,6 +42,9 @@ public class Renderer extends Canvas{
 	}
 	
 	public void paint(Graphics graphics){
+		if(!frame.hasFocus() && !this.hasFocus()){
+			return;
+		}
 		Graphics2D g = null;
 		try{
 			g = (Graphics2D) graphics;
@@ -53,10 +56,15 @@ public class Renderer extends Canvas{
 		game.draw(g);
 	}
 	
+	public void drawMainMode(Graphics2D g){
+		this.drawMap(g);
+	}
+	
 	public void drawMap(Graphics2D g){
-		if(game.getMap().getTexture()!=null){
+		try{
 			g.drawImage(game.getMap().getTexture(),0,0,null);
 		}
+		catch(NullPointerException e){}
 	}
 	
 	public static void draw(Drawable d,Graphics g){

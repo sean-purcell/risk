@@ -1,0 +1,6 @@
+c1name =NORTH TEXAS
+c1color=0a0000
+c1id   =1
+c1name =WEST SIBERIA
+c1color=0a0000
+c1id   =1

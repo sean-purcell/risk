@@ -32,6 +32,7 @@ public class Risk {
 	public static void main(String[] args){
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
+		g.run();
 	}
 	
 	public static BufferedImage loadImage(String ref){
