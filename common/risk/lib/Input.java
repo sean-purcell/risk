@@ -27,17 +27,22 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	
 	private BufferedImage clickMap = Risk.loadImage(clickMapAddress);
 	
+	private Country lastC;
+	
 	public Input(Game g){
 		this.g = g;
 	}
 	
 	// SPECIFIC HANDLING METHODS
 	private Country getClickedCountry(int x,int y){
-		if(y <= 621){
-			int color = clickMap.getRGB(x, y);
-			color += 0x1000000; //Shift values to match the range 0x000000 to 0xffffff
-			System.out.println(Integer.toString(color,16));
-			Country country = g.getMap().getCountryByColor(color);
+		if(y <= 615){
+			int colour = clickMap.getRGB(x, y);
+			colour += 0x1000000; //Shift values to match the range 0x000000 to 0xffffff
+//			System.out.println(Integer.toString(colour,16));
+			Country country = g.getMap().getCountryByColour(colour);
+			if(country != null){
+//				System.out.println(country);
+			}
 			return country;
 		}
 		return null;
@@ -56,6 +61,12 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		//System.out.println("Mouse Moved: " + "(" + pastX + "," + pastY + ") -> (" + e.getX() + "," + e.getY() + ")");
 		this.pastX = e.getX();
 		this.pastY = e.getY();
+		Country c = getClickedCountry(pastX,pastY);
+		if(c != lastC){
+			System.out.println(c);
+			lastC = c;
+		}
+		
 	}
 
 	@Override

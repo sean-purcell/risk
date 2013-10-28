@@ -46,11 +46,13 @@ public class Game {
 	private int fpsDesired = 60;
 	
 	public Game(){
+		map = new Map();
 		i = new Input(this);
 		r = new Renderer(this,i);
-		map = new Map();
+		
 		running = true;
-		r.repaint();
+		int a = 1;
+		if(a == 1);
 	}
 
 	// MAIN GAME LOOP AND RELATED MISC
@@ -61,19 +63,23 @@ public class Game {
 	public void run(){
 		long lastTime = System.currentTimeMillis();
 		while(running){
-			//Calculate time since last update
-			long time = System.currentTimeMillis();
-			int delta = (int) (time - lastTime);
-			
-			ThreadLocks.requestLock(ThreadLocks.UPDATE,THREAD_ID);
-			//Runs the update method with the given delta
-			this.update(delta);
-			
-			//Renders the game
-			r.repaint();
-			
-			//Limits the game to 30 fps
-			while(System.currentTimeMillis() - time + delta <= 33);
+			if(r.hasFocus()){ //Ensures that the game does not render when it is not in focus
+				
+				//Calculate time since last update
+				long time = System.currentTimeMillis();
+				int delta = (int) (time - lastTime);
+
+				ThreadLocks.requestLock(ThreadLocks.UPDATE,THREAD_ID);
+				//Runs the update method with the given delta
+				this.update(delta);
+
+				//Renders the game
+				r.repaint();
+
+				ThreadLocks.releaseLock(ThreadLocks.UPDATE,THREAD_ID);
+				//Limits the game to 30 fps
+				while(System.currentTimeMillis() - time + delta <= 33);
+			}
 		}
 	}
 	

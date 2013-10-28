@@ -8,6 +8,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import risk.game.Game;
+import risk.lib.ThreadLocks;
 
 /**
  * The main class, the game entry point
@@ -30,8 +31,10 @@ public class Risk {
 	public static Random r;
 	
 	public static void main(String[] args){
+		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
+		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
 		g.run();
 	}
 	

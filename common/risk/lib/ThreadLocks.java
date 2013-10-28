@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 public class ThreadLocks {
 	
 	public static final int UPDATE = 0;
+	public static final int INIT_RESOURCES = 1;
 	
 	public static int[] locks = new int[getNumLocks()];
 	

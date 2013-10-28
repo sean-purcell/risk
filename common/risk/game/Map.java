@@ -24,7 +24,15 @@ public class Map {
 	}
 	
 	private void initCountries(){
-		for(int )
+		countries.add(null); //This is so that the index matches up with the location in the array
+		for(int i = 1; i <= Country.numCountries; i++){
+			countries.add(new Country(i));
+		}
+		for(Country c : countries){
+			if(c != null)
+				c.initConnections(this);
+		}
+		System.out.println();
 	}
 	
 	public BufferedImage getTexture() {
@@ -36,20 +44,24 @@ public class Map {
 	}
 	
 	public Country getCountryById(int id){
-		for(Country c : countries){
-			if(c.getId() == id){
+		return countries.get(id);
+	}
+	
+	public Country getCountryByColour(int colour){
+		for(int i = 1; i < countries.size(); i++){
+			Country c = countries.get(i);
+			if(c.getClickColour() == colour){
 				return c;
 			}
 		}
 		return null;
 	}
-	
-	public Country getCountryByColor(int color){
-		for(Country c : countries){
-			if(c.getClickColor() == color){
-				return c;
-			}
-		}
-		return null;
+
+	public List<Country> getCountries() {
+		return countries;
+	}
+
+	public void setCountries(List<Country> countries) {
+		this.countries = countries;
 	}
 }
