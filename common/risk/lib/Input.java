@@ -49,7 +49,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 				System.out.println(Integer.toString(colour,16));
 			Country country = g.getMap().getCountryByColour(colour);
 			if(country != null){
-//				System.out.println(country);
+				System.out.println(country);
 			}
 			return country;
 		}
@@ -83,7 +83,10 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		int y = e.getY();
 		System.out.println("Mouse Clicked: (" + x + "," + y + ")");
 		if(e.getButton() == MouseEvent.BUTTON1){
-			getClickedCountry(x,y, true);
+			Country c = getClickedCountry(x,y, true);
+			if(c != null){
+				g.countryClicked(c,x,y);
+			}
 		}
 	}
 

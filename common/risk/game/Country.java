@@ -135,11 +135,6 @@ public class Country implements Clickable{
 	public boolean overlaps(int x, int y) {
 		return false;
 	}
-
-	@Override
-	public void clicked() {
-		
-	}
 	
 	public String toString(){
 		return name;

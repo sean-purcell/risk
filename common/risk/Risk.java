@@ -78,7 +78,6 @@ public class Risk {
 	 */
 	public static BufferedImage changeImageColour(BufferedImage original, Color c){
 		BufferedImage image = cloneImage(original);
-		System.out.println(Integer.toString(original.getRGB(0,0),16));
 		for(int x = 0; x < image.getWidth(); x++){
 			for(int y = 0; y < image.getHeight(); y++){
 				if(image.getRGB(x, y) % 0x01000000 == 0 /* represents complete transparency */)

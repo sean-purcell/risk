@@ -4,12 +4,14 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -25,7 +27,7 @@ import risk.game.Unit;
  * @author Sean
  *
  */
-public class Renderer extends Canvas{
+public class RiskCanvas extends Canvas{
 	
 	private static BufferedImage soldier;
 	
@@ -38,7 +40,7 @@ public class Renderer extends Canvas{
 	private Font army;
 	private final String armyFontAddress = "resources/Ver_Army.ttf";
 	
-	public Renderer(Game game,Input i){
+	public RiskCanvas(Game game,Input i){
 		frame = new JFrame("Risk");
 		
 		frame.getContentPane().add(this);
@@ -88,69 +90,6 @@ public class Renderer extends Canvas{
 		game.draw(g);
 	}
 	
-	private Army a = new Army(0);
-	private Unit u = null;
-	
-	public void drawSetupMode(Graphics2D g){
-		this.drawMap(g);
-		this.drawArmyInfo(g);
-		this.drawReinforcements(g);
-		//this.drawConnections(g);
-		g.drawImage(a.getUnitTextures()[2][1],input.pastX+50,input.pastY+50 ,null);
-		g.drawImage(a.getSoldierAttacker(), 500,500,null);
-		u = new Unit(13,a,game.getMap().getCountryById(20));
-		u.drawSelf(g);
-	}
-	
-	public void drawMainMode(Graphics2D g){
-		this.drawMap(g);
-		//drawConnections(g);
-		g.drawString(Integer.toString(game.getFps()), 10, 20);
-		this.drawArmyInfo(g);
-	}
-	
-	private void drawMap(Graphics2D g){
-		try{
-			g.drawImage(game.getMap().getTexture(),0,0,null);
-		}
-		catch(NullPointerException e){}
-	}
-	
-	private void drawArmyInfo(Graphics2D g){
-		
-		//g.drawString("ARMY FONT",100,650);
-		Army a = game.getCurrentArmy();
-		g.setColor(a.getColour());
-		g.drawString(a.getName(),50,650);
-	}
-	
-	private void drawReinforcements(Graphics2D g){
-		Army a = game.getCurrentArmy();
-		setFontSize(g, 20);
-		g.drawString("Free Troops: " + a.getFreeUnits(),60,680);
-	}
-	
-	private void drawConnections(Graphics2D g){
-		g.setColor(Color.BLACK);
-		List<Country> countries = game.getMap().getCountries();
-		for(int i = 1; i < countries.size(); i++){
-			Country c = countries.get(i);
-			List<Country> connections = c.getConnections();
-			//System.out.println(c);
-			//System.out.println(connections);
-			for(Country conn : connections){
-				if(conn.getId() > c.getId() && conn.getX() != 0){
-					//System.out.println(c + " <-> " + conn);
-					g.drawLine(c.getX(), c.getY(), conn.getX(), conn.getY());
-				}
-			}
-		}
-	}
-	
-	private void setFontSize(Graphics2D g,int fontSize){
-		g.setFont(g.getFont().deriveFont((float) fontSize));
-	}
-	
 	/**
 	 * Override of {@code Component.hasFocus}, checks if this canvas has focus or if the underlying frame has focus
 	 */
@@ -159,9 +98,25 @@ public class Renderer extends Canvas{
 		return frame.hasFocus() || super.hasFocus();
 	}
 	
-	public static void draw(Drawable d,Graphics g){
-		if(d.getTexture() != null){
-			g.drawImage(d.getTexture(),d.getX(),d.getY(),null);
+	public List<BufferedImage> generateNumberButtonTextures(){
+		final int width = 50;
+		final int height = 50;
+		
+		List<BufferedImage> textures = new ArrayList<BufferedImage>();
+		BufferedImage base = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		Graphics baseG = base.getGraphics();
+		baseG.setColor(Color.BLACK);
+		baseG.fillRoundRect(0, 0, width, height, 10, 10);
+		for(char i = '3'; i <= '6'; i++){
+			BufferedImage clone = Risk.cloneImage(base);
+			Graphics2D g = (Graphics2D) clone.getGraphics();
+			g.setFont(army.deriveFont(50f));
+			FontMetrics fm = g.getFontMetrics();
+			g.drawString(Character.toString(i),width/2 - fm.charWidth(i)/2,height / 2 + fm.getHeight()/3);
+			textures.add(clone);
+			System.out.println(i+"buttonmade");
 		}
+		
+		return textures;
 	}
 }

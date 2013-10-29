@@ -1,11 +1,16 @@
 package risk.game;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import risk.lib.Button;
+import risk.lib.Drawable;
 import risk.lib.Input;
-import risk.lib.Renderer;
+import risk.lib.RiskCanvas;
 
 /**
  * Represents the main game logic and loops
@@ -19,7 +24,7 @@ public class Game {
 	
 	private final int THREAD_ID = 1;
 	
-	private Renderer r;
+	private RiskCanvas r;
 	private Input i;
 	
 	private Map map;
@@ -30,6 +35,21 @@ public class Game {
 	 * 2. Main game mode<br>
 	 */
 	private int mode;
+	
+	/**
+	 * Represents the current part of setup<br>
+	 * 1. Choose number of players<br>
+	 * 2. Choose colours<br>
+	 * 3. Roll dice<br>
+	 * 4. Choose territories<br>
+	 * 5. Deploy reinforcements
+	 */
+	private int setupMode;
+	
+	private List<Button> numberButtons;
+	
+	private int numPlayers;
+	private int numAI;
 	
 	private int turn;
 	
@@ -53,7 +73,7 @@ public class Game {
 	public Game(){
 		map = new Map();
 		i = new Input(this);
-		r = new Renderer(this,i);
+		r = new RiskCanvas(this,i);
 		this.armies = new ArrayList<Army>();
 		mode = 1;
 		running = true;
@@ -107,23 +127,124 @@ public class Game {
 	}
 	
 	private void updateSetupMode(){
-		
-	}
-	
-	public void draw(Graphics2D g){
-		switch(mode){
-		case 1: r.drawSetupMode(g); break;
-		case 2:r.drawMainMode(g); break;
+		switch(setupMode){
+		case 0: enterSetupMode();
 		}
 	}
 	
+	private void enterSetupMode(){
+		setupMode = 1;
+		List<BufferedImage> numberButtonTextures = r.generateNumberButtonTextures();
+		numberButtons = new ArrayList<Button>();
+		for(int i = 0; i < 6; i++){
+ 		 	numberButtons.add(new Button(50 + 55 * i,650,numberButtonTextures.get(i)));
+		}
+		System.out.println("number buttons initialized");
+	}
+	
+	public void draw(Graphics2D g){
+		drawMap(g);
+		switch(mode){
+		case 1: drawSetupMode(g); break;
+		case 2: /*drawMainMode(g); */break;
+		}
+	}
+	
+	private void drawSetupMode(Graphics2D g){
+		drawString(g,"Number of players: ",25,645,30,Color.RED);
+		drawButtons(g);
+	}
+	
+	public void drawMap(Graphics2D g){
+		try{
+			g.drawImage(this.getMap().getTexture(),0,0,null);
+		}
+		catch(NullPointerException e){
+			System.out.println("map not found");
+		}
+	}
+	
+	public void drawArmyInfo(Graphics2D g){
+		
+		//g.drawString("ARMY FONT",100,650);
+		Army a = this.getCurrentArmy();
+		g.setColor(a.getColour());
+		g.drawString(a.getName(),50,650);
+	}
+	
+	public void drawReinforcements(Graphics2D g){
+		Army a = this.getCurrentArmy();
+		setFontSize(g, 20);
+		g.drawString("Free Troops: " + a.getFreeUnits(),60,680);
+	}
+	
+	private void drawConnections(Graphics2D g){
+		g.setColor(Color.BLACK);
+		List<Country> countries = this.getMap().getCountries();
+		for(int i = 1; i < countries.size(); i++){
+			Country c = countries.get(i);
+			List<Country> connections = c.getConnections();
+			//System.out.println(c);
+			//System.out.println(connections);
+			for(Country conn : connections){
+				if(conn.getId() > c.getId() && conn.getX() != 0){
+					//System.out.println(c + " <-> " + conn);
+					g.drawLine(c.getX(), c.getY(), conn.getX(), conn.getY());
+				}
+			}
+		}
+	}
+	
+	public void drawButtons(Graphics2D g){
+		if(this.getButtonList() != null){
+			for(Button b : this.getButtonList()){
+				draw(b,g);
+			}
+			
+		}
+	}
+	
+	public void drawString(Graphics2D g, String str, int x,int y,int fontSize,Color c){
+		g.setFont(g.getFont().deriveFont((float)fontSize));
+		g.setColor(c);
+		g.drawString(str, x, y);
+	}
+	
+	private void setFontSize(Graphics2D g,int fontSize){
+		g.setFont(g.getFont().deriveFont((float) fontSize));
+	}
+	
 	// INPUT HANDLING
+	public void countryClicked(Country c,int x,int y){
+		if(mode == 1){
+			return;
+		}
+	}
+	
+	public void buttonClicked(Button b, int x,int y){
+		
+	}
 	
 	public void mouseClicked(int x,int y, int mouseButton){
 		
 	}
 	
+	public static void draw(Drawable d,Graphics g){
+		if(d.getTexture() != null){
+			g.drawImage(d.getTexture(),d.getX(),d.getY(),null);
+		}
+	}
+	
 	// SETTERS AND GETTERS
+	public List<Button> getButtonList(){
+		switch(mode){
+		case 1:
+			switch(setupMode){
+			case 1: return numPlayers == 0 ? numberButtons.subList(2, 6) : numberButtons.subList(0,6-numPlayers);
+			}
+		}
+		return null;
+	}
 	
 	public Map getMap() {
 		return map;
