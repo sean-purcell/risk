@@ -13,6 +13,13 @@ import risk.game.Game;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	
+	
+	
+	public Country lastCountry;
+	
+	
+	
+	
 	private static final String clickMapAddress = "resources/clickMap.png";
 	
 	/**

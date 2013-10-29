@@ -18,6 +18,7 @@ import risk.Risk;
 import risk.game.Army;
 import risk.game.Country;
 import risk.game.Game;
+import risk.game.Unit;
 
 /**
  * 
@@ -88,14 +89,17 @@ public class Renderer extends Canvas{
 	}
 	
 	private Army a = new Army(0);
+	private Unit u = null;
 	
 	public void drawSetupMode(Graphics2D g){
 		this.drawMap(g);
 		this.drawArmyInfo(g);
 		this.drawReinforcements(g);
 		//this.drawConnections(g);
-		g.drawImage(a.getUnitTextures()[1][1],input.pastX+50,input.pastY+50 ,null);
+		g.drawImage(a.getUnitTextures()[2][1],input.pastX+50,input.pastY+50 ,null);
 		g.drawImage(a.getSoldierAttacker(), 500,500,null);
+		u = new Unit(13,a,game.getMap().getCountryById(20));
+		u.drawSelf(g);
 	}
 	
 	public void drawMainMode(Graphics2D g){

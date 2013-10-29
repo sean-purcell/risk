@@ -18,7 +18,7 @@ import risk.Risk;
 public class Army {
 	
 	private static BufferedImage[] unadjustedUnitTextures;
-	private static final String[]  unitTexturesAddress = {"resources/soldier.png","resources/tank.png","resources/soldier.png"};
+	private static final String[]  unitTexturesAddress = {"resources/soldier.png","resources/tank.png","resources/jet.png"};
 	
 	private static BufferedImage soldierBattleTexture;
 	private static final String soldierBattleTextureAddress = "resources/soldierBattle.png";
