@@ -1,13 +1,13 @@
 Gantt Chart:
 Main things to be coded:
--Basic struct classes:
+-Basic struct classes:  //BASICALLY DONE
 	This must be done basically before main game logic
 	Applicable classes:
 	risk.game.Army
 	risk.game.Unit
 	risk.gameMap
 	risk.gameCountry
--Sprite creation:
+-Sprite creation:  //Time: unknown.  Anyone want to do this?  shouldn’t take too long
 	Should be done fairly soon to help with adding rendering features etc.
 	Sprites needed:
 	Unit sprites
@@ -18,5 +18,7 @@ Main things to be coded:
 	-This can be done over time, adding rendering features as their logic counterparts are added
 	Applicable classes:
 	risk.Rendering
--Game Logic:
+-Game Logic: 
 	Main part that needs to be coded, including main game loop, etc.
+
+-Final touchups/testing etc: we should leave the last at least 4-5 days for this

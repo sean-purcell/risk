@@ -22,8 +22,8 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	
 	private Game g;
 	
-	private int pastX;
-	private int pastY;
+	public int pastX;
+	public int pastY;
 	
 	private BufferedImage clickMap = Risk.loadImage(clickMapAddress);
 	
@@ -34,11 +34,12 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	}
 	
 	// SPECIFIC HANDLING METHODS
-	private Country getClickedCountry(int x,int y){
+	private Country getClickedCountry(int x,int y, boolean debug){
 		if(y <= 615){
 			int colour = clickMap.getRGB(x, y);
 			colour += 0x1000000; //Shift values to match the range 0x000000 to 0xffffff
-//			System.out.println(Integer.toString(colour,16));
+			if(debug)
+				System.out.println(Integer.toString(colour,16));
 			Country country = g.getMap().getCountryByColour(colour);
 			if(country != null){
 //				System.out.println(country);
@@ -61,7 +62,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		//System.out.println("Mouse Moved: " + "(" + pastX + "," + pastY + ") -> (" + e.getX() + "," + e.getY() + ")");
 		this.pastX = e.getX();
 		this.pastY = e.getY();
-		Country c = getClickedCountry(pastX,pastY);
+		Country c = getClickedCountry(pastX,pastY, false);
 		if(c != lastC){
 			System.out.println(c);
 			lastC = c;
@@ -75,7 +76,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		int y = e.getY();
 		System.out.println("Mouse Clicked: (" + x + "," + y + ")");
 		if(e.getButton() == MouseEvent.BUTTON1){
-			getClickedCountry(x,y);
+			getClickedCountry(x,y, true);
 		}
 	}
 
