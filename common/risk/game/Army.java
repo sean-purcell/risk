@@ -40,7 +40,7 @@ public class Army {
 	 * The type of this army:
 	 * 0 = Red
 	 * 1 = Blue
-	 * 2 = Black
+	 * 2 = Grey
 	 * 3 = Green
 	 * 4 = Yellow
 	 * 5 = Orange
@@ -92,16 +92,7 @@ public class Army {
 	}
 	
 	public Color getColour(){
-		Color c = null;
-		switch(type){
-		case 0: c = Color.RED; break;
-		case 1: c = Color.BLUE; break;
-		case 2: c = Color.BLACK; break;
-		case 3: c = Color.GREEN; break;
-		case 4: c = Color.YELLOW; break;
-		case 5: c = Color.ORANGE; break;
-		}
-		return c;
+		return this.getColorByType(type);
 	}
 	
 	public String getName(){
@@ -109,7 +100,7 @@ public class Army {
 		switch(type){
 		case 0: n = "RED"; break;
 		case 1: n = "BLUE"; break;
-		case 2: n = "BLACK"; break;
+		case 2: n = "GREY"; break;
 		case 3: n = "GREEN"; break;
 		case 4: n = "YELLOW"; break;
 		case 5: n = "ORANGE"; break;
@@ -141,4 +132,16 @@ public class Army {
 		this.soldierDefender = soldierDefender;
 	}
 	
+	public static Color getColorByType(int type){
+		Color c = null;
+		switch(type){
+		case 0: c = Color.RED; break;
+		case 1: c = Color.BLUE; break;
+		case 2: c = Color.DARK_GRAY; break;
+		case 3: c = Color.GREEN.darker().darker(); break;
+		case 4: c = Color.YELLOW.darker(); break;
+		case 5: c = Color.ORANGE.darker(); break;
+		}
+		return c;
+	}
 }

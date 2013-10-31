@@ -10,11 +10,14 @@ public class Button implements Clickable, Drawable{
 	
 	private BufferedImage texture;
 	
-	public Button(int x, int y, BufferedImage texture) {
+	private int id;
+	
+	public Button(int x, int y, BufferedImage texture, int id) {
 		super();
 		this.x = x;
 		this.y = y;
 		this.texture = texture;
+		this.id = id;
 	}
 
 	@Override
@@ -25,7 +28,19 @@ public class Button implements Clickable, Drawable{
 	public BufferedImage getTexture(){
 		return texture;
 	}
-
+	
+	public boolean matches(int i){
+		return id == i;
+	}
+	
+	public int getId(){
+		return id;
+	}
+	
+	public String toString(){
+		return Integer.toString(id);
+	}
+	
 	@Override
 	public int getX() {
 		return x;

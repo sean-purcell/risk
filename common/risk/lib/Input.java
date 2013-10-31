@@ -13,13 +13,6 @@ import risk.game.Game;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 	
-	
-	
-	public Country lastCountry;
-	
-	
-	
-	
 	private static final String clickMapAddress = "resources/clickMap.png";
 	
 	/**
@@ -48,10 +41,19 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 			if(debug)
 				System.out.println(Integer.toString(colour,16));
 			Country country = g.getMap().getCountryByColour(colour);
-			if(country != null){
-				System.out.println(country);
-			}
 			return country;
+		}
+		return null;
+	}
+	
+	private Button getClickedButton(int x,int y){
+		if(g.getButtonList() != null){
+			for(Button b : g.getButtonList()){
+				if(b.overlaps(x, y)){
+					System.out.println(b + " pressed");
+					return b;
+				}
+			}
 		}
 		return null;
 	}
@@ -86,6 +88,12 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 			Country c = getClickedCountry(x,y, true);
 			if(c != null){
 				g.countryClicked(c,x,y);
+				return;
+			}
+			Button b = getClickedButton(x,y);
+			if(b != null){
+				g.buttonClicked(b, x, y);
+				return;
 			}
 		}
 	}

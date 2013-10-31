@@ -58,6 +58,7 @@ public class Unit {
 	public void drawSelf(Graphics2D g,int x,int y){
 		Font original = g.getFont();
 		g.setFont(sprites);
+		g.setColor(army.getColour());
 		spritesMetrics = g.getFontMetrics();
 		
 		BufferedImage[][] sprites = army.getUnitTextures();

@@ -1,13 +1,16 @@
 package risk.game;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import risk.Risk;
 import risk.lib.Button;
+import risk.lib.DiceTexture;
 import risk.lib.Drawable;
 import risk.lib.Input;
 import risk.lib.RiskCanvas;
@@ -47,11 +50,18 @@ public class Game {
 	private int setupMode;
 	
 	private List<Button> numberButtons;
+	private List<Button> colourButtons;
+	private int[] dice;
+	private int[] diceTimers;
+	
+	private int diceSwitchTimer;
+	private int diceDisplayCountdown;
 	
 	private int numPlayers;
-	private int numAI;
 	
 	private int turn;
+	
+	private List<Army> firstTurnContenders; 
 	
 	private List<Army> armies;
 	
@@ -122,24 +132,55 @@ public class Game {
 	
 	private void update(int delta){
 		switch(mode){
-		case 1: updateSetupMode(); break;
+		case 1: updateSetupMode(delta); break;
 		}
 	}
 	
-	private void updateSetupMode(){
+	private void updateSetupMode(int delta){
 		switch(setupMode){
-		case 0: enterSetupMode();
+		case 0: enterSetupMode(); break;
+		case 3:
+			for(int i = 0; i < diceTimers.length; i++){
+				diceTimers[i] -= delta;
+			}
+			diceSwitchTimer -= delta;
+			if(diceSwitchTimer <= 0){
+				diceSwitchTimer += 83; //12 switches per second approximately
+				
+				boolean diceDone = true;
+				for(int i = 0; i < dice.length; i++){
+					if(diceTimers[i] > 0){
+						dice[i] = Risk.r.nextInt(6)+1;
+						diceDone = false;
+					}
+				}
+				if(diceDone){
+					diceDisplayCountdown = 1000;
+				}
+			}
+			
+			break;
 		}
 	}
 	
 	private void enterSetupMode(){
 		setupMode = 1;
-		List<BufferedImage> numberButtonTextures = r.generateNumberButtonTextures();
+		initSetupButtons();
+		armies = new ArrayList<Army>();
+	}
+	
+	private void initSetupButtons(){
+		List<BufferedImage> numberButtonTextures = generateNumberButtonTextures(r);
 		numberButtons = new ArrayList<Button>();
-		for(int i = 0; i < 6; i++){
- 		 	numberButtons.add(new Button(50 + 55 * i,650,numberButtonTextures.get(i)));
+		for(int i = 0; i < numberButtonTextures.size(); i++){
+ 		 	numberButtons.add(new Button(50 + 55 * i,650,numberButtonTextures.get(i),i+3));
 		}
 		System.out.println("number buttons initialized");
+		List<BufferedImage> colourButtonTextures = generateColourButtonTextures();
+		colourButtons = new ArrayList<Button>();
+		for(int i = 0; i < colourButtonTextures.size(); i++){
+			colourButtons.add(new Button(50 + 55 * i,650,colourButtonTextures.get(i),i));
+		}
 	}
 	
 	public void draw(Graphics2D g){
@@ -149,10 +190,33 @@ public class Game {
 		case 2: /*drawMainMode(g); */break;
 		}
 	}
+	Army a = new Army(4);
 	
 	private void drawSetupMode(Graphics2D g){
-		drawString(g,"Number of players: ",25,645,30,Color.RED);
+		Unit u = new Unit(23,a,map.getCountryById(33));
+		u.drawSelf(g);
+		
+		switch(setupMode){
+		case 1: 
+			drawString(g,"Number of players: ",25,645,30,Color.BLACK);
+			break;
+		case 2:
+			drawString(g,"Choose a colour", 25, 625,40,Color.BLACK);
+			drawString(g,"Player " + (turn+1) + ":", 30,645,30,Color.BLACK);
+			break;
+		case 3:
+			drawDice(g);
+			break;
+		}
+		
 		drawButtons(g);
+	}
+	
+	private void drawDice(Graphics2D g){
+		for(int i = 0; i < numPlayers; i++){
+			drawString(g,"Player " + (i + 1), 20 + 100 * i, 645, 25, armies.get(i).getColour());
+			g.drawImage(DiceTexture.getDieTexture(dice[i]), 30 + 100 * i, 660, null);
+		}
 	}
 	
 	public void drawMap(Graphics2D g){
@@ -200,7 +264,6 @@ public class Game {
 			for(Button b : this.getButtonList()){
 				draw(b,g);
 			}
-			
 		}
 	}
 	
@@ -222,11 +285,35 @@ public class Game {
 	}
 	
 	public void buttonClicked(Button b, int x,int y){
-		
+		switch(mode){
+		case 1:
+			switch(setupMode){
+			case 1: 
+				numPlayers = b.getId();
+				setupMode = 2; //Enter choose colour mode
+				turn = 0;
+				break;
+			case 2:
+				colourPicked(b);
+			}
+		}
 	}
 	
-	public void mouseClicked(int x,int y, int mouseButton){
-		
+	private void colourPicked(Button b){
+		colourButtons.remove(b);
+		armies.add(new Army(b.getId()));
+		turn++;
+		System.out.println(numPlayers);
+		if(turn == numPlayers){
+			setupMode = 3;
+			dice = new int[numPlayers];
+			diceTimers = new int[numPlayers];
+			for(int i = 0; i < diceTimers.length; i++){
+				diceTimers[i] = Risk.r.nextInt(2000) + 1500;
+			}
+			
+			firstTurnContenders = (List<Army>) ((ArrayList<Army>) armies).clone();
+		}
 	}
 	
 	public static void draw(Drawable d,Graphics g){
@@ -235,12 +322,62 @@ public class Game {
 		}
 	}
 	
+	public static void drawDie(Graphics2D g,int x,int y, int val){
+		g.drawImage(DiceTexture.getDieTexture(val), x,y,null);
+	}
+	
+	public List<BufferedImage> generateNumberButtonTextures(RiskCanvas riskCanvas){
+		final int width = 50;
+		final int height = 50;
+		
+		List<BufferedImage> textures = new ArrayList<BufferedImage>();
+		BufferedImage base = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		Graphics baseG = base.getGraphics();
+		baseG.setColor(Color.BLACK);
+		baseG.fillRoundRect(0, 0, width, height, 10, 10);
+		for(char i = '3'; i <= '6'; i++){
+			BufferedImage clone = Risk.cloneImage(base);
+			Graphics2D g = (Graphics2D) clone.getGraphics();
+			g.setColor(Color.DARK_GRAY);
+			g.fillRoundRect(5,5,40,40,10,10);
+			g.setFont(riskCanvas.army.deriveFont(50f));
+			g.setColor(Color.WHITE);
+			FontMetrics fm = g.getFontMetrics();
+			g.drawString(Character.toString(i),width/2 - fm.charWidth(i)/2,height / 2 + fm.getHeight()/3);
+			textures.add(clone);
+			System.out.println(i+"buttonmade");
+		}
+		
+		return textures;
+	}
+	
+	public List<BufferedImage> generateColourButtonTextures(){
+		final int width = 50;
+		final int height = 50;
+		
+		List<BufferedImage> textures = new ArrayList<BufferedImage>();
+		BufferedImage base = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		Graphics baseG = base.getGraphics();
+		baseG.setColor(Color.black);
+		baseG.fillRoundRect(0, 0, width, height, 10, 10);
+		for(int i = 0; i < 6; i++){
+			BufferedImage clone = Risk.cloneImage(base);
+			Graphics2D g = (Graphics2D) clone.getGraphics();
+			g.setColor(Army.getColorByType(i));
+			g.fillRoundRect(5,5,40,40,10,10);
+			
+			textures.add(clone);
+		}
+		return textures;
+	}
+	
 	// SETTERS AND GETTERS
 	public List<Button> getButtonList(){
 		switch(mode){
 		case 1:
 			switch(setupMode){
-			case 1: return numPlayers == 0 ? numberButtons.subList(2, 6) : numberButtons.subList(0,6-numPlayers);
+			case 1: return numberButtons;
+			case 2: return colourButtons;
 			}
 		}
 		return null;

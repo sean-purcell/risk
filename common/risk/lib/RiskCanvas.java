@@ -4,15 +4,12 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -33,21 +30,24 @@ public class RiskCanvas extends Canvas{
 	
 	private JFrame frame;
 	
-	private Game game;
+	public Game game;
 	
 	private Input input;
 	
-	private Font army;
+	public Font army;
 	private final String armyFontAddress = "resources/Ver_Army.ttf";
 	
 	public RiskCanvas(Game game,Input i){
 		frame = new JFrame("Risk");
 		
 		frame.getContentPane().add(this);
+		frame.setBounds(new Rectangle(1280,720));
+		frame.getContentPane().setBounds(0,0,1280,720);
 		this.setBounds(new Rectangle(1280,720));
 		
 		frame.pack();
 		frame.setVisible(true);
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		frame.setBackground(Color.WHITE);
@@ -75,6 +75,15 @@ public class RiskCanvas extends Canvas{
 	}
 	
 	public void paint(Graphics graphics){
+		if(frame.getContentPane().getBounds().getHeight() != 720){
+			Rectangle r = new Rectangle(1280,720);
+			frame.getContentPane().setBounds(r);
+			this.setBounds(r);
+			frame.pack();
+			System.out.println("Resized");
+		} //Ensures that the frame is at the correct size
+		
+		
 		if(ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0){
 			return;
 		}
@@ -96,27 +105,5 @@ public class RiskCanvas extends Canvas{
 	@Override
 	public boolean hasFocus(){
 		return frame.hasFocus() || super.hasFocus();
-	}
-	
-	public List<BufferedImage> generateNumberButtonTextures(){
-		final int width = 50;
-		final int height = 50;
-		
-		List<BufferedImage> textures = new ArrayList<BufferedImage>();
-		BufferedImage base = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
-		Graphics baseG = base.getGraphics();
-		baseG.setColor(Color.BLACK);
-		baseG.fillRoundRect(0, 0, width, height, 10, 10);
-		for(char i = '3'; i <= '6'; i++){
-			BufferedImage clone = Risk.cloneImage(base);
-			Graphics2D g = (Graphics2D) clone.getGraphics();
-			g.setFont(army.deriveFont(50f));
-			FontMetrics fm = g.getFontMetrics();
-			g.drawString(Character.toString(i),width/2 - fm.charWidth(i)/2,height / 2 + fm.getHeight()/3);
-			textures.add(clone);
-			System.out.println(i+"buttonmade");
-		}
-		
-		return textures;
 	}
 }
