@@ -12,44 +12,45 @@ import risk.game.Country;
 import risk.game.Game;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
-	
+
 	private static final String clickMapAddress = "resources/clickMap.png";
-	
+
 	/**
 	 * The id to be used when requesting locks from ThreadHandler
 	 */
 	private final int THREAD_ID = 2;
-	
+
 	private Game g;
-	
+
 	public int pastX;
 	public int pastY;
-	
+
 	private BufferedImage clickMap = Risk.loadImage(clickMapAddress);
-	
+
 	private Country lastC;
-	
-	public Input(Game g){
+
+	public Input(Game g) {
 		this.g = g;
 	}
-	
+
 	// SPECIFIC HANDLING METHODS
-	private Country getClickedCountry(int x,int y, boolean debug){
-		if(y <= 615){
+	private Country getClickedCountry(int x, int y, boolean debug) {
+		if (y <= 615) {
 			int colour = clickMap.getRGB(x, y);
-			colour += 0x1000000; //Shift values to match the range 0x000000 to 0xffffff
-			if(debug)
-				System.out.println(Integer.toString(colour,16));
+			colour += 0x1000000; // Shift values to match the range 0x000000 to
+									// 0xffffff
+			if (debug)
+				System.out.println(Integer.toString(colour, 16));
 			Country country = g.getMap().getCountryByColour(colour);
 			return country;
 		}
 		return null;
 	}
-	
-	private Button getClickedButton(int x,int y){
-		if(g.getButtonList() != null){
-			for(Button b : g.getButtonList()){
-				if(b.overlaps(x, y)){
+
+	private Button getClickedButton(int x, int y) {
+		if (g.getButtonList() != null) {
+			for (Button b : g.getButtonList()) {
+				if (b.overlaps(x, y)) {
 					System.out.println(b + " pressed");
 					return b;
 				}
@@ -57,26 +58,28 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		}
 		return null;
 	}
-	
+
 	// LISTENER METHOD IMPLMENTATIONS
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		//System.out.println("Mouse Dragged: " + "(" + pastX + "," + pastY + ") -> (" + e.getX() + "," + e.getY() + ")");
+		// System.out.println("Mouse Dragged: " + "(" + pastX + "," + pastY +
+		// ") -> (" + e.getX() + "," + e.getY() + ")");
 		this.pastX = e.getX();
 		this.pastY = e.getY();
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		//System.out.println("Mouse Moved: " + "(" + pastX + "," + pastY + ") -> (" + e.getX() + "," + e.getY() + ")");
+		// System.out.println("Mouse Moved: " + "(" + pastX + "," + pastY +
+		// ") -> (" + e.getX() + "," + e.getY() + ")");
 		this.pastX = e.getX();
 		this.pastY = e.getY();
-		Country c = getClickedCountry(pastX,pastY, false);
-		if(c != lastC){
+		Country c = getClickedCountry(pastX, pastY, false);
+		if (c != lastC) {
 			System.out.println(c);
 			lastC = c;
 		}
-		
+
 	}
 
 	@Override
@@ -84,14 +87,14 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		int x = e.getX();
 		int y = e.getY();
 		System.out.println("Mouse Clicked: (" + x + "," + y + ")");
-		if(e.getButton() == MouseEvent.BUTTON1){
-			Country c = getClickedCountry(x,y, true);
-			if(c != null){
-				g.countryClicked(c,x,y);
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			Country c = getClickedCountry(x, y, true);
+			if (c != null) {
+				g.countryClicked(c, x, y);
 				return;
 			}
-			Button b = getClickedButton(x,y);
-			if(b != null){
+			Button b = getClickedButton(x, y);
+			if (b != null) {
 				g.buttonClicked(b, x, y);
 				return;
 			}
@@ -100,37 +103,37 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
+
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		
+
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		
+
 	}
 
 }

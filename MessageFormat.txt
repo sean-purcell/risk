@@ -1,0 +1,12 @@
+Message format:
+
+NOTE: This message format depends intensely on synchronization between instances of the game connected to each other.  Discrepancies should not happen, and if they do would cause weird effects.
+
+first character indicates type of message:
+1: button pressed
+	next bytes indicate the id of the button pressed.
+2: country pressed
+	next bytes indicate the id of the country pressed
+3: miscellaneous game commands
+	format of these tbd
+0: serialized game state information.  only for use when loading a previous game 

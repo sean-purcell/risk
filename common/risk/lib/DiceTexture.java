@@ -10,69 +10,70 @@ import java.util.List;
 import risk.Risk;
 
 public class DiceTexture {
-	
+
 	private static BufferedImage[] dieTextures;
-	
-	//Initialize the dice textures
-	static{
+
+	// Initialize the dice textures
+	static {
 		final int width = 50;
 		final int height = 50;
-		
+
 		dieTextures = new BufferedImage[6];
-		
-		BufferedImage base = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
+
+		BufferedImage base = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
 		Graphics baseG = base.getGraphics();
 		baseG.setColor(Color.WHITE);
-		baseG.fillRect(0, 0, width,height);
+		baseG.fillRect(0, 0, width, height);
 		baseG.setColor(Color.BLACK);
-		baseG.drawRoundRect(0, 0, width-1, height-1, 10, 10);
-		
-		for(int i = 1; i <= 6; i++){
+		baseG.drawRoundRect(0, 0, width - 1, height - 1, 10, 10);
+
+		for (int i = 1; i <= 6; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
 			g.setColor(Color.BLACK);
-			drawDiceTexture(g,i);
-			
-			dieTextures[i-1] = clone;
-			System.out.println(i+"buttonmade");
+			drawDiceTexture(g, i);
+
+			dieTextures[i - 1] = clone;
+			System.out.println(i + "buttonmade");
 		}
 	}
-	
-	private static void drawDiceTexture(Graphics2D g,int i){
+
+	private static void drawDiceTexture(Graphics2D g, int i) {
 		System.out.println(i);
-		switch(i){
+		switch (i) {
 		case 1:
 			g.fillOval(20, 20, 10, 10);
 			break;
 		case 2:
-			g.fillOval(5,5,10,10);
-			g.fillOval(35,35,10,10);
+			g.fillOval(5, 5, 10, 10);
+			g.fillOval(35, 35, 10, 10);
 			break;
 		case 3:
-			g.fillOval(5,5,10,10);
-			g.fillOval(35,35,10,10);
+			g.fillOval(5, 5, 10, 10);
+			g.fillOval(35, 35, 10, 10);
 			g.fillOval(20, 20, 10, 10);
 			break;
 		case 5:
 			g.fillOval(20, 20, 10, 10);
 		case 4:
-			g.fillOval(5,5,10,10);
-			g.fillOval(35,35,10,10);
-			g.fillOval(5,35,10,10);
-			g.fillOval(35,5,10,10);
+			g.fillOval(5, 5, 10, 10);
+			g.fillOval(35, 35, 10, 10);
+			g.fillOval(5, 35, 10, 10);
+			g.fillOval(35, 5, 10, 10);
 			break;
 		case 6:
-			g.fillOval(5,5,10,10);
-			g.fillOval(35,35,10,10);
-			g.fillOval(5,35,10,10);
-			g.fillOval(35,5,10,10);
-			g.fillOval(5,20,10,10);
-			g.fillOval(35,20,10,10);
+			g.fillOval(5, 5, 10, 10);
+			g.fillOval(35, 35, 10, 10);
+			g.fillOval(5, 35, 10, 10);
+			g.fillOval(35, 5, 10, 10);
+			g.fillOval(5, 20, 10, 10);
+			g.fillOval(35, 20, 10, 10);
 			break;
 		}
 	}
-	
-	public static BufferedImage getDieTexture(int face){
-		return dieTextures[face-1];
+
+	public static BufferedImage getDieTexture(int face) {
+		return dieTextures[face - 1];
 	}
 }
