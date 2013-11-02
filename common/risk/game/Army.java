@@ -17,6 +17,7 @@ import risk.Risk;
  */
 public class Army {
 
+	/*
 	private static BufferedImage[] unadjustedUnitTextures;
 	private static final String[] unitTexturesAddress = {
 			"resources/soldier.png", "resources/tank.png", "resources/jet.png" };
@@ -31,6 +32,9 @@ public class Army {
 		}
 		soldierBattleTexture = Risk.loadImage(soldierBattleTextureAddress);
 	}
+	*/
+	
+	private static final Color ORANGE = new Color(224,158,0);
 
 	private List<Unit> units;
 
@@ -49,9 +53,10 @@ public class Army {
 	public Army(int type) {
 		units = new ArrayList<Unit>();
 		this.setType(type);
-		initUnitTextures();
+		//initUnitTextures();
 	}
 
+	/*
 	private void initUnitTextures() {
 		unitTextures = new BufferedImage[3][2];
 		for (int i = 0; i < 3; i++) {
@@ -64,6 +69,7 @@ public class Army {
 				this.getColour());
 		soldierDefender = Risk.flipImage(soldierAttacker, true, false);
 	}
+	*/
 
 	public int getFreeUnits() {
 		return freeUnits;
@@ -109,7 +115,7 @@ public class Army {
 			n = "GREEN";
 			break;
 		case 4:
-			n = "YELLOW";
+			n = "PURPLE";
 			break;
 		case 5:
 			n = "ORANGE";
@@ -141,7 +147,7 @@ public class Army {
 	public void setSoldierDefender(BufferedImage soldierDefender) {
 		this.soldierDefender = soldierDefender;
 	}
-
+	
 	public static Color getColorByType(int type) {
 		Color c = null;
 		switch (type) {
@@ -158,10 +164,10 @@ public class Army {
 			c = Color.GREEN.darker().darker();
 			break;
 		case 4:
-			c = Color.YELLOW.darker();
+			c = Color.MAGENTA;
 			break;
 		case 5:
-			c = Color.ORANGE.darker();
+			c = ORANGE;
 			break;
 		}
 		return c;

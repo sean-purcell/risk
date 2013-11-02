@@ -24,7 +24,7 @@ import risk.game.Unit;
  * @author Sean
  * 
  */
-public class RiskCanvas extends Canvas {
+public class RiskCanvas extends Canvas{
 
 	private static BufferedImage soldier;
 
@@ -36,6 +36,10 @@ public class RiskCanvas extends Canvas {
 
 	public Font army;
 	private final String armyFontAddress = "resources/Ver_Army.ttf";
+	
+	private BufferedImage buffer;
+	private Graphics2D bufferG;
+	
 
 	public RiskCanvas(Game game, Input i) {
 		frame = new JFrame("Risk");
@@ -49,7 +53,7 @@ public class RiskCanvas extends Canvas {
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		
 		frame.setBackground(Color.WHITE);
 
 		this.addMouseListener(i);
@@ -60,9 +64,12 @@ public class RiskCanvas extends Canvas {
 		this.input = i;
 		initFont();
 
+		buffer = new BufferedImage(1280,720, BufferedImage.TYPE_INT_ARGB);
+		bufferG = (Graphics2D) buffer.getGraphics();
+		
 		this.game = game;
 	}
-
+	
 	private void initFont() {
 		try {
 			this.army = Font.createFont(Font.TRUETYPE_FONT, new File(
@@ -75,7 +82,7 @@ public class RiskCanvas extends Canvas {
 		this.army = this.army.deriveFont(36f);
 	}
 
-	public void paint(Graphics graphics) {
+	public void paint(Graphics g) {
 		if (frame.getContentPane().getBounds().getHeight() != 720) {
 			Rectangle r = new Rectangle(1280, 720);
 			frame.getContentPane().setBounds(r);
@@ -87,17 +94,21 @@ public class RiskCanvas extends Canvas {
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
 			return;
 		}
-		Graphics2D g = null;
-		try {
-			g = (Graphics2D) graphics;
-		} catch (ClassCastException e) {
-			System.err.println("Graphics is not a Graphics2D instance");
-			return;
-		}
-		g.setFont(army);
-		game.draw(g);
+		g.drawImage(buffer, 0, 0, null);
 	}
 
+	public void createFrame(){ //Creates the frame all at once in an offscreen buffer to avoid screen flicker
+		bufferG.setColor(Color.WHITE);
+		bufferG.fillRect(0,0,1280,720);
+		bufferG.setFont(army);
+		
+		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
+			return;
+		}
+		
+		game.draw(bufferG);
+	}
+	
 	/**
 	 * Override of {@code Component.hasFocus}, checks if this canvas has focus
 	 * or if the underlying frame has focus

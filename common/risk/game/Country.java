@@ -182,4 +182,12 @@ public class Country implements Clickable {
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
 }

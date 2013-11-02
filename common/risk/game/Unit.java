@@ -59,7 +59,7 @@ public class Unit {
 
 	public void drawSelf(Graphics2D g, int x, int y) {
 		Font original = g.getFont();
-		g.setFont(sprites);
+		g.setFont(sprites.deriveFont(20f));
 		g.setColor(army.getColour());
 		spritesMetrics = g.getFontMetrics();
 
@@ -83,7 +83,7 @@ public class Unit {
 			int drawXOffset = ((i - tanks / 2)
 					* spritesMetrics.charWidth(images[1][index]) + 1);
 			if (planes != 0) {
-				drawXOffset += (drawXOffset < 0 ? -1 : 1) * 5;
+				drawXOffset += (drawXOffset < 0 ? -1 : 1) * 6;
 			}
 			int drawX = x + drawXOffset;
 			int drawY = y;
@@ -93,14 +93,14 @@ public class Unit {
 			int drawX = x
 					+ ((i - soldiers / 2)
 							* spritesMetrics.charWidth(images[0][index]) + 1);
-			int drawY = y + (planes != 0 || tanks != 0 ? 12 : 2);
+			int drawY = y + (planes != 0 || tanks != 0 ? 20 : 2);
 			g.drawString(Character.toString(images[0][index]), drawX, drawY);
 		}
 		for (int i = 0; i < planes; i++) {
 			int drawX = x
 					+ ((i - planes / 2)
 							* spritesMetrics.charWidth(images[2][index]) + 1);
-			int drawY = y - 6;
+			int drawY = y - 14;
 			g.drawString(Character.toString(images[2][index]), drawX, drawY);
 		}
 

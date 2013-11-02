@@ -105,7 +105,7 @@ public class Game {
 	 */
 	public void run() {
 		long lastTime = System.currentTimeMillis();
-		while (running) {
+		while (isRunning()) {
 			if (r.hasFocus()) { // Ensures that the game does not render when it
 								// is not in focus
 
@@ -120,7 +120,8 @@ public class Game {
 				// ThreadLocks.requestLock(ThreadLocks.UPDATE,THREAD_ID);
 				// Runs the update method with the given delta
 				this.update(delta);
-
+				
+				r.createFrame();
 				// Renders the game
 				r.repaint();
 
@@ -213,6 +214,7 @@ public class Game {
 		Risk.rotateList(armies, offset);
 		
 		setupMode = 4;
+		turn = 0;
 	}
 	
 	private void initSetupButtons() {
@@ -233,6 +235,7 @@ public class Game {
 
 	public void draw(Graphics2D g) {
 		drawMap(g);
+		drawUnits(g);
 		switch (mode) {
 		case 1:
 			drawSetupMode(g);
@@ -242,29 +245,39 @@ public class Game {
 		}
 	}
 
-	Army a = new Army(4);
+	public void drawUnits(Graphics2D g) {
+		for(Country c : map.getCountries()){
+			if(c != null && c.getUnit() != null){
+				c.getUnit().drawSelf(g);
+			}
+		}
+	}
 
 	private void drawSetupMode(Graphics2D g) {
-		Unit u = new Unit(23, a, map.getCountryById(33));
-		u.drawSelf(g);
-
 		switch (setupMode) {
 		case 1:
 			drawString(g, "Number of players: ", 30, 25, 645, Color.BLACK);
 			break;
 		case 2:
-			drawString(g, "Choose a colour", 40, 25, 625, Color.BLACK);
-			drawString(g, "Player " + (turn + 1) + ":", 30, 30, 645,
+			drawString(g, "Player " + (turn + 1), 40, 25, 625, Color.BLACK);
+			drawString(g, "Choose a colour", 30, 30, 645,
 					Color.BLACK);
 			break;
 		case 3:
 			drawDice(g);
 			break;
+		case 4:
+			drawTurn(g);
+			drawClaimTerritories(g);
 		}
 
 		drawButtons(g);
 	}
 
+	private void drawTurn(Graphics2D g){
+		drawString(g, armies.get(turn).getName(),40,25,625,armies.get(turn).getColour());
+	}
+	
 	private void drawDice(Graphics2D g) {
 		for (int i = 0; i < numPlayers; i++) {
 			if(firstTurnContenders[i]){
@@ -274,6 +287,10 @@ public class Game {
 						null);
 			}
 		}
+	}
+	
+	private void drawClaimTerritories(Graphics2D g){
+		drawString(g, "Claim an unclaimed territory.", 30, 30, 645, Color.BLACK);
 	}
 
 	public void drawMap(Graphics2D g) {
@@ -334,10 +351,28 @@ public class Game {
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
 
+	private void addUnit(int troops, Army a, Country c){
+		 //Due to the many pointers that must be consistent, this is the only method that should be used for creating units
+		Unit u = new Unit(troops, a, c);
+		a.getUnits().add(u);
+		c.setUnit(u);
+	}
+	
 	// INPUT HANDLING
 	public void countryClicked(Country c, int x, int y) {
-		if (mode == 1) {
-			return;
+		switch(mode){
+		case 1: countryClickedSetupMode(c); break;
+		}
+	}
+	
+	private void countryClickedSetupMode(Country c){
+		switch(setupMode){
+		case 4:
+			if(c.getUnit() == null){
+				this.addUnit(1,armies.get(turn), c);
+				turn++;
+				turn%=numPlayers;
+			}
 		}
 	}
 
@@ -495,5 +530,9 @@ public class Game {
 
 	public void setTurn(int turn) {
 		this.turn = turn;
+	}
+
+	public boolean isRunning() {
+		return running;
 	}
 }
