@@ -8,7 +8,7 @@ import java.util.List;
 import risk.Risk;
 
 /**
- * Represents an
+ * Represents an Army
  * 
  * @author Gabriel Ip
  * @author Sean Purcell
