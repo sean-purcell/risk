@@ -58,6 +58,10 @@ public class Game {
 	private int diceDisplayCountdown;
 	private boolean[] firstTurnContenders;
 
+	private int numTerritoriesClaimed;
+	
+	private int numSetupTroops;
+	
 	private int numPlayers;
 
 	private int turn;
@@ -217,6 +221,17 @@ public class Game {
 		turn = 0;
 	}
 	
+	private void enterSetupReinforcement(){
+		setupMode = 5;
+		turn = 0;
+		int startingTroops = (10 - numPlayers) * 5;
+		for(Army a : armies){
+			a.setFreeUnits(startingTroops);
+		}
+		
+		numSetupTroops = 3;
+	}
+	
 	private void initSetupButtons() {
 		List<BufferedImage> numberButtonTextures = generateNumberButtonTextures(r);
 		numberButtons = new ArrayList<Button>();
@@ -269,13 +284,18 @@ public class Game {
 		case 4:
 			drawTurn(g);
 			drawClaimTerritories(g);
+			break;
+		case 5:
+			drawTurn(g);
+			drawDeploySetupTroops(g);
+			break;
 		}
 
 		drawButtons(g);
 	}
 
 	private void drawTurn(Graphics2D g){
-		drawString(g, armies.get(turn).getName(),40,25,625,armies.get(turn).getColour());
+		drawString(g, currentArmy().getName(),40,25,625,armies.get(turn).getColour());
 	}
 	
 	private void drawDice(Graphics2D g) {
@@ -293,6 +313,11 @@ public class Game {
 		drawString(g, "Claim an unclaimed territory.", 30, 30, 645, Color.BLACK);
 	}
 
+	private void drawDeploySetupTroops(Graphics2D g){
+		drawString(g, "Deploy " + numSetupTroops + " troops.", 30, 30, 645, Color.BLACK);
+		drawString(g, "Troops left: " + currentArmy().getFreeUnits(), 30, 30, 665, Color.BLACK);
+	}
+	
 	public void drawMap(Graphics2D g) {
 		try {
 			g.drawImage(this.getMap().getTexture(), 0, 0, null);
@@ -304,13 +329,13 @@ public class Game {
 	public void drawArmyInfo(Graphics2D g) {
 
 		// g.drawString("ARMY FONT",100,650);
-		Army a = this.getCurrentArmy();
+		Army a = this.currentArmy();
 		g.setColor(a.getColour());
 		g.drawString(a.getName(), 50, 650);
 	}
 
 	public void drawReinforcements(Graphics2D g) {
-		Army a = this.getCurrentArmy();
+		Army a = this.currentArmy();
 		setFontSize(g, 20);
 		g.drawString("Free Troops: " + a.getFreeUnits(), 60, 680);
 	}
@@ -350,7 +375,7 @@ public class Game {
 	private void setFontSize(Graphics2D g, int fontSize) {
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
-
+	
 	private void addUnit(int troops, Army a, Country c){
 		 //Due to the many pointers that must be consistent, this is the only method that should be used for creating units
 		Unit u = new Unit(troops, a, c);
@@ -369,10 +394,25 @@ public class Game {
 		switch(setupMode){
 		case 4:
 			if(c.getUnit() == null){
-				this.addUnit(1,armies.get(turn), c);
-				turn++;
-				turn%=numPlayers;
+				this.addUnit(1,currentArmy(), c);
+				incrementTurn();
+				numTerritoriesClaimed++;
+				if(numTerritoriesClaimed == 42){
+					enterSetupReinforcement();
+				}
 			}
+			break;
+		case 5:
+			if(currentArmy() == c.getUnit().getArmy()){
+				c.getUnit().incrementTroops();
+				numSetupTroops--;
+				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
+				if(numSetupTroops == 0){
+					incrementTurn();
+					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
+				}
+			}
+			break;
 		}
 	}
 
@@ -482,6 +522,11 @@ public class Game {
 		
 	}
 	
+	private void incrementTurn(){
+		turn++;
+		turn%=numPlayers;
+	}
+	
 	// SETTERS AND GETTERS
 	public List<Button> getButtonList() {
 		switch (mode) {
@@ -515,8 +560,8 @@ public class Game {
 	public List<Army> getArmies() {
 		return armies;
 	}
-
-	public Army getCurrentArmy() {
+	
+	public Army currentArmy(){
 		return armies.get(turn);
 	}
 

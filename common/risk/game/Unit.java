@@ -57,6 +57,7 @@ public class Unit {
 		this.drawSelf(g, location.getX(), location.getY());
 	}
 
+	//Big ugly method that draws a unit to the given graphics context
 	public void drawSelf(Graphics2D g, int x, int y) {
 		Font original = g.getFont();
 		g.setFont(sprites.deriveFont(20f));
@@ -107,6 +108,18 @@ public class Unit {
 		g.setFont(original);
 	}
 
+	public int getTroops(){
+		return troops;
+	}
+	
+	public void incrementTroops(){
+		this.incrementTroops(1);
+	}
+	
+	public void incrementTroops(int i){
+		troops += i;
+	}
+	
 	public Country getLocation() {
 		return location;
 	}
