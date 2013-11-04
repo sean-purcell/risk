@@ -248,6 +248,10 @@ public class Game {
 		}
 	}
 
+	private void enterGamePhase(){
+		
+	}
+	
 	public void draw(Graphics2D g) {
 		drawMap(g);
 		drawUnits(g);
@@ -410,6 +414,9 @@ public class Game {
 				if(numSetupTroops == 0){
 					incrementTurn();
 					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
+				}
+				if(this.turn == numPlayers - 1 && currentArmy().getFreeUnits() == 0){
+					enterGamePhase();
 				}
 			}
 			break;
