@@ -51,9 +51,11 @@ public class Game {
 	
 	/**
 	 * Current part of the game<br>
-	 * 1. Deploy begin turn reinforcements
-	 * 2. Select attack
-	 * 3. 
+	 * 1. Deploy begin turn reinforcements<br>
+	 * 2. No country selected<br>
+	 * 3. Country selected<br>
+	 * 4. Select country to attack<br>
+	 * 5. Battle<br>
 	 */
 	private int gameMode;
 
@@ -98,10 +100,6 @@ public class Game {
 		this.armies = new ArrayList<Army>();
 		mode = 1;
 		running = true;
-		fabricateArmies();
-		int a = 1;
-		if (a == 1)
-			;
 	}
 
 	private void fabricateArmies() {
@@ -234,15 +232,16 @@ public class Game {
 		
 		setupMode = 4;
 		turn = 0;
+		
+		int startingTroops = (10 - numPlayers) * 5;
+		for(Army a : armies){
+			a.setFreeUnits(startingTroops);
+		}
 	}
 	
 	private void enterSetupReinforcement(){
 		setupMode = 5;
 		turn = 0;
-		int startingTroops = (10 - numPlayers) * 5;
-		for(Army a : armies){
-			a.setFreeUnits(startingTroops);
-		}
 		
 		numSetupTroops = 3;
 	}
@@ -422,6 +421,7 @@ public class Game {
 				this.addUnit(1,currentArmy(), c);
 				incrementTurn();
 				numTerritoriesClaimed++;
+				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
 				if(numTerritoriesClaimed == 42){
 					enterSetupReinforcement();
 				}

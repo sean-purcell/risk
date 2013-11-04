@@ -24,7 +24,7 @@ public class ThreadLocks {
 	 * @return
 	 */
 	public static int getNumLocks() {
-		Class c = ThreadLocks.class;
+		Class<ThreadLocks> c = ThreadLocks.class;
 		Field[] fields = c.getFields();
 		int numLocks = 0;
 		for (Field f : fields) {
