@@ -530,12 +530,26 @@ public class Game {
 		switch(t){
 		//hexadecimal used because it seemed fitting
 		case 0x1: parseButtonMessage(message.substring(1),source); break;
-		case 0x2: 
+		case 0x2: parseCountryMessage(message.substring(1),source); break;
 		}
 	}
 	
 	private void parseButtonMessage(String str,int source){
+		int i = str.charAt(0);
+		Button clicked = null;
+		for(Button b : getButtonList()){
+			if(b.getId() == i){
+				clicked = b;
+				break;
+			}
+		}
+		buttonClicked(clicked,0,0);
 		
+	}
+	
+	private void parseCountryMessage(String str,int source){
+		int i = Integer.parseInt(str.substring(0,2));
+		countryClicked(map.getCountryById(i),0,0);
 	}
 	
 	private void incrementTurn(){

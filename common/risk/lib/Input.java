@@ -90,12 +90,17 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Country c = getClickedCountry(x, y, true);
 			if (c != null) {
-				g.countryClicked(c, x, y);
+				//g.countryClicked(c, x, y);
+				String message = "" + (char) 2;
+				message += (c.getId() < 10 ? "0" : "") + Integer.toString(c.getId());
+				g.message(message, 1);
 				return;
 			}
 			Button b = getClickedButton(x, y);
 			if (b != null) {
-				g.buttonClicked(b, x, y);
+				String message = "" + (char) 1;
+				message += (char) b.getId();
+				g.message(message, 1);
 				return;
 			}
 		}
