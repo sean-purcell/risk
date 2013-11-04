@@ -519,6 +519,15 @@ public class Game {
 	 * @param source
 	 */
 	public void message(String message, int source){
+		int t = message.charAt(0);
+		switch(t){
+		//hexadecimal used because it seemed fitting
+		case 0x1: parseButtonMessage(message.substring(1),source); break;
+		case 0x2: 
+		}
+	}
+	
+	private void parseButtonMessage(String str,int source){
 		
 	}
 	
