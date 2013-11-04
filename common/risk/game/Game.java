@@ -48,6 +48,14 @@ public class Game {
 	 * 5. Deploy reinforcements
 	 */
 	private int setupMode;
+	
+	/**
+	 * Current part of the game<br>
+	 * 1. Deploy begin turn reinforcements
+	 * 2. Select attack
+	 * 3. 
+	 */
+	private int gameMode;
 
 	private List<Button> numberButtons;
 	private List<Button> colourButtons;
@@ -142,6 +150,9 @@ public class Game {
 		case 1:
 			updateSetupMode(delta);
 			break;
+		case 2:
+			updateGameMode(delta);
+			break;
 		}
 	}
 
@@ -154,6 +165,10 @@ public class Game {
 			updateSetupDice(delta);
 			break;
 		}
+	}
+	
+	private void updateGameMode(int delta){
+		
 	}
 
 	private void enterSetupMode() {
@@ -249,7 +264,8 @@ public class Game {
 	}
 
 	private void enterGamePhase(){
-		
+		mode = 2;
+		setupMode = 0;
 	}
 	
 	public void draw(Graphics2D g) {
@@ -259,7 +275,8 @@ public class Game {
 		case 1:
 			drawSetupMode(g);
 			break;
-		case 2: /* drawMainMode(g); */
+		case 2: 
+			drawMainMode(g);
 			break;
 		}
 	}
@@ -298,6 +315,10 @@ public class Game {
 		drawButtons(g);
 	}
 
+	private void drawMainMode(Graphics2D g){
+		
+	}
+	
 	private void drawTurn(Graphics2D g){
 		drawString(g, currentArmy().getName(),40,25,625,armies.get(turn).getColour());
 	}
@@ -544,7 +565,6 @@ public class Game {
 			}
 		}
 		buttonClicked(clicked,0,0);
-		
 	}
 	
 	private void parseCountryMessage(String str,int source){
