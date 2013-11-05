@@ -294,7 +294,7 @@ public class Game {
 			drawSetupMode(g);
 			break;
 		case 2: 
-			drawMainMode(g);
+			drawGameMode(g);
 			break;
 		}
 	}
@@ -333,8 +333,13 @@ public class Game {
 		drawButtons(g);
 	}
 
-	private void drawMainMode(Graphics2D g){
-		
+	private void drawGameMode(Graphics2D g){
+		drawTurn(g);
+		switch(gameMode){
+		case 1: 
+			drawFreeTroops(g);
+			break;
+		}
 	}
 	
 	private void drawTurn(Graphics2D g){
@@ -451,12 +456,12 @@ public class Game {
 				c.getUnit().incrementTroops();
 				numSetupTroops--;
 				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
+				if(this.turn == numPlayers - 1 && currentArmy().getFreeUnits() == 0){
+					enterGamePhase();
+				}
 				if(numSetupTroops == 0){
 					incrementTurn();
 					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
-				}
-				if(this.turn == numPlayers - 1 && currentArmy().getFreeUnits() == 0){
-					enterGamePhase();
 				}
 			}
 			break;
