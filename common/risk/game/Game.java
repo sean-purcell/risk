@@ -374,18 +374,9 @@ public class Game {
 		}
 	}
 
-	public void drawArmyInfo(Graphics2D g) {
-
-		// g.drawString("ARMY FONT",100,650);
-		Army a = this.currentArmy();
-		g.setColor(a.getColour());
-		g.drawString(a.getName(), 50, 650);
-	}
-
 	public void drawReinforcements(Graphics2D g) {
 		Army a = this.currentArmy();
-		setFontSize(g, 20);
-		g.drawString("Free Troops: " + a.getFreeUnits(), 60, 680);
+		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 20, 60, 680, Color.BLACK);
 	}
 
 	private void drawConnections(Graphics2D g) {
