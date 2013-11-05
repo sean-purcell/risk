@@ -5,8 +5,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import risk.Risk;
-
 /**
  * Represents an Army
  * 
@@ -16,61 +14,56 @@ import risk.Risk;
  * 
  */
 public class Army {
-
-	/*
-	private static BufferedImage[] unadjustedUnitTextures;
-	private static final String[] unitTexturesAddress = {
-			"resources/soldier.png", "resources/tank.png", "resources/jet.png" };
-
-	private static BufferedImage soldierBattleTexture;
-	private static final String soldierBattleTextureAddress = "resources/soldierBattle.png";
-
-	static {
-		unadjustedUnitTextures = new BufferedImage[3];
-		for (int i = 0; i < 3; i++) {
-			unadjustedUnitTextures[i] = Risk.loadImage(unitTexturesAddress[i]);
-		}
-		soldierBattleTexture = Risk.loadImage(soldierBattleTextureAddress);
-	}
-	*/
 	
-	private static final Color ORANGE = new Color(224,158,0);
-
+	// Colour constants for when java.awt.Color does not have a good enough colour
+	private static final Color ORANGE = new Color(224,158,  0);
+	private static final Color PURPLE = new Color(153, 17,153);
+	private static final Color GREEN  = Color.GREEN.darker().darker();
+	
 	private List<Unit> units;
 
 	private int freeUnits;
-
+	
 	/**
-	 * The type of this army: 0 = Red 1 = Blue 2 = Grey 3 = Green 4 = Yellow 5 =
+	 * The type of this army: 0 = Red 1 = Blue 2 = Grey 3 = Green 4 = Purple 5 =
 	 * Orange
 	 */
 	private int type;
 
-	private BufferedImage[][] unitTextures;
+	/**
+	 * Pointer to the game object to get necessary data
+	 */
+	private Game g;
+	
 	private BufferedImage soldierAttacker;
 	private BufferedImage soldierDefender;
 
-	public Army(int type) {
+	public Army(int type, Game g) {
 		units = new ArrayList<Unit>();
 		this.setType(type);
-		//initUnitTextures();
+		this.g = g;
 	}
 
-	/*
-	private void initUnitTextures() {
-		unitTextures = new BufferedImage[3][2];
-		for (int i = 0; i < 3; i++) {
-			unitTextures[i][0] = Risk.changeImageColour(
-					unadjustedUnitTextures[i], this.getColour());
-			unitTextures[i][1] = Risk
-					.flipImage(unitTextures[i][0], true, false);
+	public int calculateContinentBonus(){
+		int bonus = 0;
+		Map map = g.getMap();
+		int numContinents = map.getNumContinents();
+		for(int i = 0; i < numContinents; i++){
+			boolean ownAll = true;
+			List<Country> cont = map.getContinent(i+1);
+			for(int j = 0; j < cont.size() && ownAll; j++){
+				if(cont.get(j).getUnit().getArmy() != this){
+					ownAll = false;
+				}
+			}
+			if(ownAll){
+				bonus += map.getContinentBonus(i+1);
+			}
 		}
-		soldierAttacker = Risk.changeImageColour(soldierBattleTexture,
-				this.getColour());
-		soldierDefender = Risk.flipImage(soldierAttacker, true, false);
+		System.out.println("Bonus: " + bonus);
+		return bonus;
 	}
-	*/
-
+	
 	public int getFreeUnits() {
 		return freeUnits;
 	}
@@ -96,7 +89,7 @@ public class Army {
 	}
 
 	public Color getColour() {
-		return this.getColorByType(type);
+		return getColorByType(type);
 	}
 
 	public String getName() {
@@ -122,14 +115,6 @@ public class Army {
 			break;
 		}
 		return n;
-	}
-
-	public BufferedImage[][] getUnitTextures() {
-		return unitTextures;
-	}
-
-	public void setUnitTextures(BufferedImage[][] unitTextures) {
-		this.unitTextures = unitTextures;
 	}
 
 	public BufferedImage getSoldierAttacker() {
@@ -161,10 +146,10 @@ public class Army {
 			c = Color.DARK_GRAY;
 			break;
 		case 3:
-			c = Color.GREEN.darker().darker();
+			c = GREEN;
 			break;
 		case 4:
-			c = Color.MAGENTA;
+			c = PURPLE;
 			break;
 		case 5:
 			c = ORANGE;

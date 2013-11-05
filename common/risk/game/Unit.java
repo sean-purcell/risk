@@ -64,8 +64,6 @@ public class Unit {
 		g.setColor(army.getColour());
 		spritesMetrics = g.getFontMetrics();
 
-		BufferedImage[][] sprites = army.getUnitTextures();
-
 		int troopsLeft = troops; // Represents the number of troops left to be
 									// accounted for
 		int planes = troopsLeft / JET_TROOPS;
@@ -80,6 +78,7 @@ public class Unit {
 		// arrays, else the second
 		int index = dir == 1 ? 0 : 1;
 
+		g.setFont(sprites.deriveFont(17f));
 		for (int i = 0; i < tanks; i++) {
 			int drawXOffset = ((i - tanks / 2)
 					* spritesMetrics.charWidth(images[1][index]) + 1);
@@ -90,6 +89,7 @@ public class Unit {
 			int drawY = y;
 			g.drawString(Character.toString(images[1][index]), drawX, drawY);
 		}
+		g.setFont(sprites.deriveFont(20f));
 		for (int i = 0; i < soldiers; i++) {
 			int drawX = x
 					+ ((i - soldiers / 2)

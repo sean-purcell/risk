@@ -98,7 +98,7 @@ public class Country implements Clickable {
 	 */
 	private List<Country> connections;
 
-	public Country(int id) {
+	public Country(int id, Map m) {
 		this.id = id;
 		System.out.println("Constructing country with id: " + id);
 		this.name = countryData.getProperty("c" + id + "name");
@@ -115,6 +115,7 @@ public class Country implements Clickable {
 					+ "not complete.");
 		}
 
+		this.map = m;
 		connections = new ArrayList<Country>();
 	}
 
@@ -189,5 +190,9 @@ public class Country implements Clickable {
 
 	public void setUnit(Unit unit) {
 		this.unit = unit;
+	}
+
+	protected static Properties getCountryData() {
+		return countryData;
 	}
 }

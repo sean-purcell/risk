@@ -109,12 +109,6 @@ public class Game {
 		running = true;
 	}
 
-	private void fabricateArmies() {
-		armies.add(new Army(0));
-		armies.add(new Army(1));
-		armies.add(new Army(2));
-	}
-
 	// MAIN GAME LOOP AND RELATED MISC
 
 	/**
@@ -177,7 +171,11 @@ public class Game {
 	}
 	
 	private void updateGameMode(int delta){
-		
+		switch(gameMode){
+		case 0: gameMode = 1;
+		case 1:
+			break;
+		}
 	}
 
 	private void enterSetupMode() {
@@ -186,15 +184,28 @@ public class Game {
 		armies = new ArrayList<Army>();
 	}
 	
+	private void enterNextTurn(){
+		incrementTurn();
+		currentArmy().setFreeUnits(calculateReinforcements());
+	}
+	
+	private int calculateReinforcements(){
+		int reinforcements = 0;
+		reinforcements += Math.max(3, currentArmy().getUnits().size());
+		reinforcements += currentArmy().calculateContinentBonus();
+		
+		return reinforcements;
+	}
+	
 	private void updateSetupDice(int delta) {
 		if (diceDisplayCountdown > 0) {
-			diceDisplayUpdate(delta);
-		} else {
 			diceDisplayDone(delta);
+		} else {
+			diceDisplayUpdate(delta);
 		}
 	}
 	
-	private void diceDisplayUpdate(int delta){
+	private void diceDisplayDone(int delta){
 		diceDisplayCountdown -= delta;
 		if (diceDisplayCountdown <= 0) {
 			int max = 0;
@@ -205,7 +216,7 @@ public class Game {
 			}
 			int first = -1;
 			for(int i = 0; i < numPlayers; i++){
-				if(dice[i] != max){
+				if(dice[i] != max || !firstTurnContenders[i]){
 					firstTurnContenders[i] = false;
 				}else{
 					diceTimers[i] = Risk.r.nextInt(2000) + 1500;
@@ -222,7 +233,7 @@ public class Game {
 		}
 	}
 	
-	private void diceDisplayDone(int delta){
+	private void diceDisplayUpdate(int delta){
 		for (int i = 0; i < diceTimers.length; i++) {
 			diceTimers[i] -= delta;
 		}
@@ -284,6 +295,10 @@ public class Game {
 	private void enterGamePhase(){
 		mode = 2;
 		setupMode = 0;
+		
+		turn = -1;
+		
+		enterNextTurn();
 	}
 	
 	public void draw(Graphics2D g) {
@@ -337,7 +352,7 @@ public class Game {
 		drawTurn(g);
 		switch(gameMode){
 		case 1: 
-			drawFreeTroops(g);
+			drawReinforcements(g);
 			break;
 		}
 	}
@@ -376,7 +391,7 @@ public class Game {
 
 	public void drawReinforcements(Graphics2D g) {
 		Army a = this.currentArmy();
-		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 20, 60, 680, Color.BLACK);
+		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 30, 30, 645, Color.BLACK);
 	}
 
 	private void drawConnections(Graphics2D g) {
@@ -409,10 +424,6 @@ public class Game {
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 		g.setColor(c);
 		g.drawString(str, x, y);
-	}
-
-	private void setFontSize(Graphics2D g, int fontSize) {
-		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
 	
 	private void addUnit(int troops, Army a, Country c){
@@ -476,7 +487,7 @@ public class Game {
 
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
-		armies.add(new Army(b.getId()));
+		armies.add(new Army(b.getId(),this));
 		turn++;
 		System.out.println(numPlayers);
 		if (turn == numPlayers) {
@@ -488,7 +499,6 @@ public class Game {
 			
 			for (int i = 0; i < numPlayers; i++) {
 				diceTimers[i] = Risk.r.nextInt(2000) + 1500;
-				
 				firstTurnContenders[i] = true;
 			}
 
