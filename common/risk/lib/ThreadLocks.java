@@ -13,7 +13,11 @@ import java.lang.reflect.Modifier;
  */
 public class ThreadLocks {
 
-	public static final int UPDATE = 0;
+	
+	// Should be held while writing or reading core game state
+	public static final int GAME_STATE = 0;
+	
+	// Should be held while initializing game resources when the game starts
 	public static final int INIT_RESOURCES = 1;
 
 	public static int[] locks = new int[getNumLocks()];
@@ -36,13 +40,15 @@ public class ThreadLocks {
 		return numLocks;
 	}
 
-	public static void requestLock(int lock, int threadId) {
+	public synchronized static void requestLock(int lock, int threadId) {
 		if (locks[lock] == threadId) {
 			return;
 		}
-
+		
 		// Wait for the lock to become available
 		while (locks[lock] != 0)
+			// For debug purposes
+			System.out.println("I am: " + threadId + ";Waiting on lock held by: " + locks[lock]);
 			;
 		locks[lock] = threadId;
 		return;

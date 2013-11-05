@@ -25,6 +25,11 @@ import risk.lib.ThreadLocks;
 public class Risk {
 
 	/**
+	 * The unique id used to hold a lock while loading resources
+	 */
+	public static final int THREAD_ID = 0x10;
+	
+	/**
 	 * The Game object, representing the main game logic
 	 */
 	public static Game g;

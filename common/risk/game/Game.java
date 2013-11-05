@@ -14,6 +14,7 @@ import risk.lib.DiceTexture;
 import risk.lib.Drawable;
 import risk.lib.Input;
 import risk.lib.RiskCanvas;
+import risk.lib.ThreadLocks;
 
 /**
  * Represents the main game logic and loops
@@ -25,8 +26,14 @@ import risk.lib.RiskCanvas;
  */
 public class Game {
 
-	private final int THREAD_ID = 1;
+	private final int UPDATE_THREAD_ID = 1;
+	
+	// This offset will be added to the "source" part of a message to determine
+	// the number for the lock
+	private final int INPUT_ID_OFFSET = 0x100;
 
+	private final int UPDATE_RATE = 32;
+	
 	private RiskCanvas r;
 	private Input i;
 
@@ -127,17 +134,21 @@ public class Game {
 					setFps(1000 / delta);
 				} catch (ArithmeticException e) {
 				}
-				// ThreadLocks.requestLock(ThreadLocks.UPDATE,THREAD_ID);
+				
+				// Request lock on GAME_STATE lock to update and render
+				ThreadLocks.requestLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);
 				// Runs the update method with the given delta
 				this.update(delta);
 				
+				// Create the offscreen buffer containing the frame to be rendered
 				r.createFrame();
+				// Release lock now that we're done with it 
+				ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);
+				
 				// Renders the game
 				r.repaint();
-
-				// ThreadLocks.releaseLock(ThreadLocks.UPDATE,THREAD_ID);
 				// Limits the game to 30 fps
-				while (System.currentTimeMillis() - time <= 32)
+				while (System.currentTimeMillis() - time <= UPDATE_RATE)
 					;
 			}
 		}
@@ -177,49 +188,57 @@ public class Game {
 	
 	private void updateSetupDice(int delta) {
 		if (diceDisplayCountdown > 0) {
-			diceDisplayCountdown -= delta;
-			if (diceDisplayCountdown <= 0) {
-				int max = 0;
-				for (int i = 0; i < numPlayers; i++) {
-					if (dice[i] > max) {
-						max = dice[i];
-					}
-				}
-				int first = -1;
-				for(int i = 0; i < numPlayers; i++){
-					if(dice[i] != max){
-						firstTurnContenders[i] = false;
-					}else{
-						diceTimers[i] = Risk.r.nextInt(2000) + 1500;
-						if(first == -1){ //No one else has won yet
-							first = i; //Indicates that that player won the dice roll
-						}else{
-							first = -2; //Indicates that there is more than one army with the max dice number
-						}
-					}
-				}
-				if(first >= 0){
-					enterTerritoryAllocateMode(first);
-				}
-			}
+			diceDisplayUpdate(delta);
 		} else {
-			for (int i = 0; i < diceTimers.length; i++) {
-				diceTimers[i] -= delta;
+			diceDisplayDone(delta);
+		}
+	}
+	
+	private void diceDisplayUpdate(int delta){
+		diceDisplayCountdown -= delta;
+		if (diceDisplayCountdown <= 0) {
+			int max = 0;
+			for (int i = 0; i < numPlayers; i++) {
+				if (dice[i] > max) {
+					max = dice[i];
+				}
 			}
-			diceSwitchTimer -= delta;
-			if (diceSwitchTimer <= 0) {
-				diceSwitchTimer += 83; // 12 switches per second approximately
-
-				boolean diceDone = true;
-				for (int i = 0; i < dice.length; i++) {
-					if (diceTimers[i] > 0 && firstTurnContenders[i]) {
-						dice[i] = Risk.r.nextInt(6) + 1;
-						diceDone = false;
+			int first = -1;
+			for(int i = 0; i < numPlayers; i++){
+				if(dice[i] != max){
+					firstTurnContenders[i] = false;
+				}else{
+					diceTimers[i] = Risk.r.nextInt(2000) + 1500;
+					if(first == -1){ //No one else has won yet
+						first = i; //Indicates that that player won the dice roll
+					}else{
+						first = -2; //Indicates that there is more than one army with the max dice number
 					}
 				}
-				if (diceDone) {
-					diceDisplayCountdown = 1000;
+			}
+			if(first >= 0){
+				enterTerritoryAllocateMode(first);
+			}
+		}
+	}
+	
+	private void diceDisplayDone(int delta){
+		for (int i = 0; i < diceTimers.length; i++) {
+			diceTimers[i] -= delta;
+		}
+		diceSwitchTimer -= delta;
+		if (diceSwitchTimer <= 0) {
+			diceSwitchTimer += 83; // 12 switches per second approximately
+
+			boolean diceDone = true;
+			for (int i = 0; i < dice.length; i++) {
+				if (diceTimers[i] > 0 && firstTurnContenders[i]) {
+					dice[i] = Risk.r.nextInt(6) + 1;
+					diceDone = false;
 				}
+			}
+			if (diceDone) {
+				diceDisplayCountdown = 1000;
 			}
 		}
 	}
@@ -547,12 +566,17 @@ public class Game {
 	 * @param source
 	 */
 	public void message(String message, int source){
+		
+		// Request the GAME_STATE lock to avoid concurrency issues 
+		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
 		int t = message.charAt(0);
 		switch(t){
 		//hexadecimal used because it seemed fitting
 		case 0x1: parseButtonMessage(message.substring(1),source); break;
 		case 0x2: parseCountryMessage(message.substring(1),source); break;
 		}
+		
+		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
 	}
 	
 	private void parseButtonMessage(String str,int source){

@@ -102,6 +102,7 @@ public class RiskCanvas extends Canvas{
 		bufferG.fillRect(0,0,1280,720);
 		bufferG.setFont(army);
 		
+		// If resources have not been initialized yet, don't draw
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
 			return;
 		}
