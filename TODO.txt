@@ -1,2 +1,2 @@
 TODO:
-Make basic card outline texture
+Need end turn button texture, around 50x50 pixels
