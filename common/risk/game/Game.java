@@ -86,6 +86,12 @@ public class Game {
 	private List<Army> armies;
 
 	/**
+	 * Applicable during attack and reinforce.  
+	 * Represents the currently selectedCountry army.
+	 */
+	private Country selectedCountry;
+	
+	/**
 	 * Set to false if the game should exit
 	 */
 	private boolean running;
@@ -191,7 +197,7 @@ public class Game {
 	
 	private int calculateReinforcements(){
 		int reinforcements = 0;
-		reinforcements += Math.max(3, currentArmy().getUnits().size());
+		reinforcements += Math.max(3, currentArmy().getUnits().size()/3);
 		reinforcements += currentArmy().calculateContinentBonus();
 		
 		return reinforcements;
@@ -436,7 +442,12 @@ public class Game {
 	// INPUT HANDLING
 	public void countryClicked(Country c, int x, int y) {
 		switch(mode){
-		case 1: countryClickedSetupMode(c); break;
+		case 1:
+			countryClickedSetupMode(c);
+			break;
+		case 2:
+			countryClickedGameMode(c);
+			break;
 		}
 	}
 	
@@ -455,11 +466,11 @@ public class Game {
 			break;
 		case 5:
 			if(currentArmy() == c.getUnit().getArmy()){
-				c.getUnit().incrementTroops();
+				addTroop(c);
 				numSetupTroops--;
-				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
 				if(this.turn == numPlayers - 1 && currentArmy().getFreeUnits() == 0){
 					enterGamePhase();
+					break;
 				}
 				if(numSetupTroops == 0){
 					incrementTurn();
@@ -470,6 +481,23 @@ public class Game {
 		}
 	}
 
+	private void countryClickedGameMode(Country c){
+		switch(gameMode){
+		case 1:
+			if(currentArmy() == c.getUnit().getArmy()){
+				this.addTroop(c);
+				if(currentArmy().getFreeUnits() == 0){
+					gameMode++;
+				}
+			}
+			break;
+		case 2:
+			if(currentArmy() == c.getUnit().getArmy()){
+				selectedCountry = c;
+			}
+		}
+	}
+	
 	public void buttonClicked(Button b, int x, int y) {
 		switch (mode) {
 		case 1:
@@ -505,6 +533,12 @@ public class Game {
 		}
 	}
 
+	private void addTroop(Country c){
+		c.getUnit().incrementTroops();
+		c.getUnit().getArmy().setFreeUnits(c.getUnit().getArmy().getFreeUnits() - 1);
+
+	}
+	
 	public static void draw(Drawable d, Graphics g) {
 		if (d.getTexture() != null) {
 			g.drawImage(d.getTexture(), d.getX(), d.getY(), null);
@@ -617,6 +651,15 @@ public class Game {
 			case 2:
 				return colourButtons;
 			}
+			break;
+		case 2: 
+			switch(gameMode){
+			case 1:
+			case 2:
+			case 3:
+				break;
+			}
+			break;
 		}
 		return null;
 	}
