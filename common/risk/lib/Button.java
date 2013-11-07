@@ -2,7 +2,7 @@ package risk.lib;
 
 import java.awt.image.BufferedImage;
 
-public class Button implements Clickable, Drawable {
+public class Button implements Drawable {
 
 	private int x;
 	private int y;
@@ -19,7 +19,6 @@ public class Button implements Clickable, Drawable {
 		this.id = id;
 	}
 
-	@Override
 	public boolean overlaps(int x, int y) {
 		return this.x <= x && this.x + texture.getWidth(null) > x
 				&& this.y <= y && this.y + texture.getHeight(null) > y;

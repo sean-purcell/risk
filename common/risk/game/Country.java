@@ -1,5 +1,6 @@
 package risk.game;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import risk.lib.Clickable;
+import risk.Risk;
 
-public class Country implements Clickable {
+public class Country{
 
 	private static Properties countryData;
 	private static final String countryDataAddress = "resources/territoryData.properties";
@@ -68,6 +69,11 @@ public class Country implements Clickable {
 	private Map map;
 
 	/**
+	 * The Image representing the outlined country
+	 */
+	private BufferedImage texture;
+	
+	/**
 	 * The unit currently occupying this country
 	 */
 	private Unit unit;
@@ -88,6 +94,11 @@ public class Country implements Clickable {
 	private int clickColour;
 
 	/**
+	 * Self explanatory
+	 */
+	private int continent;
+	
+	/**
 	 * Represents the locations on the board where units should be drawn
 	 */
 	private int x;
@@ -107,6 +118,9 @@ public class Country implements Clickable {
 				countryData.getProperty("c" + id + "colour"), 16);
 		System.out.println(Integer.toString(this.clickColour, 16));
 
+		this.continent = Integer.parseInt(
+				countryData.getProperty("c" + id + "cont"));
+		
 		try {
 			this.x = Integer.parseInt(countryData.getProperty("c" + id + "x"));
 			this.y = Integer.parseInt(countryData.getProperty("c" + id + "y"));
@@ -115,10 +129,27 @@ public class Country implements Clickable {
 					+ "not complete.");
 		}
 
+		{
+			String textureAddress = "resources/countries/";
+			textureAddress += m.getContinentColor(continent) + "/";
+			textureAddress += canonicalize(name) + ".png";
+			texture = Risk.loadImage(textureAddress);
+		}
+		
 		this.map = m;
 		connections = new ArrayList<Country>();
 	}
 
+	private String canonicalize(String str){
+		str = str.toLowerCase();
+		for(int i = str.length()-1; i >= 0; i++){
+			if(str.charAt(i) == '\''){
+				str = str.substring(0,i) + str.substring(i+1);
+			}
+		}
+		return str;
+	}
+	
 	public void initConnections(Map m) {
 		String connection = null;
 		for (int i = 0; (connection = countryConnections.getProperty(this.id
@@ -133,11 +164,6 @@ public class Country implements Clickable {
 				c.connections.add(this);
 			}
 		}
-	}
-
-	@Override
-	public boolean overlaps(int x, int y) {
-		return false;
 	}
 
 	public String toString() {

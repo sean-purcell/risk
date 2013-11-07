@@ -103,6 +103,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 				g.message(message, 1);
 				return;
 			}
+			
+			String message = "" + (char) 3;
+			g.message(message, 1);
 		}
 	}
 

@@ -88,6 +88,10 @@ public class Map {
 		return Integer.parseInt(continentData.getProperty("cont"+id+"army"));
 	}
 	
+	public String getContinentColor(int id){
+		return continentData.getProperty("cont"+id+"col");
+	}
+	
 	public Country getCountryById(int id) {
 		return countries.get(id);
 	}

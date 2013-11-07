@@ -59,10 +59,8 @@ public class Game {
 	/**
 	 * Current part of the game<br>
 	 * 1. Deploy begin turn reinforcements<br>
-	 * 2. No country selected<br>
-	 * 3. Country selected<br>
-	 * 4. Select country to attack<br>
-	 * 5. Battle<br>
+	 * 2. Normal game mode<br>
+	 * 3. Battle mode<br>
 	 */
 	private int gameMode;
 
@@ -90,6 +88,8 @@ public class Game {
 	 * Represents the currently selectedCountry army.
 	 */
 	private Country selectedCountry;
+	
+	private Country attackTarget;
 	
 	/**
 	 * Set to false if the game should exit
@@ -282,6 +282,11 @@ public class Game {
 		numSetupTroops = 3;
 	}
 	
+	private void enterAttack(Country c){
+		this.gameMode = 3;
+		attackTarget = c;
+	}
+	
 	private void initSetupButtons() {
 		List<BufferedImage> numberButtonTextures = generateNumberButtonTextures(r);
 		numberButtons = new ArrayList<Button>();
@@ -360,6 +365,8 @@ public class Game {
 		case 1: 
 			drawReinforcements(g);
 			break;
+		case 2:
+			drawSelectedCountry(g);
 		}
 	}
 	
@@ -387,7 +394,7 @@ public class Game {
 		drawString(g, "Troops left: " + currentArmy().getFreeUnits(), 30, 30, 665, Color.BLACK);
 	}
 	
-	public void drawMap(Graphics2D g) {
+	private void drawMap(Graphics2D g) {
 		try {
 			g.drawImage(this.getMap().getTexture(), 0, 0, null);
 		} catch (NullPointerException e) {
@@ -395,11 +402,19 @@ public class Game {
 		}
 	}
 
-	public void drawReinforcements(Graphics2D g) {
+	private void drawReinforcements(Graphics2D g) {
 		Army a = this.currentArmy();
 		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 30, 30, 645, Color.BLACK);
 	}
 
+	private void drawSelectedCountry(Graphics2D g){
+		if(selectedCountry == null){
+			return;
+		}
+		
+		
+	}
+	
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		List<Country> countries = this.getMap().getCountries();
@@ -494,6 +509,10 @@ public class Game {
 		case 2:
 			if(currentArmy() == c.getUnit().getArmy()){
 				selectedCountry = c;
+			}else if(selectedCountry != null){
+				if(selectedCountry.getConnections().contains(c)){
+					enterAttack(c);
+				}
 			}
 		}
 	}
@@ -537,6 +556,15 @@ public class Game {
 		c.getUnit().incrementTroops();
 		c.getUnit().getArmy().setFreeUnits(c.getUnit().getArmy().getFreeUnits() - 1);
 
+	}
+	
+	private void nullClicked(){
+		switch(mode){
+		case 2:
+			switch(gameMode){
+			case 2: selectedCountry = null;
+			}
+		}
 	}
 	
 	public static void draw(Drawable d, Graphics g) {
@@ -614,6 +642,7 @@ public class Game {
 		//hexadecimal used because it seemed fitting
 		case 0x1: parseButtonMessage(message.substring(1),source); break;
 		case 0x2: parseCountryMessage(message.substring(1),source); break;
+		case 0x3: nullClicked();
 		}
 		
 		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);

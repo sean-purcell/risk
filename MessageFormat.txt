@@ -7,6 +7,8 @@ first character indicates type of message:
 	next bytes indicate the id of the button pressed.
 2: country pressed
 	next bytes indicate the id of the country pressed
-3: miscellaneous game commands
+3: null pressed
+	no next bytes, indicates clicking on a blank part of the window
+4: miscellaneous game commands
 	format of these tbd
 0: serialized game state information.  only for use when loading a previous game 
