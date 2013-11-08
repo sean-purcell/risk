@@ -328,7 +328,7 @@ public class Game {
 		}
 		catch(RuntimeException e){
 			e.printStackTrace();
-			System.err.println("Frame not completed due to concurrency error");
+			System.err.println("Frame not completed due to  error");
 		}
 	}
 
@@ -422,7 +422,7 @@ public class Game {
 			return;
 		}
 		
-		drawCountry(g, selectedCountry, 475, 650, "Selected:");
+		drawCountry(g, selectedCountry, 475, 625, "Selected:");
 	}
 	
 	private void drawAttackTarget(Graphics2D g){
@@ -431,12 +431,14 @@ public class Game {
 			return;
 		}
 		
-		drawCountry(g, attackTarget, 725, 650, "Target:");
+		drawCountry(g, attackTarget, 725, 625, "Target:");
 	}
 	
 	private void drawCountry(Graphics2D g, Country c, int x,int y, String message){
 		Image texture = c.getTexture();
-
+		
+		g.setFont(g.getFont().deriveFont((float) 30));
+		
 		// Calculate the width and height to resize the image to
 		int[] newDimensions = getScaledCountryDimensions(c);
 		
@@ -454,7 +456,7 @@ public class Game {
 				y - newDimensions[1]/2,
 				c.getUnit().getArmy().getColour());
 	}
-	
+
 	private int[] getScaledCountryDimensions(Country c){
 		Image texture = c.getTexture();
 		int newWidth = Math.min(texture.getWidth(null), 200);
@@ -464,6 +466,8 @@ public class Game {
 				
 		return new int[]{newWidth,newHeight};
 	}
+	
+	private void drawBattle
 	
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
@@ -619,7 +623,8 @@ public class Game {
 		switch(mode){
 		case 2:
 			switch(gameMode){
-			case 2: selectedCountry = null;
+			case 3: attackTarget = null; mode = 2;
+			case 2: selectedCountry = null; break;
 			}
 		}
 	}
