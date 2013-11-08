@@ -131,12 +131,20 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-
+		if(e.getKeyChar() == 'c'){
+			for(int j = 0; j < 200; j++){
+				int i = Risk.r.nextInt(42)+1;
+				String message = "" + (char) 2;
+				message += (i < 10 ? "0" : "") + Integer.toString(i);
+				g.message(message, -1);
+				System.out.println("Random country chosen");
+			}
+		}
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-
+		
 	}
 
 	@Override

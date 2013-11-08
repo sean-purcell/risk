@@ -60,6 +60,10 @@ public class RiskCanvas extends Canvas{
 		this.addKeyListener(i);
 		this.addMouseMotionListener(i);
 
+		frame.addMouseListener(i);
+		frame.addKeyListener(i);
+		frame.addMouseMotionListener(i);
+		
 		soldier = Risk.loadImage("resources/soldier.png");
 		this.input = i;
 		initFont();

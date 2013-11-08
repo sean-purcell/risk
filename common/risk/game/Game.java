@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -313,15 +314,21 @@ public class Game {
 	}
 	
 	public void draw(Graphics2D g) {
-		drawMap(g);
-		drawUnits(g);
-		switch (mode) {
-		case 1:
-			drawSetupMode(g);
-			break;
-		case 2: 
-			drawGameMode(g);
-			break;
+		try{
+			drawMap(g);
+			drawUnits(g);
+			switch (mode) {
+			case 1:
+				drawSetupMode(g);
+				break;
+			case 2: 
+				drawGameMode(g);
+				break;
+			}
+		}
+		catch(RuntimeException e){
+			e.printStackTrace();
+			System.err.println("Frame not completed due to concurrency error");
 		}
 	}
 
@@ -365,8 +372,11 @@ public class Game {
 		case 1: 
 			drawReinforcements(g);
 			break;
+		case 3:
+			drawAttackTarget(g);
 		case 2:
 			drawSelectedCountry(g);
+			break;
 		}
 	}
 	
@@ -412,7 +422,47 @@ public class Game {
 			return;
 		}
 		
+		drawCountry(g, selectedCountry, 475, 650, "Selected:");
+	}
+	
+	private void drawAttackTarget(Graphics2D g){
+		if(attackTarget == null){
+			System.err.println("drawAttackTarget called with no attack target.");
+			return;
+		}
 		
+		drawCountry(g, attackTarget, 725, 650, "Target:");
+	}
+	
+	private void drawCountry(Graphics2D g, Country c, int x,int y, String message){
+		Image texture = c.getTexture();
+
+		// Calculate the width and height to resize the image to
+		int[] newDimensions = getScaledCountryDimensions(c);
+		
+		texture = texture.getScaledInstance(newDimensions[0], newDimensions[1], Image.SCALE_DEFAULT);
+		
+		// Determine the x and y coordinates to draw the image at to ensure it's centered
+		int nx = x - texture.getWidth(null)/2;
+		int ny = y - texture.getHeight(null)/2;
+		
+		g.drawImage(texture,nx,ny,null);
+		
+		FontMetrics fm = g.getFontMetrics();
+		drawString(g, message, 30,
+				x - fm.stringWidth(message)/2,
+				y - newDimensions[1]/2,
+				c.getUnit().getArmy().getColour());
+	}
+	
+	private int[] getScaledCountryDimensions(Country c){
+		Image texture = c.getTexture();
+		int newWidth = Math.min(texture.getWidth(null), 200);
+		int newHeight = newWidth == 200 ? 
+				newWidth * texture.getHeight(null) / texture.getWidth(null)
+				: Math.min(texture.getHeight(null), 150);
+				
+		return new int[]{newWidth,newHeight};
 	}
 	
 	private void drawConnections(Graphics2D g) {
@@ -455,7 +505,7 @@ public class Game {
 	}
 	
 	// INPUT HANDLING
-	public void countryClicked(Country c, int x, int y) {
+	public void countryClicked(Country c) {
 		switch(mode){
 		case 1:
 			countryClickedSetupMode(c);
@@ -495,6 +545,7 @@ public class Game {
 			break;
 		}
 	}
+	
 
 	private void countryClickedGameMode(Country c){
 		switch(gameMode){
@@ -514,6 +565,12 @@ public class Game {
 					enterAttack(c);
 				}
 			}
+			break;
+		case 3:
+			gameMode = 2;
+			attackTarget = null;
+			countryClicked(c);
+			break;
 		}
 	}
 	
@@ -662,7 +719,7 @@ public class Game {
 	
 	private void parseCountryMessage(String str,int source){
 		int i = Integer.parseInt(str.substring(0,2));
-		countryClicked(map.getCountryById(i),0,0);
+		countryClicked(map.getCountryById(i));
 	}
 	
 	private void incrementTurn(){

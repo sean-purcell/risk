@@ -142,8 +142,9 @@ public class Country{
 
 	private String canonicalize(String str){
 		str = str.toLowerCase();
-		for(int i = str.length()-1; i >= 0; i++){
-			if(str.charAt(i) == '\''){
+		for(int i = str.length()-1; i >= 0; i--){
+			char c = str.charAt(i);
+			if((c < 'a' || c > 'z') && c != ' '){
 				str = str.substring(0,i) + str.substring(i+1);
 			}
 		}
@@ -220,5 +221,9 @@ public class Country{
 
 	protected static Properties getCountryData() {
 		return countryData;
+	}
+
+	public BufferedImage getTexture() {
+		return texture;
 	}
 }
