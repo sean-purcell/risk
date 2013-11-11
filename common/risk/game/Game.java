@@ -96,7 +96,11 @@ public class Game {
 	private int attackers;
 	private int defenders;
 	
+	private int[] attackerDice;
+	private int[] defenderDice;
+	
 	private List<Button> endTurnList;
+	private List<Button> battleButtonList;
 	
 	/**
 	 * Set to false if the game should exit
@@ -240,7 +244,7 @@ public class Game {
 				if(dice[i] != max || !firstTurnContenders[i]){
 					firstTurnContenders[i] = false;
 				}else{
-					diceTimers[i] = Risk.r.nextInt(2000) + 1500;
+					diceTimers[i] = this.createDieTimer();
 					if(first == -1){ //No one else has won yet
 						first = i; //Indicates that that player won the dice roll
 					}else{
@@ -329,6 +333,12 @@ public class Game {
 		Button endT = new Button(1230, 670, null, 99);
 		endTurnList = new ArrayList<Button>();
 		endTurnList.add(endT);
+		
+		battleButtonList = new ArrayList<Button>();
+		battleButtonList.add(endT);
+		
+		Button rollDice = new Button(1160, 670, null, 6);
+		battleButtonList.add(rollDice);
 		
 		enterNextTurn();
 	}
@@ -452,18 +462,13 @@ public class Game {
 			return;
 		}
 		
-		drawCountry(g, attackTarget, 705, 625, "Target:");
+		drawCountry(g, attackTarget, 675, 625, "Target:");
 	}
 	
 	private void drawCountry(Graphics2D g, Country c, int x,int y, String message){
 		Image texture = c.getTexture();
 		
 		this.setFontSize(g,30);
-		
-		// Calculate the width and height to resize the image to
-		int[] newDimensions = getScaledCountryDimensions(c);
-		
-		texture = texture.getScaledInstance(newDimensions[0], newDimensions[1], Image.SCALE_DEFAULT);
 		
 		// Determine the x and y coordinates to draw the image at to ensure it's centered
 		int nx = x - texture.getWidth(null)/2;
@@ -474,44 +479,29 @@ public class Game {
 		FontMetrics fm = g.getFontMetrics();
 		drawString(g, message, 30,
 				x - fm.stringWidth(message)/2,
-				y - newDimensions[1]/2,
+				y - texture.getHeight(null)/2,
 				c.getUnit().getArmy().getColour());
-	}
-
-	private int[] getScaledCountryDimensions(Country c){
-		Image texture = c.getTexture();
-		/*int newWidth = Math.min(texture.getWidth(null), 200);
-		int newHeight = newWidth == 200 ? 
-				newWidth * texture.getHeight(null) / texture.getWidth(null)
-				: Math.min(texture.getHeight(null), 150);*/
-		int newWidth = texture.getWidth(null);
-		int newHeight = texture.getHeight(null);
-		if(newWidth > 200 || newHeight > 150){
-			double scale = Math.min(200.0/newWidth, 150.0/newHeight);
-			newWidth = (int) (scale * newWidth);
-			newHeight = (int) (scale * newHeight);
-		}
-		return new int[]{newWidth,newHeight};
 	}
 	
 	private void drawBattle(Graphics2D g){
 		for(int i = 0; i < Math.min(3,attackers); i++){
 			BufferedImage soldier = currentArmy().getSoldierAttacker();
-			int x = 800 - 20 * i;
+			int x = 830 - 20 * i;
 			int y = 530 + 45 * i;
 			g.drawImage(soldier, x, y, null);
 		}
+		this.setFontSize(g, 25);
 		FontMetrics fm = g.getFontMetrics();
-		drawString(g, "Attackers: " + attackers, 25, 865 - fm.stringWidth("Attackers: " + attackers),705,currentArmy().getColour());
+		drawString(g, "Attackers: " + attackers, 25, 880 - fm.stringWidth("Attackers: " + attackers),705,currentArmy().getColour());
 		
 		for(int i = 0; i < Math.min(2, defenders); i++){
 			BufferedImage soldier = defendingArmy().getSoldierDefender();
-			int x = 960 + 20 * i;
+			int x = 990 + 20 * i;
 			int y = 552 + 45 * i;
 			g.drawImage(soldier, x, y, null);
 		}
 		
-		drawString(g, "Defenders: " + defenders, 25, 960,705,defendingArmy().getColour());
+		drawString(g, "Defenders: " + defenders, 25, 990,705,defendingArmy().getColour());
 	}
 	
 	private void drawConnections(Graphics2D g) {
@@ -544,6 +534,10 @@ public class Game {
 		setFontSize(g,fontSize);
 		g.setColor(c);
 		g.drawString(str, x, y);
+	}
+	
+	public int createDieTimer(){
+		return Risk.r.nextInt(2000) + 1500;
 	}
 	
 	public void setFontSize(Graphics2D g, int fontSize){
@@ -647,11 +641,17 @@ public class Game {
 			}
 			break;
 		case 2:
-			if(b.getId() == 99){
-				incrementTurn();
-			}
 			switch(gameMode){
-			
+			case 3: if(b.getId() == 6){
+				rollBattleDice();
+				break;
+			}
+			case 2:
+			case 1:
+				if(b.getId() == 99){
+					incrementTurn();
+				}
+				break;
 			}
 		}
 	}
@@ -669,17 +669,22 @@ public class Game {
 			firstTurnContenders = new boolean[numPlayers];
 			
 			for (int i = 0; i < numPlayers; i++) {
-				diceTimers[i] = Risk.r.nextInt(2000) + 1500;
+				diceTimers[i] = this.createDieTimer();
 				firstTurnContenders[i] = true;
 			}
 
 		}
 	}
-
+	
 	private void addTroop(Country c){
 		c.getUnit().incrementTroops();
 		c.getUnit().getArmy().setFreeUnits(c.getUnit().getArmy().getFreeUnits() - 1);
 
+	}
+	
+	private void rollBattleDice(){
+		attackerDice = new int[Math.min(3, attackers)];
+		defenderDice = new int[Math.min(2, defenders)];
 	}
 	
 	private void nullClicked(){

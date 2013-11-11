@@ -1,5 +1,6 @@
 package risk.game;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,7 +72,7 @@ public class Country{
 	/**
 	 * The Image representing the outlined country
 	 */
-	private BufferedImage texture;
+	private Image texture;
 	
 	/**
 	 * The unit currently occupying this country
@@ -134,6 +135,8 @@ public class Country{
 			textureAddress += m.getContinentColor(continent) + "/";
 			textureAddress += canonicalize(name) + ".png";
 			texture = Risk.loadImage(textureAddress);
+			int[] newDimensions = getScaledDimensions(texture);
+			texture = texture.getScaledInstance(newDimensions[0],newDimensions[1], BufferedImage.SCALE_DEFAULT);
 		}
 		
 		this.map = m;
@@ -149,6 +152,17 @@ public class Country{
 			}
 		}
 		return str;
+	}
+	
+	private int[] getScaledDimensions(Image texture){
+		int newWidth = texture.getWidth(null);
+		int newHeight = texture.getHeight(null);
+		if(newWidth > 200 || newHeight > 150){
+			double scale = Math.min(200.0/newWidth, 150.0/newHeight);
+			newWidth = (int) (scale * newWidth);
+			newHeight = (int) (scale * newHeight);
+		}
+		return new int[]{newWidth,newHeight};
 	}
 	
 	public void initConnections(Map m) {
@@ -223,7 +237,7 @@ public class Country{
 		return countryData;
 	}
 
-	public BufferedImage getTexture() {
+	public Image getTexture() {
 		return texture;
 	}
 }
