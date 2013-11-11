@@ -139,6 +139,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 				g.message(message, -1);
 				System.out.println("Random country chosen");
 			}
+		}else if(e.getKeyChar() == 'n'){
+			String message = "" + (char) 1 + (char) 99;
+			g.message(message, -1);
 		}
 	}
 

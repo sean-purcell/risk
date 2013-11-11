@@ -142,6 +142,7 @@ public class Game {
 				} catch (ArithmeticException e) {
 				}
 				
+				try{
 				// Request lock on GAME_STATE lock to update and render
 				ThreadLocks.requestLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);
 				// Runs the update method with the given delta
@@ -149,8 +150,13 @@ public class Game {
 				
 				// Create the offscreen buffer containing the frame to be rendered
 				r.createFrame();
+				}
+				catch(Exception e){
+					
+				}finally{
 					// Release lock now that we're done with it 
 					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);	
+				}
 				
 				// Renders the game
 				r.repaint();
@@ -639,6 +645,14 @@ public class Game {
 			case 2:
 				colourPicked(b);
 			}
+			break;
+		case 2:
+			if(b.getId() == 99){
+				incrementTurn();
+			}
+			switch(gameMode){
+			
+			}
 		}
 	}
 
@@ -745,7 +759,7 @@ public class Game {
 	 * @param source
 	 */
 	public void message(String message, int source){
-		
+		try{
 			// Request the GAME_STATE lock to avoid concurrency issues 
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
 			int t = message.charAt(0);
@@ -755,9 +769,13 @@ public class Game {
 			case 0x2: parseCountryMessage(message.substring(1),source); break;
 			case 0x3: nullClicked();
 			}
-		
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}finally{
 			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
 		}
+	}
 	
 	private void parseButtonMessage(String str,int source){
 		int i = str.charAt(0);
