@@ -74,10 +74,9 @@ public class DiceTexture {
 	}
 
 	public static BufferedImage getDieTexture(int face) {
-		try{
+		try {
 			return dieTextures[face - 1];
-		}
-		catch(ArrayIndexOutOfBoundsException e){
+		} catch (ArrayIndexOutOfBoundsException e) {
 			return null;
 		}
 	}

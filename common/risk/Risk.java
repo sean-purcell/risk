@@ -28,7 +28,7 @@ public class Risk {
 	 * The unique id used to hold a lock while loading resources
 	 */
 	public static final int THREAD_ID = 0x10;
-	
+
 	/**
 	 * The Game object, representing the main game logic
 	 */
@@ -59,7 +59,9 @@ public class Risk {
 	/**
 	 * Rotates a given list of type T by offset amount.
 	 * 
-	 * It shifts elements at the front repeatedly until it reaches the desired rotation.
+	 * It shifts elements at the front repeatedly until it reaches the desired
+	 * rotation.
+	 * 
 	 * @param list
 	 * @param offset
 	 */
@@ -95,11 +97,13 @@ public class Risk {
 		BufferedImage image = cloneImage(original);
 		for (int x = 0; x < image.getWidth(); x++) {
 			for (int y = 0; y < image.getHeight(); y++) {
-				if ((image.getRGB(x,y) & 0xFF000000) != 0x0 /*
-														 * represents complete
-														 * transparency
-														 */)
-					//System.out.println("(" + x + "," + y + ")" + Integer.toString(image.getRGB(x, y),16));
+				if ((image.getRGB(x, y) & 0xFF000000) != 0x0 /*
+															 * represents
+															 * complete
+															 * transparency
+															 */)
+					// System.out.println("(" + x + "," + y + ")" +
+					// Integer.toString(image.getRGB(x, y),16));
 					image.setRGB(x, y, c.getRGB());
 			}
 		}

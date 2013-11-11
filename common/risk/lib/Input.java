@@ -90,9 +90,10 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Country c = getClickedCountry(x, y, true);
 			if (c != null) {
-				//g.countryClicked(c, x, y);
+				// g.countryClicked(c, x, y);
 				String message = "" + (char) 2;
-				message += (c.getId() < 10 ? "0" : "") + Integer.toString(c.getId());
+				message += (c.getId() < 10 ? "0" : "")
+						+ Integer.toString(c.getId());
 				g.message(message, 1);
 				return;
 			}
@@ -103,7 +104,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 				g.message(message, 1);
 				return;
 			}
-			
+
 			String message = "" + (char) 3;
 			g.message(message, 1);
 		}
@@ -131,15 +132,15 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if(e.getKeyChar() == 'c'){
-			for(int j = 0; j < 200; j++){
-				int i = Risk.r.nextInt(42)+1;
+		if (e.getKeyChar() == 'c') {
+			for (int j = 0; j < 200; j++) {
+				int i = Risk.r.nextInt(42) + 1;
 				String message = "" + (char) 2;
 				message += (i < 10 ? "0" : "") + Integer.toString(i);
 				g.message(message, -1);
 				System.out.println("Random country chosen");
 			}
-		}else if(e.getKeyChar() == 'n'){
+		} else if (e.getKeyChar() == 'n') {
 			String message = "" + (char) 1 + (char) 99;
 			g.message(message, -1);
 		}
@@ -147,7 +148,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		
+
 	}
 
 	@Override

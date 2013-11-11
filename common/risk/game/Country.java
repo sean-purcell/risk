@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import risk.Risk;
 
-public class Country{
+public class Country {
 
 	private static Properties countryData;
 	private static final String countryDataAddress = "resources/territoryData.properties";
@@ -73,7 +73,7 @@ public class Country{
 	 * The Image representing the outlined country
 	 */
 	private Image texture;
-	
+
 	/**
 	 * The unit currently occupying this country
 	 */
@@ -98,7 +98,7 @@ public class Country{
 	 * Self explanatory
 	 */
 	private int continent;
-	
+
 	/**
 	 * Represents the locations on the board where units should be drawn
 	 */
@@ -119,9 +119,9 @@ public class Country{
 				countryData.getProperty("c" + id + "colour"), 16);
 		System.out.println(Integer.toString(this.clickColour, 16));
 
-		this.continent = Integer.parseInt(
-				countryData.getProperty("c" + id + "cont"));
-		
+		this.continent = Integer.parseInt(countryData.getProperty("c" + id
+				+ "cont"));
+
 		try {
 			this.x = Integer.parseInt(countryData.getProperty("c" + id + "x"));
 			this.y = Integer.parseInt(countryData.getProperty("c" + id + "y"));
@@ -136,35 +136,36 @@ public class Country{
 			textureAddress += canonicalize(name) + ".png";
 			texture = Risk.loadImage(textureAddress);
 			int[] newDimensions = getScaledDimensions(texture);
-			texture = texture.getScaledInstance(newDimensions[0],newDimensions[1], BufferedImage.SCALE_DEFAULT);
+			texture = texture.getScaledInstance(newDimensions[0],
+					newDimensions[1], BufferedImage.SCALE_DEFAULT);
 		}
-		
+
 		this.map = m;
 		connections = new ArrayList<Country>();
 	}
 
-	private String canonicalize(String str){
+	private String canonicalize(String str) {
 		str = str.toLowerCase();
-		for(int i = str.length()-1; i >= 0; i--){
+		for (int i = str.length() - 1; i >= 0; i--) {
 			char c = str.charAt(i);
-			if((c < 'a' || c > 'z') && c != ' '){
-				str = str.substring(0,i) + str.substring(i+1);
+			if ((c < 'a' || c > 'z') && c != ' ') {
+				str = str.substring(0, i) + str.substring(i + 1);
 			}
 		}
 		return str;
 	}
-	
-	private int[] getScaledDimensions(Image texture){
+
+	private int[] getScaledDimensions(Image texture) {
 		int newWidth = texture.getWidth(null);
 		int newHeight = texture.getHeight(null);
-		if(newWidth > 200 || newHeight > 150){
-			double scale = Math.min(200.0/newWidth, 150.0/newHeight);
+		if (newWidth > 200 || newHeight > 150) {
+			double scale = Math.min(200.0 / newWidth, 150.0 / newHeight);
 			newWidth = (int) (scale * newWidth);
 			newHeight = (int) (scale * newHeight);
 		}
-		return new int[]{newWidth,newHeight};
+		return new int[] { newWidth, newHeight };
 	}
-	
+
 	public void initConnections(Map m) {
 		String connection = null;
 		for (int i = 0; (connection = countryConnections.getProperty(this.id

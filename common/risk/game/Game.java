@@ -28,13 +28,13 @@ import risk.lib.ThreadLocks;
 public class Game {
 
 	private final int UPDATE_THREAD_ID = 1;
-	
+
 	// This offset will be added to the "source" part of a message to determine
 	// the number for the lock
 	private final int INPUT_ID_OFFSET = 0x100;
 
 	private final int UPDATE_RATE = 32;
-	
+
 	private RiskCanvas r;
 	private Input i;
 
@@ -56,7 +56,7 @@ public class Game {
 	 * 5. Deploy reinforcements
 	 */
 	private int setupMode;
-	
+
 	/**
 	 * Current part of the game<br>
 	 * 1. Deploy begin turn reinforcements<br>
@@ -76,9 +76,9 @@ public class Game {
 	private boolean[] firstTurnContenders;
 
 	private int numTerritoriesClaimed;
-	
+
 	private int numSetupTroops;
-	
+
 	private int numPlayers;
 
 	private int turn;
@@ -86,22 +86,22 @@ public class Game {
 	private List<Army> armies;
 
 	/**
-	 * Applicable during attack and reinforce.  
-	 * Represents the currently selectedCountry army.
+	 * Applicable during attack and reinforce. Represents the currently
+	 * selectedCountry army.
 	 */
 	private Country selectedCountry;
-	
+
 	private Country attackTarget;
-	
+
 	private int attackers;
 	private int defenders;
-	
+
 	private int[] attackerDice;
 	private int[] defenderDice;
-	
+
 	private List<Button> endTurnList;
 	private List<Button> battleButtonList;
-	
+
 	/**
 	 * Set to false if the game should exit
 	 */
@@ -145,23 +145,25 @@ public class Game {
 					setFps(1000 / delta);
 				} catch (ArithmeticException e) {
 				}
-				
-				try{
-				// Request lock on GAME_STATE lock to update and render
-				ThreadLocks.requestLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);
-				// Runs the update method with the given delta
-				this.update(delta);
-				
-				// Create the offscreen buffer containing the frame to be rendered
-				r.createFrame();
+
+				try {
+					// Request lock on GAME_STATE lock to update and render
+					ThreadLocks.requestLock(ThreadLocks.GAME_STATE,
+							UPDATE_THREAD_ID);
+					// Runs the update method with the given delta
+					this.update(delta);
+
+					// Create the offscreen buffer containing the frame to be
+					// rendered
+					r.createFrame();
+				} catch (Exception e) {
+
+				} finally {
+					// Release lock now that we're done with it
+					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,
+							UPDATE_THREAD_ID);
 				}
-				catch(Exception e){
-					
-				}finally{
-					// Release lock now that we're done with it 
-					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);	
-				}
-				
+
 				// Renders the game
 				r.repaint();
 				// Limits the game to 30 fps
@@ -192,10 +194,11 @@ public class Game {
 			break;
 		}
 	}
-	
-	private void updateGameMode(int delta){
-		switch(gameMode){
-		case 0: gameMode = 1;
+
+	private void updateGameMode(int delta) {
+		switch (gameMode) {
+		case 0:
+			gameMode = 1;
 		case 1:
 			break;
 		}
@@ -206,31 +209,31 @@ public class Game {
 		initSetupButtons();
 		armies = new ArrayList<Army>();
 	}
-	
-	private void enterNextTurn(){
+
+	private void enterNextTurn() {
 		incrementTurn();
 		currentArmy().setFreeUnits(calculateReinforcements());
 	}
-	
-	private int calculateReinforcements(){
+
+	private int calculateReinforcements() {
 		int reinforcements = 0;
-		reinforcements += Math.max(3, currentArmy().getUnits().size()/3);
+		reinforcements += Math.max(3, currentArmy().getUnits().size() / 3);
 		reinforcements += currentArmy().calculateContinentBonus();
-		
+
 		return reinforcements;
 	}
-	
+
 	private void updateSetupDice(int delta) {
 		if (diceDisplayCountdown > 0) {
 			diceDisplayDone(delta);
 		} else {
 			diceDisplayUpdate(delta);
 		}
-		
+
 		System.out.println(diceDisplayCountdown);
 	}
-	
-	private void diceDisplayDone(int delta){
+
+	private void diceDisplayDone(int delta) {
 		diceDisplayCountdown -= delta;
 		if (diceDisplayCountdown <= 0) {
 			int max = 0;
@@ -240,25 +243,27 @@ public class Game {
 				}
 			}
 			int first = -1;
-			for(int i = 0; i < numPlayers; i++){
-				if(dice[i] != max || !firstTurnContenders[i]){
+			for (int i = 0; i < numPlayers; i++) {
+				if (dice[i] != max || !firstTurnContenders[i]) {
 					firstTurnContenders[i] = false;
-				}else{
+				} else {
 					diceTimers[i] = this.createDieTimer();
-					if(first == -1){ //No one else has won yet
-						first = i; //Indicates that that player won the dice roll
-					}else{
-						first = -2; //Indicates that there is more than one army with the max dice number
+					if (first == -1) { // No one else has won yet
+						first = i; // Indicates that that player won the dice
+									// roll
+					} else {
+						first = -2; // Indicates that there is more than one
+									// army with the max dice number
 					}
 				}
 			}
-			if(first >= 0){
+			if (first >= 0) {
 				enterTerritoryAllocateMode(first);
 			}
 		}
 	}
-	
-	private void diceDisplayUpdate(int delta){
+
+	private void diceDisplayUpdate(int delta) {
 		for (int i = 0; i < diceTimers.length; i++) {
 			diceTimers[i] -= delta;
 		}
@@ -279,35 +284,35 @@ public class Game {
 		}
 	}
 
-	private void enterTerritoryAllocateMode(int first){
+	private void enterTerritoryAllocateMode(int first) {
 		int offset = first;
-		
-		//Set the first army in the list to be the one designated to go first
+
+		// Set the first army in the list to be the one designated to go first
 		Risk.rotateList(armies, offset);
-		
+
 		setupMode = 4;
 		turn = 0;
-		
+
 		int startingTroops = (10 - numPlayers) * 5;
-		for(Army a : armies){
+		for (Army a : armies) {
 			a.setFreeUnits(startingTroops);
 		}
 	}
-	
-	private void enterSetupReinforcement(){
+
+	private void enterSetupReinforcement() {
 		setupMode = 5;
 		turn = 0;
-		
+
 		numSetupTroops = 3;
 	}
-	
-	private void enterAttack(Country c){
+
+	private void enterAttack(Country c) {
 		this.gameMode = 3;
 		attackTarget = c;
 		attackers = 1;
 		defenders = c.getUnit().getTroops();
 	}
-	
+
 	private void initSetupButtons() {
 		List<BufferedImage> numberButtonTextures = generateNumberButtonTextures(r);
 		numberButtons = new ArrayList<Button>();
@@ -324,47 +329,46 @@ public class Game {
 		}
 	}
 
-	private void enterGamePhase(){
+	private void enterGamePhase() {
 		mode = 2;
 		setupMode = 0;
-		
+
 		turn = -1;
-		
+
 		Button endT = new Button(1230, 670, null, 99);
 		endTurnList = new ArrayList<Button>();
 		endTurnList.add(endT);
-		
+
 		battleButtonList = new ArrayList<Button>();
 		battleButtonList.add(endT);
-		
+
 		Button rollDice = new Button(1160, 670, null, 6);
 		battleButtonList.add(rollDice);
-		
+
 		enterNextTurn();
 	}
-	
+
 	public void draw(Graphics2D g) {
-		try{
+		try {
 			drawMap(g);
 			drawUnits(g);
 			switch (mode) {
 			case 1:
 				drawSetupMode(g);
 				break;
-			case 2: 
+			case 2:
 				drawGameMode(g);
 				break;
 			}
-		}
-		catch(RuntimeException e){
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			System.err.println("Frame not completed due to  error");
 		}
 	}
 
 	public void drawUnits(Graphics2D g) {
-		for(Country c : map.getCountries()){
-			if(c != null && c.getUnit() != null){
+		for (Country c : map.getCountries()) {
+			if (c != null && c.getUnit() != null) {
 				c.getUnit().drawSelf(g);
 			}
 		}
@@ -377,8 +381,7 @@ public class Game {
 			break;
 		case 2:
 			drawString(g, "Player " + (turn + 1), 40, 25, 625, Color.BLACK);
-			drawString(g, "Choose a colour", 30, 30, 645,
-					Color.BLACK);
+			drawString(g, "Choose a colour", 30, 30, 645, Color.BLACK);
 			break;
 		case 3:
 			drawDice(g);
@@ -396,10 +399,10 @@ public class Game {
 		drawButtons(g);
 	}
 
-	private void drawGameMode(Graphics2D g){
+	private void drawGameMode(Graphics2D g) {
 		drawTurn(g);
-		switch(gameMode){
-		case 1: 
+		switch (gameMode) {
+		case 1:
 			drawReinforcements(g);
 			break;
 		case 3:
@@ -410,31 +413,34 @@ public class Game {
 			break;
 		}
 	}
-	
-	private void drawTurn(Graphics2D g){
-		drawString(g, currentArmy().getName(),40,25,625,armies.get(turn).getColour());
+
+	private void drawTurn(Graphics2D g) {
+		drawString(g, currentArmy().getName(), 40, 25, 625, armies.get(turn)
+				.getColour());
 	}
-	
+
 	private void drawDice(Graphics2D g) {
 		for (int i = 0; i < numPlayers; i++) {
-			if(firstTurnContenders[i]){
-				drawString(g, "Player " + (i + 1),25,
-						20 + 100 * i,645, armies.get(i).getColour());
-				g.drawImage(DiceTexture.getDieTexture(dice[i]), 30 + 100 * i, 660,
-						null);
+			if (firstTurnContenders[i]) {
+				drawString(g, "Player " + (i + 1), 25, 20 + 100 * i, 645,
+						armies.get(i).getColour());
+				g.drawImage(DiceTexture.getDieTexture(dice[i]), 30 + 100 * i,
+						660, null);
 			}
 		}
 	}
-	
-	private void drawClaimTerritories(Graphics2D g){
+
+	private void drawClaimTerritories(Graphics2D g) {
 		drawString(g, "Claim an unclaimed territory.", 30, 30, 645, Color.BLACK);
 	}
 
-	private void drawDeploySetupTroops(Graphics2D g){
-		drawString(g, "Deploy " + numSetupTroops + " troops.", 30, 30, 645, Color.BLACK);
-		drawString(g, "Troops left: " + currentArmy().getFreeUnits(), 30, 30, 665, Color.BLACK);
+	private void drawDeploySetupTroops(Graphics2D g) {
+		drawString(g, "Deploy " + numSetupTroops + " troops.", 30, 30, 645,
+				Color.BLACK);
+		drawString(g, "Troops left: " + currentArmy().getFreeUnits(), 30, 30,
+				665, Color.BLACK);
 	}
-	
+
 	private void drawMap(Graphics2D g) {
 		try {
 			g.drawImage(this.getMap().getTexture(), 0, 0, null);
@@ -445,46 +451,49 @@ public class Game {
 
 	private void drawReinforcements(Graphics2D g) {
 		Army a = this.currentArmy();
-		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 30, 30, 645, Color.BLACK);
+		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 30, 30, 645,
+				Color.BLACK);
 	}
 
-	private void drawSelectedCountry(Graphics2D g){
-		if(selectedCountry == null){
+	private void drawSelectedCountry(Graphics2D g) {
+		if (selectedCountry == null) {
 			return;
 		}
-		
+
 		drawCountry(g, selectedCountry, 475, 625, "Selected:");
 	}
-	
-	private void drawAttackTarget(Graphics2D g){
-		if(attackTarget == null){
-			System.err.println("drawAttackTarget called with no attack target.");
+
+	private void drawAttackTarget(Graphics2D g) {
+		if (attackTarget == null) {
+			System.err
+					.println("drawAttackTarget called with no attack target.");
 			return;
 		}
-		
+
 		drawCountry(g, attackTarget, 675, 625, "Target:");
 	}
-	
-	private void drawCountry(Graphics2D g, Country c, int x,int y, String message){
+
+	private void drawCountry(Graphics2D g, Country c, int x, int y,
+			String message) {
 		Image texture = c.getTexture();
-		
-		this.setFontSize(g,30);
-		
-		// Determine the x and y coordinates to draw the image at to ensure it's centered
-		int nx = x - texture.getWidth(null)/2;
-		int ny = y - texture.getHeight(null)/2;
-		
-		g.drawImage(texture,nx,ny,null);
-		
+
+		this.setFontSize(g, 30);
+
+		// Determine the x and y coordinates to draw the image at to ensure it's
+		// centered
+		int nx = x - texture.getWidth(null) / 2;
+		int ny = y - texture.getHeight(null) / 2;
+
+		g.drawImage(texture, nx, ny, null);
+
 		FontMetrics fm = g.getFontMetrics();
-		drawString(g, message, 30,
-				x - fm.stringWidth(message)/2,
-				y - texture.getHeight(null)/2,
-				c.getUnit().getArmy().getColour());
+		drawString(g, message, 30, x - fm.stringWidth(message) / 2,
+				y - texture.getHeight(null) / 2, c.getUnit().getArmy()
+						.getColour());
 	}
-	
-	private void drawBattle(Graphics2D g){
-		for(int i = 0; i < Math.min(3,attackers); i++){
+
+	private void drawBattle(Graphics2D g) {
+		for (int i = 0; i < Math.min(3, attackers); i++) {
 			BufferedImage soldier = currentArmy().getSoldierAttacker();
 			int x = 830 - 20 * i;
 			int y = 530 + 45 * i;
@@ -492,18 +501,21 @@ public class Game {
 		}
 		this.setFontSize(g, 25);
 		FontMetrics fm = g.getFontMetrics();
-		drawString(g, "Attackers: " + attackers, 25, 880 - fm.stringWidth("Attackers: " + attackers),705,currentArmy().getColour());
-		
-		for(int i = 0; i < Math.min(2, defenders); i++){
+		drawString(g, "Attackers: " + attackers, 25,
+				880 - fm.stringWidth("Attackers: " + attackers), 705,
+				currentArmy().getColour());
+
+		for (int i = 0; i < Math.min(2, defenders); i++) {
 			BufferedImage soldier = defendingArmy().getSoldierDefender();
 			int x = 990 + 20 * i;
 			int y = 552 + 45 * i;
 			g.drawImage(soldier, x, y, null);
 		}
-		
-		drawString(g, "Defenders: " + defenders, 25, 990,705,defendingArmy().getColour());
+
+		drawString(g, "Defenders: " + defenders, 25, 990, 705, defendingArmy()
+				.getColour());
 	}
-	
+
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		List<Country> countries = this.getMap().getCountries();
@@ -531,29 +543,30 @@ public class Game {
 
 	public void drawString(Graphics2D g, String str, int fontSize, int x,
 			int y, Color c) {
-		setFontSize(g,fontSize);
+		setFontSize(g, fontSize);
 		g.setColor(c);
 		g.drawString(str, x, y);
 	}
-	
-	public int createDieTimer(){
+
+	public int createDieTimer() {
 		return Risk.r.nextInt(2000) + 1500;
 	}
-	
-	public void setFontSize(Graphics2D g, int fontSize){
+
+	public void setFontSize(Graphics2D g, int fontSize) {
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
-	
-	private void addUnit(int troops, Army a, Country c){
-		 //Due to the many pointers that must be consistent, this is the only method that should be used for creating units
+
+	private void addUnit(int troops, Army a, Country c) {
+		// Due to the many pointers that must be consistent, this is the only
+		// method that should be used for creating units
 		Unit u = new Unit(troops, a, c);
 		a.getUnits().add(u);
 		c.setUnit(u);
 	}
-	
+
 	// INPUT HANDLING
 	public void countryClicked(Country c) {
-		switch(mode){
+		switch (mode) {
 		case 1:
 			countryClickedSetupMode(c);
 			break;
@@ -562,29 +575,30 @@ public class Game {
 			break;
 		}
 	}
-	
-	private void countryClickedSetupMode(Country c){
-		switch(setupMode){
+
+	private void countryClickedSetupMode(Country c) {
+		switch (setupMode) {
 		case 4:
-			if(c.getUnit() == null){
-				this.addUnit(1,currentArmy(), c);
+			if (c.getUnit() == null) {
+				this.addUnit(1, currentArmy(), c);
 				incrementTurn();
 				numTerritoriesClaimed++;
 				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
-				if(numTerritoriesClaimed == 42){
+				if (numTerritoriesClaimed == 42) {
 					enterSetupReinforcement();
 				}
 			}
 			break;
 		case 5:
-			if(currentArmy() == c.getUnit().getArmy()){
+			if (currentArmy() == c.getUnit().getArmy()) {
 				addTroop(c);
 				numSetupTroops--;
-				if(this.turn == numPlayers - 1 && currentArmy().getFreeUnits() == 0){
+				if (this.turn == numPlayers - 1
+						&& currentArmy().getFreeUnits() == 0) {
 					enterGamePhase();
 					break;
 				}
-				if(numSetupTroops == 0){
+				if (numSetupTroops == 0) {
 					incrementTurn();
 					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
 				}
@@ -592,33 +606,33 @@ public class Game {
 			break;
 		}
 	}
-	
 
-	private void countryClickedGameMode(Country c){
-		switch(gameMode){
+	private void countryClickedGameMode(Country c) {
+		switch (gameMode) {
 		case 1:
-			if(currentArmy() == c.getUnit().getArmy()){
+			if (currentArmy() == c.getUnit().getArmy()) {
 				this.addTroop(c);
-				if(currentArmy().getFreeUnits() == 0){
+				if (currentArmy().getFreeUnits() == 0) {
 					gameMode++;
 				}
 			}
 			break;
 		case 2:
-			if(currentArmy() == c.getUnit().getArmy()){
+			if (currentArmy() == c.getUnit().getArmy()) {
 				selectedCountry = c;
-			}else if(selectedCountry != null){
-				if(selectedCountry.getConnections().contains(c)){
+			} else if (selectedCountry != null) {
+				if (selectedCountry.getConnections().contains(c)
+						&& selectedCountry.getUnit().getTroops() > 1) {
 					enterAttack(c);
 				}
 			}
 			break;
 		case 3:
-			if(c == attackTarget){
-				if(attackers < selectedCountry.getUnit().getTroops()-1){
+			if (c == attackTarget) {
+				if (attackers < selectedCountry.getUnit().getTroops() - 1) {
 					attackers++;
 				}
-			}else{
+			} else {
 				gameMode = 2;
 				attackTarget = null;
 				countryClicked(c);
@@ -626,7 +640,7 @@ public class Game {
 			break;
 		}
 	}
-	
+
 	public void buttonClicked(Button b, int x, int y) {
 		switch (mode) {
 		case 1:
@@ -641,14 +655,15 @@ public class Game {
 			}
 			break;
 		case 2:
-			switch(gameMode){
-			case 3: if(b.getId() == 6){
-				rollBattleDice();
-				break;
-			}
+			switch (gameMode) {
+			case 3:
+				if (b.getId() == 6) {
+					rollBattleDice();
+					break;
+				}
 			case 2:
 			case 1:
-				if(b.getId() == 99){
+				if (b.getId() == 99) {
 					incrementTurn();
 				}
 				break;
@@ -658,16 +673,16 @@ public class Game {
 
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
-		armies.add(new Army(b.getId(),this));
+		armies.add(new Army(b.getId(), this));
 		turn++;
 		System.out.println(numPlayers);
 		if (turn == numPlayers) {
 			setupMode = 3;
 			dice = new int[numPlayers];
 			diceTimers = new int[numPlayers];
-			
+
 			firstTurnContenders = new boolean[numPlayers];
-			
+
 			for (int i = 0; i < numPlayers; i++) {
 				diceTimers[i] = this.createDieTimer();
 				firstTurnContenders[i] = true;
@@ -675,28 +690,33 @@ public class Game {
 
 		}
 	}
-	
-	private void addTroop(Country c){
+
+	private void addTroop(Country c) {
 		c.getUnit().incrementTroops();
-		c.getUnit().getArmy().setFreeUnits(c.getUnit().getArmy().getFreeUnits() - 1);
+		c.getUnit().getArmy()
+				.setFreeUnits(c.getUnit().getArmy().getFreeUnits() - 1);
 
 	}
-	
-	private void rollBattleDice(){
+
+	private void rollBattleDice() {
 		attackerDice = new int[Math.min(3, attackers)];
 		defenderDice = new int[Math.min(2, defenders)];
 	}
-	
-	private void nullClicked(){
-		switch(mode){
+
+	private void nullClicked() {
+		switch (mode) {
 		case 2:
-			switch(gameMode){
-			case 3: attackTarget = null; mode = 2;
-			case 2: selectedCountry = null; break;
+			switch (gameMode) {
+			case 3:
+				attackTarget = null;
+				mode = 2;
+			case 2:
+				selectedCountry = null;
+				break;
 			}
 		}
 	}
-	
+
 	public static void draw(Drawable d, Graphics g) {
 		if (d.getTexture() != null) {
 			g.drawImage(d.getTexture(), d.getX(), d.getY(), null);
@@ -758,52 +778,61 @@ public class Game {
 	}
 
 	/**
-	 * All input should go through this, to make it easier to combine local multiplayer, non-local multiplayer, and AI
+	 * All input should go through this, to make it easier to combine local
+	 * multiplayer, non-local multiplayer, and AI
+	 * 
 	 * @param message
-	 * 		The message.  The format of the message is outlined in MessageProtocol.txt
+	 *            The message. The format of the message is outlined in
+	 *            MessageProtocol.txt
 	 * @param source
 	 */
-	public void message(String message, int source){
-		try{
-			// Request the GAME_STATE lock to avoid concurrency issues 
-			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
+	public void message(String message, int source) {
+		try {
+			// Request the GAME_STATE lock to avoid concurrency issues
+			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
+					+ INPUT_ID_OFFSET);
 			int t = message.charAt(0);
-			switch(t){
-			//hexadecimal used because it seemed fitting
-			case 0x1: parseButtonMessage(message.substring(1),source); break;
-			case 0x2: parseCountryMessage(message.substring(1),source); break;
-			case 0x3: nullClicked();
+			switch (t) {
+			// hexadecimal used because it seemed fitting
+			case 0x1:
+				parseButtonMessage(message.substring(1), source);
+				break;
+			case 0x2:
+				parseCountryMessage(message.substring(1), source);
+				break;
+			case 0x3:
+				nullClicked();
 			}
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
-			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
+		} finally {
+			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source
+					+ INPUT_ID_OFFSET);
 		}
 	}
-	
-	private void parseButtonMessage(String str,int source){
+
+	private void parseButtonMessage(String str, int source) {
 		int i = str.charAt(0);
 		Button clicked = null;
-		for(Button b : getButtonList()){
-			if(b.getId() == i){
+		for (Button b : getButtonList()) {
+			if (b.getId() == i) {
 				clicked = b;
 				break;
 			}
 		}
-		buttonClicked(clicked,0,0);
+		buttonClicked(clicked, 0, 0);
 	}
-	
-	private void parseCountryMessage(String str,int source){
-		int i = Integer.parseInt(str.substring(0,2));
+
+	private void parseCountryMessage(String str, int source) {
+		int i = Integer.parseInt(str.substring(0, 2));
 		countryClicked(map.getCountryById(i));
 	}
-	
-	private void incrementTurn(){
+
+	private void incrementTurn() {
 		turn++;
-		turn%=numPlayers;
+		turn %= numPlayers;
 	}
-	
+
 	// SETTERS AND GETTERS
 	public List<Button> getButtonList() {
 		switch (mode) {
@@ -815,8 +844,8 @@ public class Game {
 				return colourButtons;
 			}
 			break;
-		case 2: 
-			switch(gameMode){
+		case 2:
+			switch (gameMode) {
 			case 1:
 			case 2:
 			case 3:
@@ -846,16 +875,15 @@ public class Game {
 	public List<Army> getArmies() {
 		return armies;
 	}
-	
-	public Army currentArmy(){
+
+	public Army currentArmy() {
 		return armies.get(turn);
 	}
-	
-	public Army defendingArmy(){
-		try{
+
+	public Army defendingArmy() {
+		try {
 			return attackTarget.getUnit().getArmy();
-		}
-		catch(NullPointerException e){
+		} catch (NullPointerException e) {
 		}
 		return null;
 	}

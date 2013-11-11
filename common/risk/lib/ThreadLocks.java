@@ -13,10 +13,9 @@ import java.lang.reflect.Modifier;
  */
 public class ThreadLocks {
 
-	
 	// Should be held while writing or reading core game state
 	public static final int GAME_STATE = 0;
-	
+
 	// Should be held while initializing game resources when the game starts
 	public static final int INIT_RESOURCES = 1;
 
@@ -44,12 +43,13 @@ public class ThreadLocks {
 		if (locks[lock] == threadId) {
 			return;
 		}
-		
+
 		// Wait for the lock to become available
 		while (locks[lock] != 0)
 			// For debug purposes
-			System.out.println("I am: " + threadId + ";Waiting on lock held by: " + locks[lock]);
-			;
+			System.out.println("I am: " + threadId
+					+ ";Waiting on lock held by: " + locks[lock]);
+		;
 		locks[lock] = threadId;
 		return;
 	}

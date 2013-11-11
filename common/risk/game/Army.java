@@ -16,25 +16,27 @@ import risk.Risk;
  * 
  */
 public class Army {
-	
+
 	private static BufferedImage soldierAttackTexture;
 	private static BufferedImage soldierDefendTexture;
 	private static final String soldierBattleAddress = "resources/soldierBattle.png";
-	
-	static{
+
+	static {
 		soldierAttackTexture = Risk.loadImage(soldierBattleAddress);
-		soldierDefendTexture = Risk.flipImage(soldierAttackTexture, true, false);
+		soldierDefendTexture = Risk
+				.flipImage(soldierAttackTexture, true, false);
 	}
-	
-	// Colour constants for when java.awt.Color does not have a good enough colour
-	private static final Color ORANGE = new Color(224,158,  0);
-	private static final Color PURPLE = new Color(153, 17,153);
-	private static final Color GREEN  = Color.GREEN.darker().darker();
-	
+
+	// Colour constants for when java.awt.Color does not have a good enough
+	// colour
+	private static final Color ORANGE = new Color(224, 158, 0);
+	private static final Color PURPLE = new Color(153, 17, 153);
+	private static final Color GREEN = Color.GREEN.darker().darker();
+
 	private List<Unit> units;
 
 	private int freeUnits;
-	
+
 	/**
 	 * The type of this army: 0 = Red 1 = Blue 2 = Grey 3 = Green 4 = Purple 5 =
 	 * Orange
@@ -45,7 +47,7 @@ public class Army {
 	 * Pointer to the game object to get necessary data
 	 */
 	private Game g;
-	
+
 	private BufferedImage soldierAttacker;
 	private BufferedImage soldierDefender;
 
@@ -53,31 +55,33 @@ public class Army {
 		units = new ArrayList<Unit>();
 		this.setType(type);
 		this.g = g;
-		
-		soldierAttacker = Risk.changeImageColour(soldierAttackTexture, getColour());
-		soldierDefender = Risk.changeImageColour(soldierDefendTexture, getColour());
+
+		soldierAttacker = Risk.changeImageColour(soldierAttackTexture,
+				getColour());
+		soldierDefender = Risk.changeImageColour(soldierDefendTexture,
+				getColour());
 	}
 
-	public int calculateContinentBonus(){
+	public int calculateContinentBonus() {
 		int bonus = 0;
 		Map map = g.getMap();
 		int numContinents = map.getNumContinents();
-		for(int i = 0; i < numContinents; i++){
+		for (int i = 0; i < numContinents; i++) {
 			boolean ownAll = true;
-			List<Country> cont = map.getContinent(i+1);
-			for(int j = 0; j < cont.size() && ownAll; j++){
-				if(cont.get(j).getUnit().getArmy() != this){
+			List<Country> cont = map.getContinent(i + 1);
+			for (int j = 0; j < cont.size() && ownAll; j++) {
+				if (cont.get(j).getUnit().getArmy() != this) {
 					ownAll = false;
 				}
 			}
-			if(ownAll){
-				bonus += map.getContinentBonus(i+1);
+			if (ownAll) {
+				bonus += map.getContinentBonus(i + 1);
 			}
 		}
 		System.out.println("Bonus: " + bonus);
 		return bonus;
 	}
-	
+
 	public int getFreeUnits() {
 		return freeUnits;
 	}
@@ -146,7 +150,7 @@ public class Army {
 	public void setSoldierDefender(BufferedImage soldierDefender) {
 		this.soldierDefender = soldierDefender;
 	}
-	
+
 	public static Color getColorByType(int type) {
 		Color c = null;
 		switch (type) {

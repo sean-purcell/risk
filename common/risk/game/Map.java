@@ -11,11 +11,11 @@ import java.util.Properties;
 import risk.Risk;
 
 public class Map {
-	
+
 	private static Properties continentData;
 	private static final String continentDataAddress = "resources/continentData.properties";
-	
-	static{
+
+	static {
 		continentData = new Properties();
 		try {
 			continentData.load(new FileInputStream(continentDataAddress));
@@ -25,7 +25,7 @@ public class Map {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * The texture for the map
 	 */
@@ -40,7 +40,7 @@ public class Map {
 	 * Lists of countries seperated by continent
 	 */
 	private List<List<Country>> continents;
-	
+
 	public Map() {
 		texture = Risk.loadImage("resources/map.png");
 		countries = new ArrayList<Country>();
@@ -61,21 +61,23 @@ public class Map {
 		System.out.println();
 	}
 
-	private void initContinents(){
+	private void initContinents() {
 		continents = new ArrayList<List<Country>>();
 		int index = 1;
-		for(int i = 1; continentData.getProperty("cont"+i+"name") != null;i++){
+		for (int i = 1; continentData.getProperty("cont" + i + "name") != null; i++) {
 			List<Country> cont = new ArrayList<Country>();
 			continents.add(cont);
 			System.out.println(index);
-			System.out.println(Country.getCountryData().getProperty("c"+index+"cont"));
-			for(; Integer.toString(i).equals(Country.getCountryData().getProperty("c"+index+"cont")); index++){
+			System.out.println(Country.getCountryData().getProperty(
+					"c" + index + "cont"));
+			for (; Integer.toString(i).equals(
+					Country.getCountryData().getProperty("c" + index + "cont")); index++) {
 				cont.add(countries.get(index));
 			}
 		}
 		index = 5;
 	}
-	
+
 	public BufferedImage getTexture() {
 		return texture;
 	}
@@ -84,14 +86,15 @@ public class Map {
 		this.texture = texture;
 	}
 
-	public int getContinentBonus(int id){
-		return Integer.parseInt(continentData.getProperty("cont"+id+"army"));
+	public int getContinentBonus(int id) {
+		return Integer
+				.parseInt(continentData.getProperty("cont" + id + "army"));
 	}
-	
-	public String getContinentColor(int id){
-		return continentData.getProperty("cont"+id+"col");
+
+	public String getContinentColor(int id) {
+		return continentData.getProperty("cont" + id + "col");
 	}
-	
+
 	public Country getCountryById(int id) {
 		return countries.get(id);
 	}
@@ -115,7 +118,7 @@ public class Map {
 	}
 
 	public List<Country> getContinent(int id) {
-		return continents.get(id-1);
+		return continents.get(id - 1);
 	}
 
 	public int getNumContinents() {

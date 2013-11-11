@@ -24,7 +24,7 @@ import risk.game.Unit;
  * @author Sean
  * 
  */
-public class RiskCanvas extends Canvas{
+public class RiskCanvas extends Canvas {
 
 	private static BufferedImage soldier;
 
@@ -36,10 +36,9 @@ public class RiskCanvas extends Canvas{
 
 	public Font army;
 	private final String armyFontAddress = "resources/Ver_Army.ttf";
-	
+
 	private BufferedImage buffer;
 	private Graphics2D bufferG;
-	
 
 	public RiskCanvas(Game game, Input i) {
 		frame = new JFrame("Risk");
@@ -53,7 +52,7 @@ public class RiskCanvas extends Canvas{
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		frame.setBackground(Color.WHITE);
 
 		this.addMouseListener(i);
@@ -63,17 +62,17 @@ public class RiskCanvas extends Canvas{
 		frame.addMouseListener(i);
 		frame.addKeyListener(i);
 		frame.addMouseMotionListener(i);
-		
+
 		soldier = Risk.loadImage("resources/soldier.png");
 		this.input = i;
 		initFont();
 
-		buffer = new BufferedImage(1280,720, BufferedImage.TYPE_INT_ARGB);
+		buffer = new BufferedImage(1280, 720, BufferedImage.TYPE_INT_ARGB);
 		bufferG = (Graphics2D) buffer.getGraphics();
-		
+
 		this.game = game;
 	}
-	
+
 	private void initFont() {
 		try {
 			this.army = Font.createFont(Font.TRUETYPE_FONT, new File(
@@ -101,19 +100,20 @@ public class RiskCanvas extends Canvas{
 		g.drawImage(buffer, 0, 0, null);
 	}
 
-	public void createFrame(){ //Creates the frame all at once in an offscreen buffer to avoid screen flicker
+	public void createFrame() { // Creates the frame all at once in an offscreen
+								// buffer to avoid screen flicker
 		bufferG.setColor(Color.WHITE);
-		bufferG.fillRect(0,0,1280,720);
+		bufferG.fillRect(0, 0, 1280, 720);
 		bufferG.setFont(army);
-		
+
 		// If resources have not been initialized yet, don't draw
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
 			return;
 		}
-		
+
 		game.draw(bufferG);
 	}
-	
+
 	/**
 	 * Override of {@code Component.hasFocus}, checks if this canvas has focus
 	 * or if the underlying frame has focus
