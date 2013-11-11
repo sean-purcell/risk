@@ -95,10 +95,11 @@ public class Risk {
 		BufferedImage image = cloneImage(original);
 		for (int x = 0; x < image.getWidth(); x++) {
 			for (int y = 0; y < image.getHeight(); y++) {
-				if (image.getRGB(x, y) % 0x01000000 == 0 /*
+				if ((image.getRGB(x,y) & 0xFF000000) != 0x0 /*
 														 * represents complete
 														 * transparency
 														 */)
+					//System.out.println("(" + x + "," + y + ")" + Integer.toString(image.getRGB(x, y),16));
 					image.setRGB(x, y, c.getRGB());
 			}
 		}

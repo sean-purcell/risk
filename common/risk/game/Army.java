@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import risk.Risk;
+
 /**
  * Represents an Army
  * 
@@ -14,6 +16,15 @@ import java.util.List;
  * 
  */
 public class Army {
+	
+	private static BufferedImage soldierAttackTexture;
+	private static BufferedImage soldierDefendTexture;
+	private static final String soldierBattleAddress = "resources/soldierBattle.png";
+	
+	static{
+		soldierAttackTexture = Risk.loadImage(soldierBattleAddress);
+		soldierDefendTexture = Risk.flipImage(soldierAttackTexture, true, false);
+	}
 	
 	// Colour constants for when java.awt.Color does not have a good enough colour
 	private static final Color ORANGE = new Color(224,158,  0);
@@ -42,6 +53,9 @@ public class Army {
 		units = new ArrayList<Unit>();
 		this.setType(type);
 		this.g = g;
+		
+		soldierAttacker = Risk.changeImageColour(soldierAttackTexture, getColour());
+		soldierDefender = Risk.changeImageColour(soldierDefendTexture, getColour());
 	}
 
 	public int calculateContinentBonus(){

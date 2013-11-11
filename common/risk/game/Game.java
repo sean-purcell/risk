@@ -62,6 +62,7 @@ public class Game {
 	 * 1. Deploy begin turn reinforcements<br>
 	 * 2. Normal game mode<br>
 	 * 3. Battle mode<br>
+	 * 4. Dice rolling<br>
 	 */
 	private int gameMode;
 
@@ -91,6 +92,11 @@ public class Game {
 	private Country selectedCountry;
 	
 	private Country attackTarget;
+	
+	private int attackers;
+	private int defenders;
+	
+	private List<Button> endTurnList;
 	
 	/**
 	 * Set to false if the game should exit
@@ -143,8 +149,8 @@ public class Game {
 				
 				// Create the offscreen buffer containing the frame to be rendered
 				r.createFrame();
-				// Release lock now that we're done with it 
-				ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);
+					// Release lock now that we're done with it 
+					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,UPDATE_THREAD_ID);	
 				
 				// Renders the game
 				r.repaint();
@@ -210,6 +216,8 @@ public class Game {
 		} else {
 			diceDisplayUpdate(delta);
 		}
+		
+		System.out.println(diceDisplayCountdown);
 	}
 	
 	private void diceDisplayDone(int delta){
@@ -217,7 +225,7 @@ public class Game {
 		if (diceDisplayCountdown <= 0) {
 			int max = 0;
 			for (int i = 0; i < numPlayers; i++) {
-				if (dice[i] > max) {
+				if (firstTurnContenders[i] && dice[i] > max) {
 					max = dice[i];
 				}
 			}
@@ -286,6 +294,8 @@ public class Game {
 	private void enterAttack(Country c){
 		this.gameMode = 3;
 		attackTarget = c;
+		attackers = 1;
+		defenders = c.getUnit().getTroops();
 	}
 	
 	private void initSetupButtons() {
@@ -309,6 +319,10 @@ public class Game {
 		setupMode = 0;
 		
 		turn = -1;
+		
+		Button endT = new Button(1230, 670, null, 99);
+		endTurnList = new ArrayList<Button>();
+		endTurnList.add(endT);
 		
 		enterNextTurn();
 	}
@@ -373,6 +387,7 @@ public class Game {
 			drawReinforcements(g);
 			break;
 		case 3:
+			drawBattle(g);
 			drawAttackTarget(g);
 		case 2:
 			drawSelectedCountry(g);
@@ -431,13 +446,13 @@ public class Game {
 			return;
 		}
 		
-		drawCountry(g, attackTarget, 725, 625, "Target:");
+		drawCountry(g, attackTarget, 705, 625, "Target:");
 	}
 	
 	private void drawCountry(Graphics2D g, Country c, int x,int y, String message){
 		Image texture = c.getTexture();
 		
-		g.setFont(g.getFont().deriveFont((float) 30));
+		this.setFontSize(g,30);
 		
 		// Calculate the width and height to resize the image to
 		int[] newDimensions = getScaledCountryDimensions(c);
@@ -459,15 +474,39 @@ public class Game {
 
 	private int[] getScaledCountryDimensions(Country c){
 		Image texture = c.getTexture();
-		int newWidth = Math.min(texture.getWidth(null), 200);
+		/*int newWidth = Math.min(texture.getWidth(null), 200);
 		int newHeight = newWidth == 200 ? 
 				newWidth * texture.getHeight(null) / texture.getWidth(null)
-				: Math.min(texture.getHeight(null), 150);
-				
+				: Math.min(texture.getHeight(null), 150);*/
+		int newWidth = texture.getWidth(null);
+		int newHeight = texture.getHeight(null);
+		if(newWidth > 200 || newHeight > 150){
+			double scale = Math.min(200.0/newWidth, 150.0/newHeight);
+			newWidth = (int) (scale * newWidth);
+			newHeight = (int) (scale * newHeight);
+		}
 		return new int[]{newWidth,newHeight};
 	}
 	
-	private void drawBattle
+	private void drawBattle(Graphics2D g){
+		for(int i = 0; i < Math.min(3,attackers); i++){
+			BufferedImage soldier = currentArmy().getSoldierAttacker();
+			int x = 800 - 20 * i;
+			int y = 530 + 45 * i;
+			g.drawImage(soldier, x, y, null);
+		}
+		FontMetrics fm = g.getFontMetrics();
+		drawString(g, "Attackers: " + attackers, 25, 865 - fm.stringWidth("Attackers: " + attackers),705,currentArmy().getColour());
+		
+		for(int i = 0; i < Math.min(2, defenders); i++){
+			BufferedImage soldier = defendingArmy().getSoldierDefender();
+			int x = 960 + 20 * i;
+			int y = 552 + 45 * i;
+			g.drawImage(soldier, x, y, null);
+		}
+		
+		drawString(g, "Defenders: " + defenders, 25, 960,705,defendingArmy().getColour());
+	}
 	
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
@@ -496,9 +535,13 @@ public class Game {
 
 	public void drawString(Graphics2D g, String str, int fontSize, int x,
 			int y, Color c) {
-		g.setFont(g.getFont().deriveFont((float) fontSize));
+		setFontSize(g,fontSize);
 		g.setColor(c);
 		g.drawString(str, x, y);
+	}
+	
+	public void setFontSize(Graphics2D g, int fontSize){
+		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
 	
 	private void addUnit(int troops, Army a, Country c){
@@ -571,9 +614,15 @@ public class Game {
 			}
 			break;
 		case 3:
-			gameMode = 2;
-			attackTarget = null;
-			countryClicked(c);
+			if(c == attackTarget){
+				if(attackers < selectedCountry.getUnit().getTroops()-1){
+					attackers++;
+				}
+			}else{
+				gameMode = 2;
+				attackTarget = null;
+				countryClicked(c);
+			}
 			break;
 		}
 	}
@@ -697,18 +746,18 @@ public class Game {
 	 */
 	public void message(String message, int source){
 		
-		// Request the GAME_STATE lock to avoid concurrency issues 
-		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
-		int t = message.charAt(0);
-		switch(t){
-		//hexadecimal used because it seemed fitting
-		case 0x1: parseButtonMessage(message.substring(1),source); break;
-		case 0x2: parseCountryMessage(message.substring(1),source); break;
-		case 0x3: nullClicked();
-		}
+			// Request the GAME_STATE lock to avoid concurrency issues 
+			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
+			int t = message.charAt(0);
+			switch(t){
+			//hexadecimal used because it seemed fitting
+			case 0x1: parseButtonMessage(message.substring(1),source); break;
+			case 0x2: parseCountryMessage(message.substring(1),source); break;
+			case 0x3: nullClicked();
+			}
 		
-		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
-	}
+			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source + INPUT_ID_OFFSET);
+		}
 	
 	private void parseButtonMessage(String str,int source){
 		int i = str.charAt(0);
@@ -748,7 +797,7 @@ public class Game {
 			case 1:
 			case 2:
 			case 3:
-				break;
+				return endTurnList;
 			}
 			break;
 		}
@@ -777,6 +826,15 @@ public class Game {
 	
 	public Army currentArmy(){
 		return armies.get(turn);
+	}
+	
+	public Army defendingArmy(){
+		try{
+			return attackTarget.getUnit().getArmy();
+		}
+		catch(NullPointerException e){
+		}
+		return null;
 	}
 
 	public void setArmies(List<Army> armies) {
