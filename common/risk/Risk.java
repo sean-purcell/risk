@@ -6,6 +6,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -39,7 +40,7 @@ public class Risk {
 	 */
 	public static Random r;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
@@ -123,5 +124,16 @@ public class Risk {
 			}
 		}
 		return image;
+	}
+	
+	public static void sort(int[] arr){
+		Arrays.sort(arr);
+		int[] sorted = new int[arr.length];
+		for(int i = 0; i < arr.length; i++){
+			sorted[i] = arr[arr.length-1-i];
+		}
+		for(int i = 0; i < arr.length; i++){
+			arr[i] = sorted[i];
+		}
 	}
 }

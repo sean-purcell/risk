@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import risk.Risk;
@@ -73,6 +74,7 @@ public class Game {
 
 	private int diceSwitchTimer;
 	private int diceDisplayCountdown;
+	
 	private boolean[] firstTurnContenders;
 
 	private int numTerritoriesClaimed;
@@ -98,7 +100,12 @@ public class Game {
 
 	private int[] attackerDice;
 	private int[] defenderDice;
+	
+	private int[] attackerDiceTimers;
+	private int[] defenderDiceTimers;
 
+	private boolean displayedSorted;
+	
 	private List<Button> endTurnList;
 	private List<Button> battleButtonList;
 
@@ -201,6 +208,8 @@ public class Game {
 			gameMode = 1;
 		case 1:
 			break;
+		case 4:
+			updateBattleDice(delta);
 		}
 	}
 
@@ -229,10 +238,8 @@ public class Game {
 		} else {
 			diceDisplayUpdate(delta);
 		}
-
-		System.out.println(diceDisplayCountdown);
 	}
-
+	
 	private void diceDisplayDone(int delta) {
 		diceDisplayCountdown -= delta;
 		if (diceDisplayCountdown <= 0) {
@@ -284,6 +291,96 @@ public class Game {
 		}
 	}
 
+	private void updateBattleDice(int delta){
+		if(diceDisplayCountdown <= 0){
+			battleDiceTimerUpdate(delta);
+		}else{
+			battleDiceTimerDone(delta);
+		}
+	}
+	
+	private void battleDiceTimerUpdate(int delta){
+		diceSwitchTimer -= delta;
+		if(diceSwitchTimer <= 0){
+			diceSwitchTimer += 83;
+			reRollBattleDice();
+		}
+		
+		boolean done = true;
+		for(int i = 0; i < attackerDice.length; i++){
+			attackerDiceTimers[i] -= delta;
+			if(attackerDiceTimers[i] > 0)
+				done = false;
+		}
+		for(int i = 0; i < defenderDice.length; i++){
+			defenderDiceTimers[i] -= delta;
+			if(defenderDiceTimers[i] > 0)
+				done = false;
+		}
+		if(done){
+			diceDisplayCountdown = 1000;
+		}
+	}
+	
+	private void battleDiceTimerDone(int delta){
+		diceDisplayCountdown -= delta;
+		
+		if(diceDisplayCountdown <= 0){
+			if(!displayedSorted){
+				diceDisplayCountdown = 1000;
+				Risk.sort(attackerDice);
+				Risk.sort(defenderDice);
+				displayedSorted = true;
+			}else{
+				int[] losses = calculateLosses();
+				attackers-=losses[0];
+				selectedCountry.getUnit().incrementTroops(-losses[0]);
+				defenders-=losses[1];
+				attackTarget.getUnit().incrementTroops(-losses[1]);
+				if(selectedCountry.getUnit().getTroops() <= 1){
+					gameMode = 2;
+					attackTarget = null;
+				}else if(attackTarget.getUnit().getTroops() <= 0){
+					gameMode = 2;
+
+					this.removeUnit(attackTarget.getUnit());
+					this.addUnit(attackers, currentArmy(), attackTarget);
+
+					this.selectedCountry.getUnit().incrementTroops(-attackers);
+
+					selectedCountry = attackTarget;
+					attackTarget = null;
+				}else{
+					gameMode = 3;
+				}
+			}
+		}
+	}
+	
+	private void reRollBattleDice(){
+		for(int i = 0; i < attackerDice.length; i++){
+			if(attackerDiceTimers[i] > 0)
+				attackerDice[i] = Risk.r.nextInt(6) + 1;
+		}
+		
+		for(int i = 0; i < defenderDice.length; i++){
+			if(defenderDiceTimers[i] > 0)
+				defenderDice[i] = Risk.r.nextInt(6) + 1;
+		}
+	}
+	
+	private int[] calculateLosses(){
+		int[] losses = new int[2];
+		for(int i = 0; i < Math.min(attackerDice.length, defenderDice.length); i++){
+			if(attackerDice[i] > defenderDice[i]){
+				losses[1]++;
+			}else{
+				losses[0]++;
+			}
+		}
+		return losses;
+	}
+	
 	private void enterTerritoryAllocateMode(int first) {
 		int offset = first;
 
@@ -402,14 +499,16 @@ public class Game {
 	private void drawGameMode(Graphics2D g) {
 		drawTurn(g);
 		switch (gameMode) {
-		case 1:
-			drawReinforcements(g);
-			break;
+		case 4: 
+			drawBattleDice(g);
 		case 3:
 			drawBattle(g);
 			drawAttackTarget(g);
 		case 2:
 			drawSelectedCountry(g);
+			break;
+		case 1:
+			drawReinforcements(g);
 			break;
 		}
 	}
@@ -507,15 +606,29 @@ public class Game {
 
 		for (int i = 0; i < Math.min(2, defenders); i++) {
 			BufferedImage soldier = defendingArmy().getSoldierDefender();
-			int x = 990 + 20 * i;
+			int x = 1010 + 20 * i;
 			int y = 552 + 45 * i;
 			g.drawImage(soldier, x, y, null);
 		}
 
-		drawString(g, "Defenders: " + defenders, 25, 990, 705, defendingArmy()
+		drawString(g, "Defenders: " + defenders, 25, 1010, 705, defendingArmy()
 				.getColour());
 	}
 
+	private void drawBattleDice(Graphics2D g){
+		for(int i = 0; i < attackerDice.length; i++){
+			int x = 890;
+			int y = 522 + 55 * i;
+			drawDie(g, x, y, attackerDice[i]);
+		}
+		
+		for(int i = 0; i < defenderDice.length; i++){
+			int x = 945;
+			int y = 544 + 55 * i;
+			drawDie(g, x, y, defenderDice[i]);
+		}
+	}
+	
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		List<Country> countries = this.getMap().getCountries();
@@ -564,6 +677,15 @@ public class Game {
 		c.setUnit(u);
 	}
 
+	private void removeUnit(Unit u) {
+		// Should be the only method for removing units
+		// Leaves the unit object with no references to be GC'ed
+		
+		// Should immediately by called by add unit
+		u.getArmy().getUnits().remove(u);
+		u.getLocation().setUnit(null);
+	}
+	
 	// INPUT HANDLING
 	public void countryClicked(Country c) {
 		switch (mode) {
@@ -699,8 +821,29 @@ public class Game {
 	}
 
 	private void rollBattleDice() {
-		attackerDice = new int[Math.min(3, attackers)];
-		defenderDice = new int[Math.min(2, defenders)];
+		gameMode = 4;
+		
+		int attackerNum = Math.min(3,attackers);
+		int defenderNum = Math.min(2, defenders);
+		
+		attackerDice = new int[attackerNum];
+		defenderDice = new int[defenderNum];
+		
+		attackerDiceTimers = new int[Math.min(3, attackers)];
+		defenderDiceTimers = new int[Math.min(2, defenders)];
+		
+		for(int i = 0; i < attackerDiceTimers.length; i++){
+			attackerDiceTimers[i] = createDieTimer();
+		}
+		
+		for(int i = 0; i < defenderDiceTimers.length; i++){
+			defenderDiceTimers[i] = createDieTimer();
+		}
+		
+		reRollBattleDice();
+		
+		displayedSorted = false;
+		diceSwitchTimer = 0;
 	}
 
 	private void nullClicked() {
@@ -848,8 +991,11 @@ public class Game {
 			switch (gameMode) {
 			case 1:
 			case 2:
-			case 3:
 				return endTurnList;
+			case 3:
+				return battleButtonList;
+			case 4: return null;
+				
 			}
 			break;
 		}

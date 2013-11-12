@@ -143,6 +143,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		} else if (e.getKeyChar() == 'n') {
 			String message = "" + (char) 1 + (char) 99;
 			g.message(message, -1);
+		} else if (e.getKeyChar() == 'b') {
+			String message = "" + (char) 1 + (char) 6;
+			g.message(message, -1);
 		}
 	}
 
