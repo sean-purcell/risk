@@ -108,6 +108,8 @@ public class Game {
 	
 	private List<Button> endTurnList;
 	private List<Button> battleButtonList;
+	
+	private BufferedImage battleButtonTexture;
 
 	/**
 	 * Set to false if the game should exit
@@ -432,14 +434,15 @@ public class Game {
 
 		turn = -1;
 
-		Button endT = new Button(1230, 670, null, 99);
+		Button endT = new Button(1225, 665, null, 99);
 		endTurnList = new ArrayList<Button>();
 		endTurnList.add(endT);
 
 		battleButtonList = new ArrayList<Button>();
 		battleButtonList.add(endT);
 
-		Button rollDice = new Button(1160, 670, null, 6);
+		battleButtonTexture = Risk.loadImage("resources/battleButton.png");
+		Button rollDice = new Button(1155, 665, battleButtonTexture, 6);
 		battleButtonList.add(rollDice);
 
 		enterNextTurn();
@@ -461,6 +464,8 @@ public class Game {
 			e.printStackTrace();
 			System.err.println("Frame not completed due to  error");
 		}
+		
+		drawButtons(g);
 	}
 
 	public void drawUnits(Graphics2D g) {
@@ -492,8 +497,6 @@ public class Game {
 			drawDeploySetupTroops(g);
 			break;
 		}
-
-		drawButtons(g);
 	}
 
 	private void drawGameMode(Graphics2D g) {
