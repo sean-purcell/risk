@@ -429,7 +429,8 @@ public class Game {
 
 		turn = -1;
 
-		Button endT = new Button(1225, 665, null, 99);
+		BufferedImage endTurn = Risk.loadImage("resources/endTurn.png");
+		Button endT = new Button(1225, 665, endTurn, 99);
 		endTurnList = new ArrayList<Button>();
 		endTurnList.add(endT);
 
@@ -730,11 +731,8 @@ public class Game {
 	private void countryClickedGameMode(Country c) {
 		switch (gameMode) {
 		case 1:
-			if (currentArmy() == c.getUnit().getArmy()) {
+			if (currentArmy() == c.getUnit().getArmy() && currentArmy().getFreeUnits() > 0) {
 				this.addTroop(c);
-				if (currentArmy().getFreeUnits() == 0) {
-					gameMode++;
-				}
 			}
 			break;
 		case 2:
@@ -758,6 +756,12 @@ public class Game {
 				countryClicked(c);
 			}
 			break;
+		case 5:
+			if (c.getConnections().contains(selectedCountry)
+					&& selectedCountry.getUnit().getTroops() > 1){
+				c.getUnit().incrementTroops();
+				selectedCountry.getUnit().incrementTroops(-1);
+			}
 		}
 	}
 
