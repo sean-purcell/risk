@@ -34,7 +34,7 @@ public class Game {
 	// the number for the lock
 	private final int INPUT_ID_OFFSET = 0x100;
 
-	private final int UPDATE_RATE = 32;
+	private final int UPDATE_RATE = 100;
 
 	private RiskCanvas r;
 	private Input i;
@@ -120,11 +120,6 @@ public class Game {
 	 * Represents the current speed of the game in frames per second
 	 */
 	private int fps;
-
-	/**
-	 * Represents desired fps
-	 */
-	private int fpsDesired = 60;
 
 	public Game() {
 		map = new Map();
