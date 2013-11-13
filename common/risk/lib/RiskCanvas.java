@@ -63,6 +63,8 @@ public class RiskCanvas extends Canvas {
 		frame.addKeyListener(i);
 		frame.addMouseMotionListener(i);
 
+		frame.setBackground(Color.WHITE);
+		
 		soldier = Risk.loadImage("resources/soldier.png");
 		this.input = i;
 		initFont();
@@ -85,7 +87,7 @@ public class RiskCanvas extends Canvas {
 		this.army = this.army.deriveFont(36f);
 	}
 
-	public void paint(Graphics g) {
+	public void resize() {
 		if (frame.getContentPane().getBounds().getHeight() != 720) {
 			Rectangle r = new Rectangle(1280, 720);
 			frame.getContentPane().setBounds(r);
@@ -93,6 +95,9 @@ public class RiskCanvas extends Canvas {
 			frame.pack();
 			System.out.println("Resized");
 		} // Ensures that the frame is at the correct size
+	}
+	
+	public void paint(Graphics g) {
 
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
 			return;

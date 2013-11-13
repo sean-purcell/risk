@@ -137,6 +137,8 @@ public class Game {
 	 */
 	public void run() {
 		long lastTime = System.currentTimeMillis();
+		r.resize();
+		
 		while (isRunning()) {
 			if (r.hasFocus()) { // Ensures that the game does not render when it
 								// is not in focus
@@ -218,6 +220,9 @@ public class Game {
 
 	private void enterNextTurn() {
 		incrementTurn();
+		gameMode = 1;
+		selectedCountry = null;
+		attackTarget = null;
 		currentArmy().setFreeUnits(calculateReinforcements());
 	}
 
