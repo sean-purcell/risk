@@ -503,13 +503,23 @@ public class Game {
 	private void drawGameMode(Graphics2D g) {
 		drawTurn(g);
 		switch (gameMode) {
-		case 4: 
-			drawBattleDice(g);
+		case 2:
+		case 5:
+			drawSelectedCountry(g);
+			drawObjectiveMessage(g);
+			break;
 		case 3:
+			drawSelectedCountry(g);
+			drawObjectiveMessage(g);
 			drawBattle(g);
 			drawAttackTarget(g);
-		case 2:
+			break;
+		case 4: 
 			drawSelectedCountry(g);
+			drawObjectiveMessage(g);
+			drawBattle(g);
+			drawAttackTarget(g);
+			drawBattleDice(g);
 			break;
 		case 1:
 			drawReinforcements(g);
@@ -556,6 +566,15 @@ public class Game {
 		Army a = this.currentArmy();
 		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 30, 30, 645,
 				Color.BLACK);
+	}
+	
+	private void drawObjectiveMessage(Graphics2D g){
+		String message = gameMode == 5 ? 
+				"Move troops" :
+					"Attack enemy";
+		String message2 = gameMode == 5 ? "to reinforce positions." : "territories.";
+		this.drawString(g, message, 30, 30, 645, Color.BLACK);
+		this.drawString(g, message2, 30, 30, 665, Color.BLACK);
 	}
 
 	private void drawSelectedCountry(Graphics2D g) {
@@ -762,10 +781,16 @@ public class Game {
 			}
 			break;
 		case 5:
-			if (c.getConnections().contains(selectedCountry)
-					&& selectedCountry.getUnit().getTroops() > 1){
-				c.getUnit().incrementTroops();
-				selectedCountry.getUnit().incrementTroops(-1);
+			if (currentArmy() == c.getUnit().getArmy()){
+				if(c.getConnections().contains(selectedCountry)
+						&& selectedCountry.getUnit().getTroops() > 1){
+					c.getUnit().incrementTroops();
+					selectedCountry.getUnit().incrementTroops(-1);
+				}else{
+					selectedCountry = c;
+				}
+			}else{
+				selectedCountry = null;
 			}
 		}
 	}
@@ -792,8 +817,21 @@ public class Game {
 				}
 			case 2:
 			case 1:
+			case 5:
 				if (b.getId() == 99) {
-					incrementTurn();
+					switch(gameMode){
+					case 1:
+						gameMode++;
+						break;
+					case 2:
+					case 3:
+						gameMode = 5;
+						break;
+					case 5:
+						enterNextTurn();
+						gameMode = 1;
+						break;
+					}
 				}
 				break;
 			}
@@ -861,6 +899,7 @@ public class Game {
 				attackTarget = null;
 				mode = 2;
 			case 2:
+			case 5:
 				selectedCountry = null;
 				break;
 			}
@@ -997,7 +1036,11 @@ public class Game {
 		case 2:
 			switch (gameMode) {
 			case 1:
+				if(currentArmy().getFreeUnits() > 0){
+					return null;
+				}
 			case 2:
+			case 5:
 				return endTurnList;
 			case 3:
 				return battleButtonList;
