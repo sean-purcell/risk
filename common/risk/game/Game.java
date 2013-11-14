@@ -18,12 +18,12 @@ import risk.lib.Input;
 import risk.lib.RiskCanvas;
 import risk.lib.ThreadLocks;
 
+import static risk.Risk.DEBUG;
+
 /**
  * Represents the main game logic and loops
  * 
- * @author Gabriel Ip
  * @author Sean Purcell
- * @author Miranda Zhou
  * 
  */
 public class Game {
@@ -897,7 +897,7 @@ public class Game {
 			switch (gameMode) {
 			case 3:
 				attackTarget = null;
-				mode = 2;
+				gameMode = 2;
 			case 2:
 			case 5:
 				selectedCountry = null;
@@ -991,6 +991,10 @@ public class Game {
 				break;
 			case 0x3:
 				nullClicked();
+				break;
+			case 0x10:
+				parseCheatMessage(message.substring(1), source);
+				break;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1017,6 +1021,26 @@ public class Game {
 		countryClicked(map.getCountryById(i));
 	}
 
+	private void parseCheatMessage(String str, int source) {
+		if (!DEBUG) {
+			return;
+		}
+		
+		switch(str.charAt(0)){
+		case 1: 
+			for(int i = 0; i < attackerDice.length; i++){
+				attackerDice[i] = 6;
+				attackerDiceTimers[i] = 0;
+			}
+			
+			for(int i = 0; i < defenderDice.length; i++){
+				defenderDice[i] = 1;
+				defenderDiceTimers[i] = 0;
+			}
+			break;
+		}
+	}
+	
 	private void incrementTurn() {
 		turn++;
 		turn %= numPlayers;

@@ -11,6 +11,8 @@ import risk.Risk;
 import risk.game.Country;
 import risk.game.Game;
 
+import static risk.Risk.DEBUG;
+
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	private static final String clickMapAddress = "resources/clickMap.png";
@@ -132,6 +134,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
+		if(!DEBUG){
+			return;
+		}
 		if (e.getKeyChar() == 'c') {
 			for (int j = 0; j < 200; j++) {
 				int i = Risk.r.nextInt(42) + 1;
@@ -145,6 +150,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 			g.message(message, -1);
 		} else if (e.getKeyChar() == 'b') {
 			String message = "" + (char) 1 + (char) 6;
+			g.message(message, -1);
+		} else if (e.getKeyChar() == 'w') {
+			String message = "" + (char) 0x10 + (char) 1;
 			g.message(message, -1);
 		}
 	}

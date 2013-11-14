@@ -29,6 +29,8 @@ import risk.lib.ThreadLocks;
  */
 public class Risk {
 
+	public static final boolean DEBUG = true;
+	
 	/**
 	 * The unique id used to hold a lock while loading resources
 	 */
@@ -44,7 +46,7 @@ public class Risk {
 	 */
 	public static Random r;
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
@@ -52,7 +54,7 @@ public class Risk {
 		
 		g.run();
 	}
-
+	
 	private static void explore(){
 		File f = new File("./");
 		System.out.println(f.getAbsolutePath());
@@ -70,9 +72,9 @@ public class Risk {
 			} catch (IOException e1) {
 				e.printStackTrace();
 				e1.printStackTrace();
-			return null;
+				return null;
+			}
 		}
-	}
 	}
 	
 	public static Properties loadProperties(String ref){
