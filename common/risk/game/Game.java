@@ -1,5 +1,7 @@
 package risk.game;
 
+import static risk.Risk.DEBUG;
+
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -7,7 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import risk.Risk;
@@ -17,8 +18,6 @@ import risk.lib.Drawable;
 import risk.lib.Input;
 import risk.lib.RiskCanvas;
 import risk.lib.ThreadLocks;
-
-import static risk.Risk.DEBUG;
 
 /**
  * Represents the main game logic and loops
@@ -45,6 +44,7 @@ public class Game {
 	 * Represents the current mode that the game is in<br>
 	 * 1. Game setup mode<br>
 	 * 2. Main game mode<br>
+	 * 3. Display victor<br>
 	 */
 	private int mode;
 
@@ -55,6 +55,7 @@ public class Game {
 	 * 3. Roll dice<br>
 	 * 4. Choose territories<br>
 	 * 5. Deploy reinforcements
+	 * 6. Display eliminated army
 	 */
 	private int setupMode;
 
@@ -105,6 +106,9 @@ public class Game {
 	private int[] defenderDiceTimers;
 
 	private boolean displayedSorted;
+	
+	private int displayEliminatedTimer;
+	private Army eliminated;
 	
 	private List<Button> endTurnList;
 	private List<Button> battleButtonList;
@@ -180,7 +184,6 @@ public class Game {
 	}
 
 	private void gameOver(){
-		Army victor = armies.get(0);
 		gameMode = 3;
 	}
 	
@@ -214,6 +217,10 @@ public class Game {
 			break;
 		case 4:
 			updateBattleDice(delta);
+			break;
+		case 6:
+			updateEliminatedTimer(delta);
+			break;
 		}
 	}
 
@@ -368,6 +375,14 @@ public class Game {
 		}
 	}
 	
+	private void updateEliminatedTimer(int delta){
+		displayEliminatedTimer -= delta;
+		if(displayEliminatedTimer <= 0){
+			gameMode = 2;
+			eliminated = null;
+		}
+	}
+	
 	private void battleWon() {
 		gameMode = 2;
 		
@@ -393,6 +408,10 @@ public class Game {
 		turn = armies.indexOf(current);
 		if(numPlayers == 1){
 			gameOver();
+		}else{
+			gameMode = 6;
+			eliminated = eliminatee;
+			displayEliminatedTimer = 3000;
 		}
 	}
 	
@@ -405,6 +424,7 @@ public class Game {
 				losses[0]++;
 			}
 		}
+		
 		return losses;
 	}
 	
@@ -487,6 +507,7 @@ public class Game {
 				break;
 			case 3:
 				drawVictor(g);
+				break;
 			}
 		} catch (RuntimeException e) {
 			e.printStackTrace();
@@ -498,14 +519,22 @@ public class Game {
 	
 	private void drawVictor(Graphics2D g){
 		Army victor = armies.get(0);
+		String message = victor.getName() + " IS VICTORIOUS!s";
+		drawCenteredMessage(g, message, victor.getColour());
+	}
+	
+	private void drawEliminated(Graphics2D g){
+		String message = eliminated.getName() + " IS ELIMINATED";
+		drawCenteredMessage(g, message, eliminated.getColour());
+	}
+	
+	private void drawCenteredMessage(Graphics2D g, String message, Color color) {
 		setFontSize(g, 72);
 		FontMetrics fm = g.getFontMetrics();
-		g.setColor(victor.getColour());
-		String message = victor.getName() + " IS VICTORIOUS!s";
 		int x = 640 - fm.stringWidth(message) / 2;
 		int y = 360 + fm.getHeight() / 2;
 		
-		drawString(g, message, 72, x, y, victor.getColour());
+		drawString(g, message, 72, x, y, color);
 	}
 
 	public void drawUnits(Graphics2D g) {
@@ -562,6 +591,9 @@ public class Game {
 			break;
 		case 1:
 			drawReinforcements(g);
+			break;
+		case 6:
+			drawEliminated(g);
 			break;
 		}
 	}
