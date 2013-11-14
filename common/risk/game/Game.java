@@ -179,6 +179,11 @@ public class Game {
 		}
 	}
 
+	private void gameOver(){
+		Army victor = armies.get(0);
+		gameMode = 3;
+	}
+	
 	private void update(int delta) {
 		switch (mode) {
 		case 1:
@@ -365,14 +370,30 @@ public class Game {
 	
 	private void battleWon() {
 		gameMode = 2;
-
+		
+		Army defender = attackTarget.getUnit().getArmy();
+		
 		this.removeUnit(attackTarget.getUnit());
 		this.addUnit(attackers, currentArmy(), attackTarget);
 
 		this.selectedCountry.getUnit().incrementTroops(-attackers);
-
+		
 		selectedCountry = attackTarget;
 		attackTarget = null;
+		
+		if(defender.getUnits().size() == 0){
+			armyEliminated(defender);
+		}
+	}
+	
+	private void armyEliminated(Army eliminatee){
+		Army current = currentArmy();
+		armies.remove(eliminatee);
+		numPlayers--;
+		turn = armies.indexOf(current);
+		if(numPlayers == 1){
+			gameOver();
+		}
 	}
 	
 	private int[] calculateLosses(){
@@ -464,13 +485,27 @@ public class Game {
 			case 2:
 				drawGameMode(g);
 				break;
+			case 3:
+				drawVictor(g);
 			}
 		} catch (RuntimeException e) {
 			e.printStackTrace();
-			System.err.println("Frame not completed due to  error");
+			System.err.println("Frame not completed due to error");
 		}
 		
 		drawButtons(g);
+	}
+	
+	private void drawVictor(Graphics2D g){
+		Army victor = armies.get(0);
+		setFontSize(g, 72);
+		FontMetrics fm = g.getFontMetrics();
+		g.setColor(victor.getColour());
+		String message = victor.getName() + " IS VICTORIOUS!s";
+		int x = 640 - fm.stringWidth(message) / 2;
+		int y = 360 + fm.getHeight() / 2;
+		
+		drawString(g, message, 72, x, y, victor.getColour());
 	}
 
 	public void drawUnits(Graphics2D g) {
