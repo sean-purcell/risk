@@ -343,15 +343,7 @@ public class Game {
 					gameMode = 2;
 					attackTarget = null;
 				}else if(attackTarget.getUnit().getTroops() <= 0){
-					gameMode = 2;
-
-					this.removeUnit(attackTarget.getUnit());
-					this.addUnit(attackers, currentArmy(), attackTarget);
-
-					this.selectedCountry.getUnit().incrementTroops(-attackers);
-
-					selectedCountry = attackTarget;
-					attackTarget = null;
+					battleWon();
 				}else{
 					gameMode = 3;
 				}
@@ -369,6 +361,18 @@ public class Game {
 			if(defenderDiceTimers[i] > 0)
 				defenderDice[i] = Risk.r.nextInt(6) + 1;
 		}
+	}
+	
+	private void battleWon() {
+		gameMode = 2;
+
+		this.removeUnit(attackTarget.getUnit());
+		this.addUnit(attackers, currentArmy(), attackTarget);
+
+		this.selectedCountry.getUnit().incrementTroops(-attackers);
+
+		selectedCountry = attackTarget;
+		attackTarget = null;
 	}
 	
 	private int[] calculateLosses(){
