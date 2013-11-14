@@ -1,7 +1,7 @@
 package risk.lib;
 
-import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
@@ -12,19 +12,17 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import risk.Risk;
-import risk.game.Army;
-import risk.game.Country;
 import risk.game.Game;
-import risk.game.Unit;
 
 /**
  * 
  * @author Sean
  * 
  */
-public class RiskCanvas extends Canvas {
+public class RiskCanvas extends JPanel {
 
 	private static BufferedImage soldier;
 
@@ -45,15 +43,16 @@ public class RiskCanvas extends Canvas {
 
 		frame.getContentPane().add(this);
 		frame.setBounds(new Rectangle(1280, 720));
-		frame.getContentPane().setBounds(0, 0, 1280, 720);
-		this.setBounds(new Rectangle(1280, 720));
-
-		frame.pack();
+		frame.getContentPane().setMinimumSize(new Dimension(1280,720));
+		this.setBounds(0,0,1280,720);
+		this.setMinimumSize(new Dimension(1280,720));
+		
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setBackground(Color.WHITE);
+		frame.getContentPane().setBackground(Color.WHITE);
 
 		this.addMouseListener(i);
 		this.addKeyListener(i);
@@ -82,6 +81,15 @@ public class RiskCanvas extends Canvas {
 		} catch (FontFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			try{
+				this.army = Font.createFont(Font.TRUETYPE_FONT,
+						Risk.class.getResourceAsStream("/"+armyFontAddress));
+			}
+			catch(IOException e1){
+				
+			} catch (FontFormatException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		this.army = this.army.deriveFont(36f);
@@ -89,16 +97,23 @@ public class RiskCanvas extends Canvas {
 
 	public void resize() {
 		if (frame.getContentPane().getBounds().getHeight() != 720) {
-			Rectangle r = new Rectangle(1280, 720);
-			frame.getContentPane().setBounds(r);
-			this.setBounds(r);
+			Dimension r = new Dimension(1280, 720);
+			//this.setMinimumSize(r);
+			this.setPreferredSize(r);
+			frame.getContentPane().setPreferredSize(r);
+			//frame.getContentPane().setMinimumSize(r);
 			frame.pack();
 			System.out.println("Resized");
 		} // Ensures that the frame is at the correct size
 	}
 	
-	public void paint(Graphics g) {
-
+	@Override
+	public void update(Graphics g){
+		super.update(g);
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
 			return;
 		}
