@@ -24,14 +24,7 @@ public class Country {
 
 	// Load the country data file
 	static {
-		countryData = new Properties();
-		try {
-			countryData.load(new FileInputStream(new File(countryDataAddress)));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		countryData = Risk.loadProperties(countryDataAddress);
 	}
 
 	// Count the number of countries by going through the data file until there
@@ -53,15 +46,7 @@ public class Country {
 	}
 
 	static {
-		countryConnections = new Properties();
-		try {
-			countryConnections.load(new FileInputStream(new File(
-					countryConnectionsAddress)));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		countryConnections = Risk.loadProperties(countryConnectionsAddress);
 	}
 
 	/**

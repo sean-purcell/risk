@@ -5,9 +5,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -45,16 +49,47 @@ public class Risk {
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
 		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
+		
 		g.run();
+	}
+
+	private static void explore(){
+		File f = new File("./");
+		System.out.println(f.getAbsolutePath());
+		System.out.println(f.listFiles());
 	}
 
 	public static BufferedImage loadImage(String ref) {
 		try {
-			return ImageIO.read(new File(ref));
-		} catch (IOException e) {
-			System.err.println("ERROR: Image at " + ref + " not found.");
+			return ImageIO.read(Risk.class.getResourceAsStream("/" + ref));
+		} catch (Exception e) { 
+			
+			try {
+				System.out.println("Get as stream didnt work");
+				return ImageIO.read(new File("./" + ref));
+			} catch (IOException e1) {
+				e.printStackTrace();
+				e1.printStackTrace();
 			return null;
 		}
+	}
+	}
+	
+	public static Properties loadProperties(String ref){
+		Properties p = new Properties();
+		try {
+			p.load(new FileInputStream(ref));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			try {
+				p.load(Risk.class.getResourceAsStream("/"+ref));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		return p;
 	}
 
 	/**

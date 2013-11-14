@@ -16,14 +16,7 @@ public class Map {
 	private static final String continentDataAddress = "resources/continentData.properties";
 
 	static {
-		continentData = new Properties();
-		try {
-			continentData.load(new FileInputStream(continentDataAddress));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		continentData = Risk.loadProperties(continentDataAddress);
 	}
 
 	/**
