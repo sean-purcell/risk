@@ -8,8 +8,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import risk.Risk;
 import risk.lib.Button;
@@ -853,7 +855,7 @@ public class Game {
 			break;
 		case 5:
 			if (currentArmy() == c.getUnit().getArmy()){
-				if(c.getConnections().contains(selectedCountry)
+				if(connected(selectedCountry, c)
 						&& selectedCountry.getUnit().getTroops() > 1){
 					c.getUnit().incrementTroops();
 					selectedCountry.getUnit().incrementTroops(-1);
@@ -866,6 +868,43 @@ public class Game {
 		}
 	}
 
+	/**
+	 * Searches through a breadth-first search to see if there is a link through
+	 * controlled territories from country a to country b
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private boolean connected(Country a, Country b) {
+		if(a == null || b == null){
+			return false;
+		}
+		if(a.getUnit().getArmy() != b.getUnit().getArmy()){
+			return false;
+		}
+		
+		boolean[] visited = new boolean[42];
+		
+		Queue<Country> searchQ = new ArrayDeque<Country>();
+		searchQ.add(a);
+		while(!searchQ.isEmpty()){
+			Country top = searchQ.remove();
+			
+			if(top == b){
+				return true;
+			}
+			
+			for(Country c : top.getConnections()){
+				if(c.getUnit().getArmy() == top.getUnit().getArmy() && !visited[c.getId()]){
+					searchQ.add(c);
+					visited[c.getId()] = true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public void buttonClicked(Button b, int x, int y) {
 		switch (mode) {
 		case 1:
