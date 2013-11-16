@@ -2,4 +2,5 @@
 *.xcf
 Icon\
 Risk/
+!common/risk/
 Risk.jar
