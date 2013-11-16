@@ -3,6 +3,7 @@ package risk.game;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import risk.Risk;
@@ -35,6 +36,8 @@ public class Army {
 
 	private List<Unit> units;
 
+	private List<Card> cards;
+	
 	private int freeUnits;
 
 	/**
@@ -53,6 +56,7 @@ public class Army {
 
 	public Army(int type, Game g) {
 		units = new ArrayList<Unit>();
+		cards = new ArrayList<Card>();
 		this.setType(type);
 		this.g = g;
 
@@ -82,6 +86,55 @@ public class Army {
 		return bonus;
 	}
 
+	public void addCard() {
+		assert(cards.size() < 5);
+		cards.add(new Card());
+	}
+	
+	public List<Card> getCards() {
+		return cards;
+	}
+	
+	public boolean useCards(){
+		boolean oneEach = true;
+		List<Card> first = new ArrayList<Card>();
+		for(int i = 0; i < 3; i++){
+			List<Card> subCards = getCardsOf(i);
+			if(subCards.size() >= 3){
+				for(int j = 0; j < 3; j++){
+					cards.remove(subCards.get(i));
+				}
+				return true;
+			}
+			if(subCards.size() != 0){
+				first.add(subCards.get(0));
+			}else{
+				oneEach = false;
+			}
+		}
+		
+		if(oneEach){
+			for(Card c : first){
+				cards.remove(c);
+			}
+			return true;
+		}
+		return false;
+		
+		
+	}
+	
+	private List<Card> getCardsOf(int type){
+		List<Card> copy = (List<Card>) ((ArrayList<Card>) cards).clone();
+		Iterator<Card> i = copy.listIterator();
+		while(i.hasNext()){
+			if(i.next().getType() != type){
+				i.remove();
+			}
+		}
+		return copy;
+	}
+	
 	public int getFreeUnits() {
 		return freeUnits;
 	}

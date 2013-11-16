@@ -593,6 +593,7 @@ public class Game {
 			break;
 		case 1:
 			drawReinforcements(g);
+			drawCards(g);
 			break;
 		case 6:
 			drawEliminated(g);
@@ -722,6 +723,14 @@ public class Game {
 			int x = 945;
 			int y = 544 + 55 * i;
 			drawDie(g, x, y, defenderDice[i]);
+		}
+	}
+	
+	private void drawCards(Graphics2D g){
+		int index = 0;
+		for(Card c : currentArmy().getCards()){
+			c.draw(g, index);
+			index++;
 		}
 	}
 	

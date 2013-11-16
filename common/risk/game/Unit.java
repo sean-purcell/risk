@@ -13,10 +13,12 @@ public class Unit {
 	private static final int JET_TROOPS = 15;
 	private static final int TANK_TROOPS = 5;
 
-	private static char[][] images = new char[][] { { '[', '{' }, { 'i', 'I' },
+	//Non private so it can be accessed from Card
+	//Not the most elegant but it works
+	static char[][] images = new char[][] { { '[', '{' }, { 'i', 'I' },
 			{ 'v', 'V' } };
-	private static Font sprites;
-	private static FontMetrics spritesMetrics;
+	static Font sprites;
+	static FontMetrics spritesMetrics;
 
 	static {
 		try {
