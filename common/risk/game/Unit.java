@@ -83,7 +83,7 @@ public class Unit {
 			int drawXOffset = ((i - tanks / 2)
 					* spritesMetrics.charWidth(images[1][index]) + 1);
 			if (planes != 0) {
-				drawXOffset += (drawXOffset < 0 ? -1 : 1) * 6;
+				drawXOffset += (drawXOffset < 0 ? -1 : 1) * 5;
 			}
 			int drawX = x + drawXOffset;
 			int drawY = y;
