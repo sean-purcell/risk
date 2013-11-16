@@ -112,6 +112,8 @@ public class Game {
 	private int displayEliminatedTimer;
 	private Army eliminated;
 	
+	private boolean territoryConquered;
+	
 	private List<Button> endTurnList;
 	private List<Button> battleButtonList;
 	
@@ -237,6 +239,7 @@ public class Game {
 		gameMode = 1;
 		selectedCountry = null;
 		attackTarget = null;
+		territoryConquered = false;
 		currentArmy().setFreeUnits(calculateReinforcements());
 	}
 
@@ -397,6 +400,8 @@ public class Game {
 		
 		selectedCountry = attackTarget;
 		attackTarget = null;
+		
+		territoryConquered = true;
 		
 		if(defender.getUnits().size() == 0){
 			armyEliminated(defender);
@@ -947,6 +952,9 @@ public class Game {
 						gameMode = 5;
 						break;
 					case 5:
+						if(territoryConquered){
+							currentArmy().addCard();
+						}
 						enterNextTurn();
 						gameMode = 1;
 						break;
