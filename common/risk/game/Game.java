@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -1052,6 +1053,7 @@ public class Game {
 		BufferedImage base = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics baseG = base.getGraphics();
+		
 		baseG.setColor(Color.BLACK);
 		baseG.fillRoundRect(0, 0, width, height, 10, 10);
 		for (char i = '3'; i <= '6'; i++) {
@@ -1061,6 +1063,11 @@ public class Game {
 			g.fillRoundRect(5, 5, 40, 40, 10, 10);
 			g.setFont(riskCanvas.army.deriveFont(50f));
 			g.setColor(Color.WHITE);
+			
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+			
 			FontMetrics fm = g.getFontMetrics();
 			g.drawString(Character.toString(i),
 					width / 2 - fm.charWidth(i) / 2,

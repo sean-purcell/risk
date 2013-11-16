@@ -7,6 +7,7 @@ import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -125,6 +126,9 @@ public class RiskCanvas extends JPanel {
 		bufferG.setColor(Color.WHITE);
 		bufferG.fillRect(0, 0, 1280, 720);
 		bufferG.setFont(army);
+		bufferG.setRenderingHint(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		// If resources have not been initialized yet, don't draw
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
