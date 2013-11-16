@@ -39,9 +39,9 @@ public class Card {
 		g.fillRoundRect(455+index * 90, 580, 90, 200, 10, 10);
 		g.setFont(sprites.deriveFont(30f));
 		g.setColor(Color.BLACK);
-		int x = 500 - metrics.charWidth(images[0][type])/2;
+		int x = 500 - metrics.charWidth(images[type][0])/2;
 		int y = 600 + metrics.getHeight();
-		g.drawString(Character.toString(images[0][type]), x, y);
+		g.drawString(Character.toString(images[type][0]), x, y);
 	}
 
 	public int getType() {

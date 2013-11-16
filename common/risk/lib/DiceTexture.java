@@ -3,6 +3,7 @@ package risk.lib;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,6 +27,11 @@ public class DiceTexture {
 		BufferedImage base = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
 		Graphics baseG = base.getGraphics();
+		
+		((Graphics2D) baseG).setRenderingHint(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+		
 		baseG.setColor(Color.WHITE);
 		baseG.fillRect(0, 0, width, height);
 		baseG.setColor(Color.BLACK);
@@ -34,6 +40,11 @@ public class DiceTexture {
 		for (int i = 1; i <= 6; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
+			
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_OFF);
+			
 			g.setColor(Color.BLACK);
 			drawDiceTexture(g, i);
 
