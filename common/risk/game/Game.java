@@ -1054,19 +1054,28 @@ public class Game {
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics baseG = base.getGraphics();
 		
+		((Graphics2D) baseG).setRenderingHint(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+		
 		baseG.setColor(Color.BLACK);
 		baseG.fillRoundRect(0, 0, width, height, 10, 10);
 		for (char i = '3'; i <= '6'; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
-			g.setColor(Color.DARK_GRAY);
-			g.fillRoundRect(5, 5, 40, 40, 10, 10);
-			g.setFont(riskCanvas.army.deriveFont(50f));
-			g.setColor(Color.WHITE);
+			
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_OFF);
 			
 			((Graphics2D) g).setRenderingHint(
 					RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+			
+			g.setColor(Color.DARK_GRAY);
+			g.fillRoundRect(5, 5, 40, 40, 10, 10);
+			g.setFont(riskCanvas.army.deriveFont(50f));
+			g.setColor(Color.WHITE);
 			
 			FontMetrics fm = g.getFontMetrics();
 			g.drawString(Character.toString(i),
@@ -1087,11 +1096,21 @@ public class Game {
 		BufferedImage base = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics baseG = base.getGraphics();
+		
+		((Graphics2D) baseG).setRenderingHint(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+		
 		baseG.setColor(Color.black);
 		baseG.fillRoundRect(0, 0, width, height, 10, 10);
 		for (int i = 0; i < 6; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
+			
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_OFF);
+			
 			g.setColor(Army.getColorByType(i));
 			g.fillRoundRect(5, 5, 40, 40, 10, 10);
 
