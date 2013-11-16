@@ -34,13 +34,13 @@ public class Card {
 			metrics = g.getFontMetrics(sprites.deriveFont(30f));
 		}
 		g.setColor(Color.BLACK);
-		g.fillRoundRect(450+index*90,575,100,200,10,10);
+		g.fillRoundRect(450+index*90,625,100,200,10,10);
 		g.setColor(BEIGE);
-		g.fillRoundRect(455+index * 90, 580, 90, 200, 10, 10);
+		g.fillRoundRect(455+index * 90, 630, 90, 200, 10, 10);
 		g.setFont(sprites.deriveFont(30f));
 		g.setColor(Color.BLACK);
-		int x = 500 - metrics.charWidth(images[type][0])/2;
-		int y = 600 + metrics.getHeight();
+		int x = 500 - metrics.charWidth(images[type][0])/2 + index * 90;
+		int y = 650 + metrics.getHeight()/2;
 		g.drawString(Character.toString(images[type][0]), x, y);
 	}
 
