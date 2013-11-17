@@ -39,7 +39,7 @@ public class Army {
 	private List<Unit> units;
 
 	private List<Card> cards;
-	
+
 	private int freeUnits;
 
 	/**
@@ -89,56 +89,58 @@ public class Army {
 	}
 
 	public void addCard() {
-		if(cards.size() >= 5 && !DEBUG) {
+		if (cards.size() >= 5 && !DEBUG) {
 			return;
 		}
 		cards.add(new Card());
 	}
-	
+
 	public List<Card> getCards() {
 		return cards;
 	}
-	
-	public boolean useCards(){
+
+	public boolean useCards() {
 		boolean oneEach = true;
 		List<Card> first = new ArrayList<Card>();
-		for(int i = 0; i < 3; i++){ //Checks if there are at three of a certain type
+		for (int i = 0; i < 3; i++) { // Checks if there are at three of a
+										// certain type
 			List<Card> subCards = getCardsOf(i);
-			if(subCards.size() >= 3){
-				for(int j = 0; j < 3; j++){
+			if (subCards.size() >= 3) {
+				for (int j = 0; j < 3; j++) {
 					cards.remove(subCards.get(j));
 				}
 				return true;
 			}
-			if(subCards.size() != 0){
+			if (subCards.size() != 0) {
 				first.add(subCards.get(0));
-			}else{
+			} else {
 				oneEach = false;
 			}
 		}
-		
-		if(oneEach){ //Otherwise if there was at least one of each type
-			for(Card c : first){
+
+		if (oneEach) { // Otherwise if there was at least one of each type
+			for (Card c : first) {
 				cards.remove(c);
 			}
 			return true;
 		}
 		return false;
-		
-		
+
 	}
-	
-	private List<Card> getCardsOf(int type){ //Gets the cards for this army of a certain type
+
+	private List<Card> getCardsOf(int type) { // Gets the cards for this army of
+												// a certain type
 		List<Card> copy = (List<Card>) ((ArrayList<Card>) cards).clone();
-		Iterator<Card> i = copy.listIterator(); //I didnt have to use iterators but why not
-		while(i.hasNext()){
-			if(i.next().getType() != type){
+		Iterator<Card> i = copy.listIterator(); // I didnt have to use iterators
+												// but why not
+		while (i.hasNext()) {
+			if (i.next().getType() != type) {
 				i.remove();
 			}
 		}
 		return copy;
 	}
-	
+
 	public int getFreeUnits() {
 		return freeUnits;
 	}

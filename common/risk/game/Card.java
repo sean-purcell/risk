@@ -11,45 +11,45 @@ import java.awt.image.BufferedImage;
 import risk.Risk;
 
 public class Card {
-	private static Color BEIGE = new Color(250,214,165);
-	
+	private static Color BEIGE = new Color(250, 214, 165);
+
 	private static BufferedImage texture;
 	private static String textureAddress = "resources/cardTexture.png";
-	
+
 	private static FontMetrics metrics;
-	
-	static{
-	//	texture = Risk.loadImage(textureAddress);
+
+	static {
+		// texture = Risk.loadImage(textureAddress);
 	}
-	
+
 	// 0 = soldier, 1 = tank, 2 = jet
 	private int type;
-	
+
 	public Card() {
 		type = Risk.r.nextInt(3);
 	}
-	
-	public void draw(Graphics2D g, int index){
-		if(metrics == null){
+
+	public void draw(Graphics2D g, int index) {
+		if (metrics == null) {
 			metrics = g.getFontMetrics(sprites.deriveFont(30f));
 		}
 		g.setColor(Color.BLACK);
-		g.fillRoundRect(450+index*90,625,100,200,10,10);
+		g.fillRoundRect(450 + index * 90, 625, 100, 200, 10, 10);
 		g.setColor(BEIGE);
-		g.fillRoundRect(455+index * 90, 630, 90, 200, 10, 10);
+		g.fillRoundRect(455 + index * 90, 630, 90, 200, 10, 10);
 		g.setFont(sprites.deriveFont(30f));
 		g.setColor(Color.BLACK);
-		int x = 500 - metrics.charWidth(images[type][0])/2 + index * 90;
-		int y = 650 + metrics.getHeight()/2;
+		int x = 500 - metrics.charWidth(images[type][0]) / 2 + index * 90;
+		int y = 650 + metrics.getHeight() / 2;
 		g.drawString(Character.toString(images[type][0]), x, y);
 	}
 
 	public int getType() {
 		return type;
 	}
-	
+
 	@Override
-	public String toString(){
-		return "Card:"+type;
+	public String toString() {
+		return "Card:" + type;
 	}
 }

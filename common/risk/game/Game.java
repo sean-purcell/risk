@@ -74,7 +74,7 @@ public class Game {
 	private int gameMode;
 
 	private List<Button> titleScreenButtons;
-	
+
 	private List<Button> numberButtons;
 	private List<Button> colourButtons;
 	private int[] dice;
@@ -82,7 +82,7 @@ public class Game {
 
 	private int diceSwitchTimer;
 	private int diceDisplayCountdown;
-	
+
 	private boolean[] firstTurnContenders;
 
 	private int numTerritoriesClaimed;
@@ -108,31 +108,31 @@ public class Game {
 
 	private int[] attackerDice;
 	private int[] defenderDice;
-	
+
 	private int[] attackerDiceTimers;
 	private int[] defenderDiceTimers;
 
 	private boolean displayedSorted;
-	
+
 	private int displayEliminatedTimer;
 	private Army eliminated;
-	
+
 	private boolean territoryConquered;
-	
+
 	private Button cards;
-	
+
 	private int cardBonus;
 	private Iterator<Integer> cardBonusIterator;
-	
+
 	private List<Button> endTurnList;
 	private List<Button> cardsList;
 	private List<Button> cardsAndEndTurn;
 	private List<Button> battleButtonList;
-	
+
 	private BufferedImage battleButtonTexture;
 
 	private List<Button> newGameList;
-	
+
 	/**
 	 * Set to false if the game should exit
 	 */
@@ -150,7 +150,7 @@ public class Game {
 		this.armies = new ArrayList<Army>();
 		this.titleScreenButtons = createMenuButtons(r);
 		this.newGameList = createNewGameButton(r);
-		
+
 		mode = 0;
 		running = true;
 	}
@@ -163,7 +163,7 @@ public class Game {
 	public void run() {
 		long lastTime = System.currentTimeMillis();
 		r.resize();
-		
+
 		while (isRunning()) {
 			if (r.hasFocus()) { // Ensures that the game does not render when it
 								// is not in focus
@@ -204,10 +204,10 @@ public class Game {
 		}
 	}
 
-	private void gameOver(){
+	private void gameOver() {
 		mode = 3;
 	}
-	
+
 	private void update(int delta) {
 		switch (mode) {
 		case 1:
@@ -258,7 +258,7 @@ public class Game {
 		attackTarget = null;
 		territoryConquered = false;
 		currentArmy().setFreeUnits(calculateReinforcements());
-		
+
 		resetCardButton();
 	}
 
@@ -277,7 +277,7 @@ public class Game {
 			diceDisplayUpdate(delta);
 		}
 	}
-	
+
 	private void diceDisplayDone(int delta) {
 		diceDisplayCountdown -= delta;
 		if (diceDisplayCountdown <= 0) {
@@ -329,131 +329,131 @@ public class Game {
 		}
 	}
 
-	private void updateBattleDice(int delta){
-		if(diceDisplayCountdown <= 0){
+	private void updateBattleDice(int delta) {
+		if (diceDisplayCountdown <= 0) {
 			battleDiceTimerUpdate(delta);
-		}else{
+		} else {
 			battleDiceTimerDone(delta);
 		}
 	}
-	
-	private void battleDiceTimerUpdate(int delta){
+
+	private void battleDiceTimerUpdate(int delta) {
 		diceSwitchTimer -= delta;
-		if(diceSwitchTimer <= 0){
+		if (diceSwitchTimer <= 0) {
 			diceSwitchTimer += 83;
 			reRollBattleDice();
 		}
-		
+
 		boolean done = true;
-		for(int i = 0; i < attackerDice.length; i++){
+		for (int i = 0; i < attackerDice.length; i++) {
 			attackerDiceTimers[i] -= delta;
-			if(attackerDiceTimers[i] > 0)
+			if (attackerDiceTimers[i] > 0)
 				done = false;
 		}
-		for(int i = 0; i < defenderDice.length; i++){
+		for (int i = 0; i < defenderDice.length; i++) {
 			defenderDiceTimers[i] -= delta;
-			if(defenderDiceTimers[i] > 0)
+			if (defenderDiceTimers[i] > 0)
 				done = false;
 		}
-		if(done){
+		if (done) {
 			diceDisplayCountdown = 1000;
 		}
 	}
-	
-	private void battleDiceTimerDone(int delta){
+
+	private void battleDiceTimerDone(int delta) {
 		diceDisplayCountdown -= delta;
-		
-		if(diceDisplayCountdown <= 0){
-			if(!displayedSorted){
+
+		if (diceDisplayCountdown <= 0) {
+			if (!displayedSorted) {
 				diceDisplayCountdown = 1000;
 				Risk.sort(attackerDice);
 				Risk.sort(defenderDice);
 				displayedSorted = true;
-			}else{
+			} else {
 				int[] losses = calculateLosses();
-				attackers-=losses[0];
+				attackers -= losses[0];
 				selectedCountry.getUnit().incrementTroops(-losses[0]);
-				defenders-=losses[1];
+				defenders -= losses[1];
 				attackTarget.getUnit().incrementTroops(-losses[1]);
-				if(selectedCountry.getUnit().getTroops() <= 1){
+				if (selectedCountry.getUnit().getTroops() <= 1) {
 					gameMode = 2;
 					attackTarget = null;
-				}else if(attackTarget.getUnit().getTroops() <= 0){
+				} else if (attackTarget.getUnit().getTroops() <= 0) {
 					battleWon();
-				}else{
+				} else {
 					gameMode = 3;
 				}
 			}
 		}
 	}
-	
-	private void reRollBattleDice(){
-		for(int i = 0; i < attackerDice.length; i++){
-			if(attackerDiceTimers[i] > 0)
+
+	private void reRollBattleDice() {
+		for (int i = 0; i < attackerDice.length; i++) {
+			if (attackerDiceTimers[i] > 0)
 				attackerDice[i] = Risk.r.nextInt(6) + 1;
 		}
-		
-		for(int i = 0; i < defenderDice.length; i++){
-			if(defenderDiceTimers[i] > 0)
+
+		for (int i = 0; i < defenderDice.length; i++) {
+			if (defenderDiceTimers[i] > 0)
 				defenderDice[i] = Risk.r.nextInt(6) + 1;
 		}
 	}
-	
-	private void updateEliminatedTimer(int delta){
+
+	private void updateEliminatedTimer(int delta) {
 		displayEliminatedTimer -= delta;
-		if(displayEliminatedTimer <= 0){
+		if (displayEliminatedTimer <= 0) {
 			gameMode = 2;
 			eliminated = null;
 		}
 	}
-	
+
 	private void battleWon() {
 		gameMode = 2;
-		
+
 		Army defender = attackTarget.getUnit().getArmy();
-		
+
 		this.removeUnit(attackTarget.getUnit());
 		this.addUnit(attackers, currentArmy(), attackTarget);
 
 		this.selectedCountry.getUnit().incrementTroops(-attackers);
-		
+
 		selectedCountry = attackTarget;
 		attackTarget = null;
-		
+
 		territoryConquered = true;
-		
-		if(defender.getUnits().size() == 0){
+
+		if (defender.getUnits().size() == 0) {
 			armyEliminated(defender);
 		}
 	}
-	
-	private void armyEliminated(Army eliminatee){
+
+	private void armyEliminated(Army eliminatee) {
 		Army current = currentArmy();
 		armies.remove(eliminatee);
 		numPlayers--;
 		turn = armies.indexOf(current);
-		if(numPlayers == 1){
+		if (numPlayers == 1) {
 			gameOver();
-		}else{
+		} else {
 			gameMode = 6;
 			eliminated = eliminatee;
 			displayEliminatedTimer = 3000;
 		}
 	}
-	
-	private int[] calculateLosses(){
+
+	private int[] calculateLosses() {
 		int[] losses = new int[2];
-		for(int i = 0; i < Math.min(attackerDice.length, defenderDice.length); i++){
-			if(attackerDice[i] > defenderDice[i]){
+		for (int i = 0; i < Math.min(attackerDice.length, defenderDice.length); i++) {
+			if (attackerDice[i] > defenderDice[i]) {
 				losses[1]++;
-			}else{
+			} else {
 				losses[0]++;
 			}
 		}
-		
+
 		return losses;
 	}
-	
+
 	private void enterTerritoryAllocateMode(int first) {
 		int offset = first;
 
@@ -516,52 +516,51 @@ public class Game {
 		battleButtonTexture = Risk.loadImage("resources/battleButton.png");
 		Button rollDice = new Button(1155, 665, battleButtonTexture, 6);
 		battleButtonList.add(rollDice);
-		
+
 		cardsList = new ArrayList<Button>();
 		cardsAndEndTurn = new ArrayList<Button>();
-		cards = new Button(450,630,0,90,7);
-		
+		cards = new Button(450, 630, 0, 90, 7);
+
 		cardsList.add(cards);
 		cardsAndEndTurn.add(endT);
 		cardsAndEndTurn.add(endT);
 
 		initCardBonusIterator();
-		
+
 		enterNextTurn();
 	}
-	
-	private void initCardBonusIterator(){
-		cardBonusIterator = new Iterator<Integer>(){
-			//Decided to use the iterator interface to provide
-			//handy methods and allow me to use an anonymous class
-			public boolean hasNext(){
+
+	private void initCardBonusIterator() {
+		cardBonusIterator = new Iterator<Integer>() {
+			// Decided to use the iterator interface to provide
+			// handy methods and allow me to use an anonymous class
+			public boolean hasNext() {
 				return true;
 			}
-			
-			public Integer next(){
-				if(cardBonus == 60){
+
+			public Integer next() {
+				if (cardBonus == 60) {
 					return 4;
 				}
-				if(cardBonus < 10){
+				if (cardBonus < 10) {
 					return cardBonus + 2;
 				}
 				return cardBonus + 5;
 			}
-			
-			public void remove(){}
+
+			public void remove() {
+			}
 		};
 		cardBonus = 4;
 	}
 
 	public void draw(Graphics2D g) {
-		g.setRenderingHint(
-				RenderingHints.KEY_ANTIALIASING,
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF);
-		
-		g.setRenderingHint(
-				RenderingHints.KEY_TEXT_ANTIALIASING,
+
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-		
+
 		try {
 			drawMap(g);
 			drawUnits(g);
@@ -585,30 +584,31 @@ public class Game {
 			System.err.println("Frame not completed due to error");
 		}
 	}
-	
-	private void drawTitleScreen(Graphics2D g){
+
+	private void drawTitleScreen(Graphics2D g) {
 		setFontSize(g, 400);
 		FontMetrics fm = g.getFontMetrics();
-		drawString(g, "RISK", 400, 640 - fm.stringWidth("RISK")/2,360, Color.RED);
+		drawString(g, "RISK", 400, 640 - fm.stringWidth("RISK") / 2, 360,
+				Color.RED);
 	}
-	
-	private void drawVictor(Graphics2D g){
+
+	private void drawVictor(Graphics2D g) {
 		Army victor = armies.get(0);
 		String message = victor.getName() + " IS VICTORIOUS!s";
 		drawCenteredMessage(g, message, victor.getColour());
 	}
-	
-	private void drawEliminated(Graphics2D g){
+
+	private void drawEliminated(Graphics2D g) {
 		String message = eliminated.getName() + " IS ELIMINATED";
 		drawCenteredMessage(g, message, eliminated.getColour());
 	}
-	
+
 	private void drawCenteredMessage(Graphics2D g, String message, Color color) {
 		setFontSize(g, 72);
 		FontMetrics fm = g.getFontMetrics();
 		int x = 640 - fm.stringWidth(message) / 2;
 		int y = 360 + fm.getHeight() / 2;
-		
+
 		drawString(g, message, 72, x, y, color);
 	}
 
@@ -657,7 +657,7 @@ public class Game {
 			drawObjectiveMessage(g);
 			drawBattle(g);
 			break;
-		case 4: 
+		case 4:
 			drawSelectedCountry(g);
 			drawObjectiveMessage(g);
 			drawBattle(g);
@@ -715,12 +715,11 @@ public class Game {
 		this.drawString(g, "Free Troops: " + a.getFreeUnits(), 30, 30, 645,
 				Color.BLACK);
 	}
-	
-	private void drawObjectiveMessage(Graphics2D g){
-		String message = gameMode == 5 ? 
-				"Move troops" :
-					"Attack enemy";
-		String message2 = gameMode == 5 ? "to reinforce positions." : "territories.";
+
+	private void drawObjectiveMessage(Graphics2D g) {
+		String message = gameMode == 5 ? "Move troops" : "Attack enemy";
+		String message2 = gameMode == 5 ? "to reinforce positions."
+				: "territories.";
 		this.drawString(g, message, 30, 30, 645, Color.BLACK);
 		this.drawString(g, message2, 30, 30, 665, Color.BLACK);
 	}
@@ -786,32 +785,32 @@ public class Game {
 				.getColour());
 	}
 
-	private void drawBattleDice(Graphics2D g){
-		for(int i = 0; i < attackerDice.length; i++){
+	private void drawBattleDice(Graphics2D g) {
+		for (int i = 0; i < attackerDice.length; i++) {
 			int x = 890;
 			int y = 522 + 55 * i;
 			drawDie(g, x, y, attackerDice[i]);
 		}
-		
-		for(int i = 0; i < defenderDice.length; i++){
+
+		for (int i = 0; i < defenderDice.length; i++) {
 			int x = 945;
 			int y = 544 + 55 * i;
 			drawDie(g, x, y, defenderDice[i]);
 		}
 	}
-	
-	private void drawCards(Graphics2D g){
+
+	private void drawCards(Graphics2D g) {
 		int index = 0;
-		for(Card c : currentArmy().getCards()){
+		for (Card c : currentArmy().getCards()) {
 			c.draw(g, index);
 			index++;
 		}
 	}
-	
-	private void drawCardBonus(Graphics2D g){
-		drawString(g,"Card Bonus: " + cardBonus,30,930,675,Color.BLACK);
+
+	private void drawCardBonus(Graphics2D g) {
+		drawString(g, "Card Bonus: " + cardBonus, 30, 930, 675, Color.BLACK);
 	}
-	
+
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		List<Country> countries = this.getMap().getCountries();
@@ -863,12 +862,12 @@ public class Game {
 	private void removeUnit(Unit u) {
 		// Should be the only method for removing units
 		// Leaves the unit object with no references to be GC'ed
-		
+
 		// Should immediately by called by add unit
 		u.getArmy().getUnits().remove(u);
 		u.getLocation().setUnit(null);
 	}
-	
+
 	// INPUT HANDLING
 	public void countryClicked(Country c) {
 		switch (mode) {
@@ -915,7 +914,8 @@ public class Game {
 	private void countryClickedGameMode(Country c) {
 		switch (gameMode) {
 		case 1:
-			if (currentArmy() == c.getUnit().getArmy() && currentArmy().getFreeUnits() > 0) {
+			if (currentArmy() == c.getUnit().getArmy()
+					&& currentArmy().getFreeUnits() > 0) {
 				this.addTroop(c);
 			}
 			break;
@@ -941,15 +941,15 @@ public class Game {
 			}
 			break;
 		case 5:
-			if (currentArmy() == c.getUnit().getArmy()){
-				if(connected(selectedCountry, c)
-						&& selectedCountry.getUnit().getTroops() > 1){
+			if (currentArmy() == c.getUnit().getArmy()) {
+				if (connected(selectedCountry, c)
+						&& selectedCountry.getUnit().getTroops() > 1) {
 					c.getUnit().incrementTroops();
 					selectedCountry.getUnit().incrementTroops(-1);
-				}else{
+				} else {
 					selectedCountry = c;
 				}
-			}else{
+			} else {
 				selectedCountry = null;
 			}
 		}
@@ -964,38 +964,39 @@ public class Game {
 	 * @return
 	 */
 	private boolean connected(Country a, Country b) {
-		if(a == null || b == null){
+		if (a == null || b == null) {
 			return false;
 		}
-		if(a.getUnit().getArmy() != b.getUnit().getArmy()){
+		if (a.getUnit().getArmy() != b.getUnit().getArmy()) {
 			return false;
 		}
-		
+
 		boolean[] visited = new boolean[42];
-		
+
 		Queue<Country> searchQ = new ArrayDeque<Country>();
 		searchQ.add(a);
-		while(!searchQ.isEmpty()){
+		while (!searchQ.isEmpty()) {
 			Country top = searchQ.remove();
-			
-			if(top == b){
+
+			if (top == b) {
 				return true;
 			}
-			
-			for(Country c : top.getConnections()){
-				if(c.getUnit().getArmy() == top.getUnit().getArmy() && !visited[c.getId()-1]){
+
+			for (Country c : top.getConnections()) {
+				if (c.getUnit().getArmy() == top.getUnit().getArmy()
+						&& !visited[c.getId() - 1]) {
 					searchQ.add(c);
-					visited[c.getId()-1] = true;
+					visited[c.getId() - 1] = true;
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	public void buttonClicked(Button b, int x, int y) {
 		switch (mode) {
 		case 0:
-			switch(b.getId()){
+			switch (b.getId()) {
 			case 0:
 				mode = 1;
 				break;
@@ -1020,15 +1021,15 @@ public class Game {
 				}
 			case 2:
 			case 1:
-				if(b.getId() == 7){
-					if(currentArmy().useCards()){
+				if (b.getId() == 7) {
+					if (currentArmy().useCards()) {
 						cardsUsed();
 						resetCardButton();
 					}
 				}
 			case 5:
 				if (b.getId() == 99) {
-					switch(gameMode){
+					switch (gameMode) {
 					case 1:
 						gameMode++;
 						break;
@@ -1037,7 +1038,7 @@ public class Game {
 						gameMode = 5;
 						break;
 					case 5:
-						if(territoryConquered){
+						if (territoryConquered) {
 							currentArmy().addCard();
 						}
 						enterNextTurn();
@@ -1049,9 +1050,9 @@ public class Game {
 			}
 			break;
 		case 3:
-			switch(b.getId()){
+			switch (b.getId()) {
 			case 0:
-				mode = 0; //Returns to title screen
+				mode = 0; // Returns to title screen
 				gameMode = 0;
 				setupMode = 0;
 			}
@@ -1078,12 +1079,11 @@ public class Game {
 		}
 	}
 
-	private void cardsUsed(){
-		currentArmy().setFreeUnits(
-				currentArmy().getFreeUnits() + cardBonus);
+	private void cardsUsed() {
+		currentArmy().setFreeUnits(currentArmy().getFreeUnits() + cardBonus);
 		cardBonus = cardBonusIterator.next();
 	}
-	
+
 	private void addTroop(Country c) {
 		c.getUnit().incrementTroops();
 		c.getUnit().getArmy()
@@ -1093,26 +1093,26 @@ public class Game {
 
 	private void rollBattleDice() {
 		gameMode = 4;
-		
-		int attackerNum = Math.min(3,attackers);
+
+		int attackerNum = Math.min(3, attackers);
 		int defenderNum = Math.min(2, defenders);
-		
+
 		attackerDice = new int[attackerNum];
 		defenderDice = new int[defenderNum];
-		
+
 		attackerDiceTimers = new int[Math.min(3, attackers)];
 		defenderDiceTimers = new int[Math.min(2, defenders)];
-		
-		for(int i = 0; i < attackerDiceTimers.length; i++){
+
+		for (int i = 0; i < attackerDiceTimers.length; i++) {
 			attackerDiceTimers[i] = createDieTimer();
 		}
-		
-		for(int i = 0; i < defenderDiceTimers.length; i++){
+
+		for (int i = 0; i < defenderDiceTimers.length; i++) {
 			defenderDiceTimers[i] = createDieTimer();
 		}
-		
+
 		reRollBattleDice();
-		
+
 		displayedSorted = false;
 		diceSwitchTimer = 0;
 	}
@@ -1151,30 +1151,28 @@ public class Game {
 		BufferedImage base = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics baseG = base.getGraphics();
-		
-		((Graphics2D) baseG).setRenderingHint(
-				RenderingHints.KEY_ANTIALIASING,
+
+		((Graphics2D) baseG).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF);
-		
+
 		baseG.setColor(Color.BLACK);
 		baseG.fillRoundRect(0, 0, width, height, 10, 10);
 		for (char i = '3'; i <= '6'; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
-			
-			((Graphics2D) g).setRenderingHint(
-					RenderingHints.KEY_ANTIALIASING,
+
+			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_OFF);
-			
+
 			((Graphics2D) g).setRenderingHint(
 					RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-			
+
 			g.setColor(Color.DARK_GRAY);
 			g.fillRoundRect(5, 5, 40, 40, 10, 10);
 			g.setFont(riskCanvas.army.deriveFont(50f));
 			g.setColor(Color.WHITE);
-			
+
 			FontMetrics fm = g.getFontMetrics();
 			g.drawString(Character.toString(i),
 					width / 2 - fm.charWidth(i) / 2,
@@ -1194,21 +1192,19 @@ public class Game {
 		BufferedImage base = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics baseG = base.getGraphics();
-		
-		((Graphics2D) baseG).setRenderingHint(
-				RenderingHints.KEY_ANTIALIASING,
+
+		((Graphics2D) baseG).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF);
-		
+
 		baseG.setColor(Color.black);
 		baseG.fillRoundRect(0, 0, width, height, 10, 10);
 		for (int i = 0; i < 6; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
-			
-			((Graphics2D) g).setRenderingHint(
-					RenderingHints.KEY_ANTIALIASING,
+
+			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_OFF);
-			
+
 			g.setColor(Army.getColorByType(i));
 			g.fillRoundRect(5, 5, 40, 40, 10, 10);
 
@@ -1216,86 +1212,89 @@ public class Game {
 		}
 		return textures;
 	}
-	
-	private List<Button> createMenuButtons(RiskCanvas riskCanvas){
-		String[] buttonStrings = {"New Game"/*,"Host Game","Join Game"*/};
+
+	private List<Button> createMenuButtons(RiskCanvas riskCanvas) {
+		String[] buttonStrings = { "New Game"/* ,"Host Game","Join Game" */};
 		List<Button> buttons = new ArrayList<Button>();
-		
-		BufferedImage base = new BufferedImage(200,100,BufferedImage.TYPE_INT_ARGB);
+
+		BufferedImage base = new BufferedImage(200, 100,
+				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D baseG = (Graphics2D) base.getGraphics();
-		
+
 		baseG.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF);
-		
+
 		baseG.setColor(Color.BLACK);
-		baseG.fillRoundRect(0,0,200,100,10,10);
-		
+		baseG.fillRoundRect(0, 0, 200, 100, 10, 10);
+
 		baseG.setColor(Color.WHITE);
-		baseG.fillRoundRect(5,5,190,90,10,10);
-		
+		baseG.fillRoundRect(5, 5, 190, 90, 10, 10);
+
 		int index = 0;
-		
-		for(String s : buttonStrings){
+
+		for (String s : buttonStrings) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
-			
-			g.setRenderingHint(
-					RenderingHints.KEY_ANTIALIASING,
+
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_OFF);
-			
-			g.setRenderingHint(
-					RenderingHints.KEY_TEXT_ANTIALIASING,
+
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-			
+
 			g.setFont(riskCanvas.army.deriveFont(40f));
 			g.setColor(Color.BLACK);
 			FontMetrics fm = g.getFontMetrics();
-			
-			int x = 100 - fm.stringWidth(s)/2;
-			
-			drawString(g,s,40,x,50+fm.getHeight()/2,Color.BLACK);
-			
-			Button b = new Button(640 - ((buttonStrings.length-1) * 205 + 200)/2 + 205 * index,615,clone,index);
+
+			int x = 100 - fm.stringWidth(s) / 2;
+
+			drawString(g, s, 40, x, 50 + fm.getHeight() / 2, Color.BLACK);
+
+			Button b = new Button(640
+					- ((buttonStrings.length - 1) * 205 + 200) / 2 + 205
+					* index, 615, clone, index);
 			buttons.add(b);
 			index++;
 		}
-		
+
 		return buttons;
 	}
-	
-	private List<Button> createNewGameButton(RiskCanvas riskCanvas){
-		BufferedImage text = new BufferedImage(200,100,BufferedImage.TYPE_INT_ARGB);
+
+	private List<Button> createNewGameButton(RiskCanvas riskCanvas) {
+		BufferedImage text = new BufferedImage(200, 100,
+				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D) text.getGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF);
-		
+
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-		
+
 		g.setColor(Color.BLACK);
-		g.fillRoundRect(0,0,200,100,10,10);
-		
+		g.fillRoundRect(0, 0, 200, 100, 10, 10);
+
 		g.setColor(Color.WHITE);
-		g.fillRoundRect(5,5,190,90,10,10);
-		
+		g.fillRoundRect(5, 5, 190, 90, 10, 10);
+
 		g.setFont(riskCanvas.army.deriveFont(40f));
 		g.setColor(Color.BLACK);
 		FontMetrics fm = g.getFontMetrics();
-		
-		int x = 100 - fm.stringWidth("Title Screen")/2;
-		
-		drawString(g,"Title Screen",40,x,50+fm.getHeight()/2,Color.BLACK);
-		
-		Button b = new Button(540, 615,text,0);
+
+		int x = 100 - fm.stringWidth("Title Screen") / 2;
+
+		drawString(g, "Title Screen", 40, x, 50 + fm.getHeight() / 2,
+				Color.BLACK);
+
+		Button b = new Button(540, 615, text, 0);
 		List<Button> list = new ArrayList<Button>();
 		list.add(b);
 		return list;
 	}
-	
-	private void resetCardButton(){
+
+	private void resetCardButton() {
 		cards.setWidth(currentArmy().getCards().size() * 90);
 	}
-	
+
 	/**
 	 * All input should go through this, to make it easier to combine local
 	 * multiplayer, non-local multiplayer, and AI
@@ -1355,30 +1354,29 @@ public class Game {
 		if (!DEBUG) {
 			return;
 		}
-		
-		switch(str.charAt(0)){
-		case 1: 
-			for(int i = 0; i < attackerDice.length; i++){
+
+		switch (str.charAt(0)) {
+		case 1:
+			for (int i = 0; i < attackerDice.length; i++) {
 				attackerDice[i] = 6;
 				attackerDiceTimers[i] = 0;
 			}
-			
-			for(int i = 0; i < defenderDice.length; i++){
+
+			for (int i = 0; i < defenderDice.length; i++) {
 				defenderDice[i] = 1;
 				defenderDiceTimers[i] = 0;
 			}
 			break;
 		case 2:
-			try{
+			try {
 				currentArmy().addCard();
 				this.resetCardButton();
-			}
-			catch(Exception e){
-				
+			} catch (Exception e) {
+
 			}
 		}
 	}
-	
+
 	private void incrementTurn() {
 		turn++;
 		turn %= numPlayers;
@@ -1400,10 +1398,10 @@ public class Game {
 		case 2:
 			switch (gameMode) {
 			case 1:
-				if(currentArmy().getFreeUnits() > 0 
-						|| currentArmy().getCards().size() == 5){
+				if (currentArmy().getFreeUnits() > 0
+						|| currentArmy().getCards().size() == 5) {
 					return cardsList;
-				}else{
+				} else {
 					return cardsAndEndTurn;
 				}
 			case 2:
@@ -1411,8 +1409,9 @@ public class Game {
 				return endTurnList;
 			case 3:
 				return battleButtonList;
-			case 4: return null;
-				
+			case 4:
+				return null;
+
 			}
 			break;
 		case 3:

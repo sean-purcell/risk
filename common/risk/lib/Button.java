@@ -9,17 +9,17 @@ public class Button implements Drawable {
 
 	private int w;
 	private int h;
-	
+
 	private BufferedImage texture;
 
 	private int id;
-	
+
 	public Button(int x, int y, BufferedImage texture, int id) {
-		this(x,y,texture.getWidth(),texture.getHeight(),id);
+		this(x, y, texture.getWidth(), texture.getHeight(), id);
 		this.texture = texture;
 	}
-	
-	public Button(int x, int y, int w, int h, int id){
+
+	public Button(int x, int y, int w, int h, int id) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -28,8 +28,7 @@ public class Button implements Drawable {
 	}
 
 	public boolean overlaps(int x, int y) {
-		return this.x <= x && this.x + w > x
-				&& this.y <= y && this.y + h > y;
+		return this.x <= x && this.x + w > x && this.y <= y && this.y + h > y;
 	}
 
 	public BufferedImage getTexture() {
@@ -57,8 +56,8 @@ public class Button implements Drawable {
 	public int getY() {
 		return y;
 	}
-	
-	public void setWidth(int w){
+
+	public void setWidth(int w) {
 		this.w = w;
 	}
 }

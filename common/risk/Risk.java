@@ -32,7 +32,7 @@ import risk.lib.ThreadLocks;
 public class Risk {
 
 	public static final boolean DEBUG = true;
-	
+
 	/**
 	 * The unique id used to hold a lock while loading resources
 	 */
@@ -53,11 +53,11 @@ public class Risk {
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
 		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
-		
+
 		g.run();
 	}
-	
-	private static void explore(){
+
+	private static void explore() {
 		File f = new File("./");
 		System.out.println(f.getAbsolutePath());
 		System.out.println(f.listFiles());
@@ -66,8 +66,8 @@ public class Risk {
 	public static BufferedImage loadImage(String ref) {
 		try {
 			return ImageIO.read(Risk.class.getResourceAsStream("/" + ref));
-		} catch (Exception e) { 
-			
+		} catch (Exception e) {
+
 			try {
 				System.out.println("Get as stream didnt work");
 				return ImageIO.read(new File("./" + ref));
@@ -78,21 +78,21 @@ public class Risk {
 			}
 		}
 	}
-	
-	public static Properties loadProperties(String ref){
+
+	public static Properties loadProperties(String ref) {
 		Properties p = new Properties();
 		try {
 			p.load(new FileInputStream(ref));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			try {
-				p.load(Risk.class.getResourceAsStream("/"+ref));
+				p.load(Risk.class.getResourceAsStream("/" + ref));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		} catch (IOException e) {
 			try {
-				p.load(Risk.class.getResourceAsStream("/"+ref));
+				p.load(Risk.class.getResourceAsStream("/" + ref));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -100,28 +100,26 @@ public class Risk {
 		}
 		return p;
 	}
-	
-	public static Font loadFont(String ref){
+
+	public static Font loadFont(String ref) {
 		Font f = null;
 		try {
-			f = Font.createFont(Font.TRUETYPE_FONT, new File(
-					ref));
+			f = Font.createFont(Font.TRUETYPE_FONT, new File(ref));
 		} catch (FontFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			try{
+			try {
 				f = Font.createFont(Font.TRUETYPE_FONT,
-						Risk.class.getResourceAsStream("/"+ref));
-			}
-			catch(IOException e1){
-				
+						Risk.class.getResourceAsStream("/" + ref));
+			} catch (IOException e1) {
+
 			} catch (FontFormatException e1) {
 				e1.printStackTrace();
 			}
 			e.printStackTrace();
 		}
 		return f;
-		
+
 	}
 
 	/**
@@ -192,14 +190,14 @@ public class Risk {
 		}
 		return image;
 	}
-	
-	public static void sort(int[] arr){
+
+	public static void sort(int[] arr) {
 		Arrays.sort(arr);
 		int[] sorted = new int[arr.length];
-		for(int i = 0; i < arr.length; i++){
-			sorted[i] = arr[arr.length-1-i];
+		for (int i = 0; i < arr.length; i++) {
+			sorted[i] = arr[arr.length - 1 - i];
 		}
-		for(int i = 0; i < arr.length; i++){
+		for (int i = 0; i < arr.length; i++) {
 			arr[i] = sorted[i];
 		}
 	}

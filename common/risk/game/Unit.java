@@ -11,8 +11,8 @@ public class Unit {
 	private static final int JET_TROOPS = 15;
 	private static final int TANK_TROOPS = 5;
 
-	//Non private so it can be accessed from Card
-	//Not the most elegant but it works
+	// Non private so it can be accessed from Card
+	// Not the most elegant but it works
 	static char[][] images = new char[][] { { '[', '{' }, { 'i', 'I' },
 			{ 'v', 'V' } };
 	static Font sprites;

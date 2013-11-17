@@ -134,7 +134,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if(!DEBUG){
+		if (!DEBUG) {
 			return;
 		}
 		if (e.getKeyChar() == 'c') {
@@ -158,7 +158,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 			String message = "" + (char) 0x10 + (char) 2;
 			g.message(message, -1);
 		}
-		
+
 	}
 
 	@Override

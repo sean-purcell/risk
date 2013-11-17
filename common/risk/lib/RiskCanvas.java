@@ -44,10 +44,10 @@ public class RiskCanvas extends JPanel {
 
 		frame.getContentPane().add(this);
 		frame.setBounds(new Rectangle(1280, 720));
-		frame.getContentPane().setMinimumSize(new Dimension(1280,720));
-		this.setBounds(0,0,1280,720);
-		this.setMinimumSize(new Dimension(1280,720));
-		
+		frame.getContentPane().setMinimumSize(new Dimension(1280, 720));
+		this.setBounds(0, 0, 1280, 720);
+		this.setMinimumSize(new Dimension(1280, 720));
+
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,7 +64,7 @@ public class RiskCanvas extends JPanel {
 		frame.addMouseMotionListener(i);
 
 		frame.setBackground(Color.WHITE);
-		
+
 		soldier = Risk.loadImage("resources/soldier.png");
 		this.input = i;
 		initFont();
@@ -82,20 +82,20 @@ public class RiskCanvas extends JPanel {
 	public void resize() {
 		if (frame.getContentPane().getBounds().getHeight() != 720) {
 			Dimension r = new Dimension(1280, 720);
-			//this.setMinimumSize(r);
+			// this.setMinimumSize(r);
 			this.setPreferredSize(r);
 			frame.getContentPane().setPreferredSize(r);
-			//frame.getContentPane().setMinimumSize(r);
+			// frame.getContentPane().setMinimumSize(r);
 			frame.pack();
 			System.out.println("Resized");
 		} // Ensures that the frame is at the correct size
 	}
-	
+
 	@Override
-	public void update(Graphics g){
+	public void update(Graphics g) {
 		super.update(g);
 	}
-	
+
 	@Override
 	public void paintComponent(Graphics g) {
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
@@ -109,8 +109,7 @@ public class RiskCanvas extends JPanel {
 		bufferG.setColor(Color.WHITE);
 		bufferG.fillRect(0, 0, 1280, 720);
 		bufferG.setFont(army);
-		bufferG.setRenderingHint(
-				RenderingHints.KEY_TEXT_ANTIALIASING,
+		bufferG.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
 		// If resources have not been initialized yet, don't draw
