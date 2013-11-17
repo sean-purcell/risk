@@ -7,21 +7,29 @@ public class Button implements Drawable {
 	private int x;
 	private int y;
 
+	private int w;
+	private int h;
+	
 	private BufferedImage texture;
 
 	private int id;
 
 	public Button(int x, int y, BufferedImage texture, int id) {
-		super();
+		this(x,y,texture.getWidth(),texture.getHeight(),id);
+		this.texture = texture;
+	}
+	
+	public Button(int x, int y, int w, int h, int id){
 		this.x = x;
 		this.y = y;
-		this.texture = texture;
+		this.w = w;
+		this.h = h;
 		this.id = id;
 	}
 
 	public boolean overlaps(int x, int y) {
-		return this.x <= x && this.x + texture.getWidth(null) > x
-				&& this.y <= y && this.y + texture.getHeight(null) > y;
+		return this.x <= x && this.x + w > x
+				&& this.y <= y && this.y + h > y;
 	}
 
 	public BufferedImage getTexture() {
@@ -48,5 +56,9 @@ public class Button implements Drawable {
 	@Override
 	public int getY() {
 		return y;
+	}
+	
+	public void setWidth(int w){
+		this.w = w;
 	}
 }

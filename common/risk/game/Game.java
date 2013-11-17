@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
@@ -115,7 +116,14 @@ public class Game {
 	
 	private boolean territoryConquered;
 	
+	private Button cards;
+	
+	private int cardBonus;
+	private Iterator<Integer> cardBonusIterator;
+	
 	private List<Button> endTurnList;
+	private List<Button> cardsList;
+	private List<Button> cardsAndEndTurn;
 	private List<Button> battleButtonList;
 	
 	private BufferedImage battleButtonTexture;
@@ -242,6 +250,8 @@ public class Game {
 		attackTarget = null;
 		territoryConquered = false;
 		currentArmy().setFreeUnits(calculateReinforcements());
+		
+		resetCardButton();
 	}
 
 	private int calculateReinforcements() {
@@ -499,10 +509,51 @@ public class Game {
 		Button rollDice = new Button(1155, 665, battleButtonTexture, 6);
 		battleButtonList.add(rollDice);
 
+		cardsList = new ArrayList<Button>();
+		cardsAndEndTurn = new ArrayList<Button>();
+		cards = new Button(450,630,0,90,7);
+		
+		cardsList.add(cards);
+		cardsAndEndTurn.add(endT);
+		cardsAndEndTurn.add(endT);
+
+		initCardBonusIterator();
+		
 		enterNextTurn();
 	}
 
+	private void initCardBonusIterator(){
+		cardBonusIterator = new Iterator<Integer>(){
+			//Decided to use the iterator interface to provide
+			//handy methods and allow me to use an anonymous class
+			public boolean hasNext(){
+				return true;
+			}
+			
+			public Integer next(){
+				if(cardBonus == 60){
+					return 4;
+				}
+				if(cardBonus < 10){
+					return cardBonus + 2;
+				}
+				return cardBonus + 5;
+			}
+			
+			public void remove(){}
+		};
+		cardBonus = 4;
+	}
+
 	public void draw(Graphics2D g) {
+		g.setRenderingHint(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+		
+		g.setRenderingHint(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		
 		try {
 			drawMap(g);
 			drawUnits(g);
@@ -598,6 +649,7 @@ public class Game {
 			drawBattleDice(g);
 			break;
 		case 1:
+			drawCardBonus(g);
 			drawReinforcements(g);
 			drawCards(g);
 			break;
@@ -738,6 +790,10 @@ public class Game {
 			c.draw(g, index);
 			index++;
 		}
+	}
+	
+	private void drawCardBonus(Graphics2D g){
+		drawString(g,"Card Bonus: " + cardBonus,30,930,675,Color.BLACK);
 	}
 	
 	private void drawConnections(Graphics2D g) {
@@ -942,6 +998,12 @@ public class Game {
 				}
 			case 2:
 			case 1:
+				if(b.getId() == 7){
+					if(currentArmy().useCards()){
+						cardsUsed();
+						resetCardButton();
+					}
+				}
 			case 5:
 				if (b.getId() == 99) {
 					switch(gameMode){
@@ -986,6 +1048,12 @@ public class Game {
 		}
 	}
 
+	private void cardsUsed(){
+		currentArmy().setFreeUnits(
+				currentArmy().getFreeUnits() + cardBonus);
+		cardBonus = cardBonusIterator.next();
+	}
+	
 	private void addTroop(Country c) {
 		c.getUnit().incrementTroops();
 		c.getUnit().getArmy()
@@ -1119,6 +1187,10 @@ public class Game {
 		return textures;
 	}
 
+	private void resetCardButton(){
+		cards.setWidth(currentArmy().getCards().size() * 90);
+	}
+	
 	/**
 	 * All input should go through this, to make it easier to combine local
 	 * multiplayer, non-local multiplayer, and AI
@@ -1191,6 +1263,14 @@ public class Game {
 				defenderDiceTimers[i] = 0;
 			}
 			break;
+		case 2:
+			try{
+				currentArmy().addCard();
+				this.resetCardButton();
+			}
+			catch(Exception e){
+				
+			}
 		}
 	}
 	
@@ -1213,8 +1293,11 @@ public class Game {
 		case 2:
 			switch (gameMode) {
 			case 1:
-				if(currentArmy().getFreeUnits() > 0){
-					return null;
+				if(currentArmy().getFreeUnits() > 0 
+						|| currentArmy().getCards().size() == 5){
+					return cardsList;
+				}else{
+					return cardsAndEndTurn;
 				}
 			case 2:
 			case 5:

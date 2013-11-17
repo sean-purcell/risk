@@ -1,5 +1,7 @@
 package risk.game;
 
+import static risk.Risk.DEBUG;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -87,7 +89,9 @@ public class Army {
 	}
 
 	public void addCard() {
-		assert(cards.size() < 5);
+		if(cards.size() >= 5 && !DEBUG) {
+			return;
+		}
 		cards.add(new Card());
 	}
 	
@@ -98,11 +102,11 @@ public class Army {
 	public boolean useCards(){
 		boolean oneEach = true;
 		List<Card> first = new ArrayList<Card>();
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 3; i++){ //Checks if there are at three of a certain type
 			List<Card> subCards = getCardsOf(i);
 			if(subCards.size() >= 3){
 				for(int j = 0; j < 3; j++){
-					cards.remove(subCards.get(i));
+					cards.remove(subCards.get(j));
 				}
 				return true;
 			}
@@ -113,7 +117,7 @@ public class Army {
 			}
 		}
 		
-		if(oneEach){
+		if(oneEach){ //Otherwise if there was at least one of each type
 			for(Card c : first){
 				cards.remove(c);
 			}
@@ -124,9 +128,9 @@ public class Army {
 		
 	}
 	
-	private List<Card> getCardsOf(int type){
+	private List<Card> getCardsOf(int type){ //Gets the cards for this army of a certain type
 		List<Card> copy = (List<Card>) ((ArrayList<Card>) cards).clone();
-		Iterator<Card> i = copy.listIterator();
+		Iterator<Card> i = copy.listIterator(); //I didnt have to use iterators but why not
 		while(i.hasNext()){
 			if(i.next().getType() != type){
 				i.remove();
