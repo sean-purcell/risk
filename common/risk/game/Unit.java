@@ -1,12 +1,10 @@
 package risk.game;
 
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+
+import risk.Risk;
 
 public class Unit {
 
@@ -21,14 +19,7 @@ public class Unit {
 	static FontMetrics spritesMetrics;
 
 	static {
-		try {
-			sprites = Font.createFont(Font.TRUETYPE_FONT,
-					new File("resources/militaryRPG.ttf")).deriveFont(10f);
-		} catch (FontFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		sprites = Risk.loadFont("resources/militaryRPG.ttf");
 	}
 
 	private int troops;

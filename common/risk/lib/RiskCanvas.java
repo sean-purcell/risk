@@ -76,24 +76,7 @@ public class RiskCanvas extends JPanel {
 	}
 
 	private void initFont() {
-		try {
-			this.army = Font.createFont(Font.TRUETYPE_FONT, new File(
-					armyFontAddress));
-		} catch (FontFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			try{
-				this.army = Font.createFont(Font.TRUETYPE_FONT,
-						Risk.class.getResourceAsStream("/"+armyFontAddress));
-			}
-			catch(IOException e1){
-				
-			} catch (FontFormatException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-		}
-		this.army = this.army.deriveFont(36f);
+		this.army = Risk.loadFont(armyFontAddress).deriveFont(36f);
 	}
 
 	public void resize() {

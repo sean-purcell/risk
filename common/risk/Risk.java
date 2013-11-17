@@ -1,6 +1,8 @@
 package risk;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -83,6 +85,11 @@ public class Risk {
 			p.load(new FileInputStream(ref));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			try {
+				p.load(Risk.class.getResourceAsStream("/"+ref));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		} catch (IOException e) {
 			try {
 				p.load(Risk.class.getResourceAsStream("/"+ref));
@@ -92,6 +99,29 @@ public class Risk {
 			e.printStackTrace();
 		}
 		return p;
+	}
+	
+	public static Font loadFont(String ref){
+		Font f = null;
+		try {
+			f = Font.createFont(Font.TRUETYPE_FONT, new File(
+					ref));
+		} catch (FontFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			try{
+				f = Font.createFont(Font.TRUETYPE_FONT,
+						Risk.class.getResourceAsStream("/"+ref));
+			}
+			catch(IOException e1){
+				
+			} catch (FontFormatException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		return f;
+		
 	}
 
 	/**
