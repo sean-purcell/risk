@@ -60,7 +60,6 @@ public class Game {
 	 * 3. Roll dice<br>
 	 * 4. Choose territories<br>
 	 * 5. Deploy reinforcements
-	 * 6. Display eliminated army
 	 */
 	private int setupMode;
 
@@ -70,9 +69,12 @@ public class Game {
 	 * 2. Normal game mode<br>
 	 * 3. Battle mode<br>
 	 * 4. Dice rolling<br>
+	 * 6. Display eliminated army
 	 */
 	private int gameMode;
 
+	private List<Button> titleScreenButtons;
+	
 	private List<Button> numberButtons;
 	private List<Button> colourButtons;
 	private int[] dice;
@@ -129,6 +131,8 @@ public class Game {
 	
 	private BufferedImage battleButtonTexture;
 
+	private List<Button> newGameList;
+	
 	/**
 	 * Set to false if the game should exit
 	 */
@@ -144,6 +148,9 @@ public class Game {
 		i = new Input(this);
 		r = new RiskCanvas(this, i);
 		this.armies = new ArrayList<Army>();
+		this.titleScreenButtons = createMenuButtons(r);
+		this.newGameList = createNewGameButton(r);
+		
 		mode = 0;
 		running = true;
 	}
@@ -198,7 +205,7 @@ public class Game {
 	}
 
 	private void gameOver(){
-		gameMode = 3;
+		mode = 3;
 	}
 	
 	private void update(int delta) {
@@ -646,9 +653,9 @@ public class Game {
 			break;
 		case 3:
 			drawSelectedCountry(g);
+			drawAttackTarget(g);
 			drawObjectiveMessage(g);
 			drawBattle(g);
-			drawAttackTarget(g);
 			break;
 		case 4: 
 			drawSelectedCountry(g);
@@ -987,6 +994,12 @@ public class Game {
 	
 	public void buttonClicked(Button b, int x, int y) {
 		switch (mode) {
+		case 0:
+			switch(b.getId()){
+			case 0:
+				mode = 1;
+				break;
+			}
 		case 1:
 			switch (setupMode) {
 			case 1:
@@ -1033,6 +1046,14 @@ public class Game {
 					}
 				}
 				break;
+			}
+			break;
+		case 3:
+			switch(b.getId()){
+			case 0:
+				mode = 0; //Returns to title screen
+				gameMode = 0;
+				setupMode = 0;
 			}
 		}
 	}
@@ -1111,17 +1132,17 @@ public class Game {
 		}
 	}
 
-	public static void draw(Drawable d, Graphics g) {
+	private static void draw(Drawable d, Graphics g) {
 		if (d.getTexture() != null) {
 			g.drawImage(d.getTexture(), d.getX(), d.getY(), null);
 		}
 	}
 
-	public static void drawDie(Graphics2D g, int x, int y, int val) {
+	private static void drawDie(Graphics2D g, int x, int y, int val) {
 		g.drawImage(DiceTexture.getDieTexture(val), x, y, null);
 	}
 
-	public List<BufferedImage> generateNumberButtonTextures(
+	private List<BufferedImage> generateNumberButtonTextures(
 			RiskCanvas riskCanvas) {
 		final int width = 50;
 		final int height = 50;
@@ -1165,7 +1186,7 @@ public class Game {
 		return textures;
 	}
 
-	public List<BufferedImage> generateColourButtonTextures() {
+	private List<BufferedImage> generateColourButtonTextures() {
 		final int width = 50;
 		final int height = 50;
 
@@ -1194,6 +1215,81 @@ public class Game {
 			textures.add(clone);
 		}
 		return textures;
+	}
+	
+	private List<Button> createMenuButtons(RiskCanvas riskCanvas){
+		String[] buttonStrings = {"New Game"/*,"Host Game","Join Game"*/};
+		List<Button> buttons = new ArrayList<Button>();
+		
+		BufferedImage base = new BufferedImage(200,100,BufferedImage.TYPE_INT_ARGB);
+		Graphics2D baseG = (Graphics2D) base.getGraphics();
+		
+		baseG.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+		
+		baseG.setColor(Color.BLACK);
+		baseG.fillRoundRect(0,0,200,100,10,10);
+		
+		baseG.setColor(Color.WHITE);
+		baseG.fillRoundRect(5,5,190,90,10,10);
+		
+		int index = 0;
+		
+		for(String s : buttonStrings){
+			BufferedImage clone = Risk.cloneImage(base);
+			Graphics2D g = (Graphics2D) clone.getGraphics();
+			
+			g.setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_OFF);
+			
+			g.setRenderingHint(
+					RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+			
+			g.setFont(riskCanvas.army.deriveFont(40f));
+			g.setColor(Color.BLACK);
+			FontMetrics fm = g.getFontMetrics();
+			
+			int x = 100 - fm.stringWidth(s)/2;
+			
+			drawString(g,s,40,x,50+fm.getHeight()/2,Color.BLACK);
+			
+			Button b = new Button(640 - ((buttonStrings.length-1) * 205 + 200)/2 + 205 * index,615,clone,index);
+			buttons.add(b);
+			index++;
+		}
+		
+		return buttons;
+	}
+	
+	private List<Button> createNewGameButton(RiskCanvas riskCanvas){
+		BufferedImage text = new BufferedImage(200,100,BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) text.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+		
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+		
+		g.setColor(Color.BLACK);
+		g.fillRoundRect(0,0,200,100,10,10);
+		
+		g.setColor(Color.WHITE);
+		g.fillRoundRect(5,5,190,90,10,10);
+		
+		g.setFont(riskCanvas.army.deriveFont(40f));
+		g.setColor(Color.BLACK);
+		FontMetrics fm = g.getFontMetrics();
+		
+		int x = 100 - fm.stringWidth("Title Screen")/2;
+		
+		drawString(g,"Title Screen",40,x,50+fm.getHeight()/2,Color.BLACK);
+		
+		Button b = new Button(540, 615,text,0);
+		List<Button> list = new ArrayList<Button>();
+		list.add(b);
+		return list;
 	}
 	
 	private void resetCardButton(){
@@ -1291,6 +1387,8 @@ public class Game {
 	// SETTERS AND GETTERS
 	public List<Button> getButtonList() {
 		switch (mode) {
+		case 0:
+			return titleScreenButtons;
 		case 1:
 			switch (setupMode) {
 			case 1:
@@ -1317,6 +1415,8 @@ public class Game {
 				
 			}
 			break;
+		case 3:
+			return newGameList;
 		}
 		return null;
 	}
