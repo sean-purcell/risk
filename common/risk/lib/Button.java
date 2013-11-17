@@ -13,7 +13,7 @@ public class Button implements Drawable {
 	private BufferedImage texture;
 
 	private int id;
-
+	
 	public Button(int x, int y, BufferedImage texture, int id) {
 		this(x,y,texture.getWidth(),texture.getHeight(),id);
 		this.texture = texture;

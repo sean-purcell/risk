@@ -46,6 +46,7 @@ public class Game {
 
 	/**
 	 * Represents the current mode that the game is in<br>
+	 * 0. Title screen<br>
 	 * 1. Game setup mode<br>
 	 * 2. Main game mode<br>
 	 * 3. Display victor<br>
@@ -143,7 +144,7 @@ public class Game {
 		i = new Input(this);
 		r = new RiskCanvas(this, i);
 		this.armies = new ArrayList<Army>();
-		mode = 1;
+		mode = 0;
 		running = true;
 	}
 
@@ -508,7 +509,7 @@ public class Game {
 		battleButtonTexture = Risk.loadImage("resources/battleButton.png");
 		Button rollDice = new Button(1155, 665, battleButtonTexture, 6);
 		battleButtonList.add(rollDice);
-
+		
 		cardsList = new ArrayList<Button>();
 		cardsAndEndTurn = new ArrayList<Button>();
 		cards = new Button(450,630,0,90,7);
@@ -521,7 +522,7 @@ public class Game {
 		
 		enterNextTurn();
 	}
-
+	
 	private void initCardBonusIterator(){
 		cardBonusIterator = new Iterator<Integer>(){
 			//Decided to use the iterator interface to provide
@@ -558,6 +559,9 @@ public class Game {
 			drawMap(g);
 			drawUnits(g);
 			switch (mode) {
+			case 0:
+				drawTitleScreen(g);
+				break;
 			case 1:
 				drawSetupMode(g);
 				break;
@@ -568,12 +572,17 @@ public class Game {
 				drawVictor(g);
 				break;
 			}
+			drawButtons(g);
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 			System.err.println("Frame not completed due to error");
 		}
-		
-		drawButtons(g);
+	}
+	
+	private void drawTitleScreen(Graphics2D g){
+		setFontSize(g, 400);
+		FontMetrics fm = g.getFontMetrics();
+		drawString(g, "RISK", 400, 640 - fm.stringWidth("RISK")/2,360, Color.RED);
 	}
 	
 	private void drawVictor(Graphics2D g){
@@ -967,9 +976,9 @@ public class Game {
 			}
 			
 			for(Country c : top.getConnections()){
-				if(c.getUnit().getArmy() == top.getUnit().getArmy() && !visited[c.getId()]){
+				if(c.getUnit().getArmy() == top.getUnit().getArmy() && !visited[c.getId()-1]){
 					searchQ.add(c);
-					visited[c.getId()] = true;
+					visited[c.getId()-1] = true;
 				}
 			}
 		}
@@ -1186,7 +1195,7 @@ public class Game {
 		}
 		return textures;
 	}
-
+	
 	private void resetCardButton(){
 		cards.setWidth(currentArmy().getCards().size() * 90);
 	}
