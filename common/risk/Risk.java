@@ -10,7 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +32,7 @@ import risk.lib.ThreadLocks;
  */
 public class Risk {
 
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	/**
 	 * The unique id used to hold a lock while loading resources
@@ -49,18 +50,18 @@ public class Risk {
 	public static Random r;
 
 	public static void main(String[] args) {
+		if(!DEBUG){
+			System.setOut(new PrintStream(new OutputStream(){
+				public void write(int b){}
+				public void write(byte[] a,int i,int j){}
+			}));
+		}
 		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
 		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
 
 		g.run();
-	}
-
-	private static void explore() {
-		File f = new File("./");
-		System.out.println(f.getAbsolutePath());
-		System.out.println(f.listFiles());
 	}
 
 	public static BufferedImage loadImage(String ref) {
