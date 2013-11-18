@@ -885,9 +885,9 @@ public class Game {
 		case 4:
 			if (c.getUnit() == null) {
 				this.addUnit(1, currentArmy(), c);
+				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
 				incrementTurn();
 				numTerritoriesClaimed++;
-				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
 				if (numTerritoriesClaimed == 42) {
 					enterSetupReinforcement();
 				}
