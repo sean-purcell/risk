@@ -56,14 +56,18 @@ public class Risk {
 				public void write(byte[] a,int i,int j){}
 			}));
 		}
+		newGame();
+	}
+
+	public static void newGame(){
 		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
 		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
 
-		g.run();
+		g.start();
 	}
-
+	
 	public static BufferedImage loadImage(String ref) {
 		try {
 			return ImageIO.read(Risk.class.getResourceAsStream("/" + ref));

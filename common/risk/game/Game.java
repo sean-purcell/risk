@@ -11,7 +11,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -30,7 +29,7 @@ import risk.lib.ThreadLocks;
  * @author Sean Purcell
  * 
  */
-public class Game {
+public class Game extends Thread{
 
 	private final int UPDATE_THREAD_ID = 1;
 
@@ -1112,9 +1111,9 @@ public class Game {
 		case 3:
 			switch (b.getId()) {
 			case 0:
-				mode = 0; // Returns to title screen
-				gameMode = 0;
-				setupMode = 0;
+				Risk.newGame();
+				running = false;
+				Thread.currentThread().stop();
 			}
 		}
 	}
