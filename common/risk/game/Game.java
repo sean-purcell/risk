@@ -47,6 +47,13 @@ public class Game extends Thread{
 	public Thread main;
 	
 	/**
+	 * Represents the type of this game, 0 means locally hosted normal game<br>
+	 * 1 means this is the host for a non-local game<br>
+	 * 2 means this is a client for a non-local game
+	 */
+	private int gameType;
+	
+	/**
 	 * Represents the current mode that the game is in<br>
 	 * 0. Title screen<br>
 	 * 1. Game setup mode<br>
