@@ -131,13 +131,30 @@ public class Risk {
 	 * @param list
 	 * @param offset
 	 */
-	public static <T> void rotateList(List<T> list, int offset) {
+	public static <T> List<T> rotateList(List<T> list, int offset) {
 		for (int i = 0; i < offset; i++) {
 			T front = list.remove(0);
 			list.add(front);
 		}
+		return list;
 	}
-
+	
+	public static int[] rotateArray(int[] arr, int offset){
+		for(int i = 0; i < offset; i++){
+			int front = arr[0];
+			arr = shift(arr);
+			arr[arr.length-1] = front;
+		}
+		return arr;
+	}
+	
+	private static int[] shift(int[] arr){
+		for(int i = 0; i < arr.length - 1; i++){
+			arr[i] = arr[i+1];
+		}
+		return arr;
+	}
+	
 	public static BufferedImage cloneImage(BufferedImage original) {
 		ColorModel cm = original.getColorModel();
 		WritableRaster raster = (WritableRaster) original.getData();

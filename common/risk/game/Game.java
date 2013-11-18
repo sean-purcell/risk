@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -44,6 +45,8 @@ public class Game {
 
 	private Map map;
 
+	public Thread main;
+	
 	/**
 	 * Represents the current mode that the game is in<br>
 	 * 0. Title screen<br>
@@ -89,8 +92,13 @@ public class Game {
 
 	private int numSetupTroops;
 
+	private boolean numAIChosen;
+	
 	private int numPlayers;
-
+	private int numAI;
+	
+	private int[] playerTypes;
+	
 	private int turn;
 
 	private List<Army> armies;
@@ -150,7 +158,7 @@ public class Game {
 		this.armies = new ArrayList<Army>();
 		this.titleScreenButtons = createMenuButtons(r);
 		this.newGameList = createNewGameButton(r);
-
+		main = Thread.currentThread();
 		mode = 0;
 		running = true;
 	}
@@ -194,7 +202,7 @@ public class Game {
 					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,
 							UPDATE_THREAD_ID);
 				}
-
+				
 				// Limits the game to 30 fps
 				try {
 					Thread.sleep(UPDATE_RATE);
@@ -224,6 +232,9 @@ public class Game {
 		case 0:
 			enterSetupMode();
 			break;
+		case 2:
+			pickAIColor();
+			break;
 		case 3:
 			updateSetupDice(delta);
 			break;
@@ -251,6 +262,12 @@ public class Game {
 		armies = new ArrayList<Army>();
 	}
 
+	private void pickAIColor(){
+		if(turn >= numPlayers - numAI){
+			this.colourPicked(getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+		}
+	}
+	
 	private void enterNextTurn() {
 		incrementTurn();
 		gameMode = 1;
@@ -460,7 +477,7 @@ public class Game {
 
 		// Set the first army in the list to be the one designated to go first
 		Risk.rotateList(armies, offset);
-
+		playerTypes = Risk.rotateArray(playerTypes,offset);
 		setupMode = 4;
 		turn = 0;
 		currentArmy().enterTurn();
@@ -490,7 +507,7 @@ public class Game {
 		numberButtons = new ArrayList<Button>();
 		for (int i = 0; i < numberButtonTextures.size(); i++) {
 			numberButtons.add(new Button(50 + 55 * i, 650, numberButtonTextures
-					.get(i), i + 3));
+					.get(i), i));
 		}
 		System.out.println("number buttons initialized");
 		List<BufferedImage> colourButtonTextures = generateColourButtonTextures();
@@ -625,7 +642,11 @@ public class Game {
 	private void drawSetupMode(Graphics2D g) {
 		switch (setupMode) {
 		case 1:
-			drawString(g, "Number of players: ", 30, 25, 645, Color.BLACK);
+			if(!numAIChosen){
+				drawString(g, "Number of AI: ", 30, 25, 645, Color.BLACK);
+			}else{
+				drawString(g, "Number of players: ", 30, 25, 645, Color.BLACK);
+			}
 			break;
 		case 2:
 			drawString(g, "Player " + (turn + 1), 40, 25, 625, Color.BLACK);
@@ -694,10 +715,16 @@ public class Game {
 	}
 
 	private void drawClaimTerritories(Graphics2D g) {
+		if(playerTypes[turn] != 0){
+			return;
+		}
 		drawString(g, "Claim an unclaimed territory.", 30, 30, 645, Color.BLACK);
 	}
 
 	private void drawDeploySetupTroops(Graphics2D g) {
+		if(playerTypes[turn] != 0){
+			return;
+		}
 		drawString(g, "Deploy " + numSetupTroops + " troops.", 30, 30, 645,
 				Color.BLACK);
 		drawString(g, "Troops left: " + currentArmy().getFreeUnits(), 30, 30,
@@ -719,6 +746,9 @@ public class Game {
 	}
 
 	private void drawObjectiveMessage(Graphics2D g) {
+		if(playerTypes[turn] != 0){
+			return;
+		}
 		String message = gameMode == 5 ? "Move troops" : "Attack enemy";
 		String message2 = gameMode == 5 ? "to reinforce positions."
 				: "territories.";
@@ -802,6 +832,9 @@ public class Game {
 	}
 
 	private void drawCards(Graphics2D g) {
+		if(playerTypes[turn] != 0){
+			return;
+		}
 		int index = 0;
 		for (Card c : currentArmy().getCards()) {
 			c.draw(g, index);
@@ -810,6 +843,9 @@ public class Game {
 	}
 
 	private void drawCardBonus(Graphics2D g) {
+		if(playerTypes[turn] != 0){
+			return;
+		}
 		drawString(g, "Card Bonus: " + cardBonus, 30, 930, 675, Color.BLACK);
 	}
 
@@ -1010,9 +1046,17 @@ public class Game {
 		case 1:
 			switch (setupMode) {
 			case 1:
-				numPlayers = b.getId();
-				setupMode = 2; // Enter choose colour mode
-				turn = 0;
+				if(!numAIChosen){
+					numAI = b.getId();
+					numAIChosen = true;
+					numberButtons = numberButtons.subList(Math.max(0,3-numAI),7-numAI);
+				}else{
+					System.out.println("numberButtonClicked");
+					numPlayers = b.getId() + numAI;
+					setupMode = 2; // Enter choose colour mode
+					turn = 0;
+					playerTypes = new int[numPlayers];
+				}
 				break;
 			case 2:
 				colourPicked(b);
@@ -1068,7 +1112,9 @@ public class Game {
 
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
-		armies.add(new Army(b.getId(), this,1));
+		playerTypes[turn] = turn < numPlayers - numAI ? 0 : 1;
+		armies.add(new Army(b.getId(), this,playerTypes[turn]));
+		
 		turn++;
 		System.out.println(numPlayers);
 		if (turn == numPlayers) {
@@ -1164,7 +1210,7 @@ public class Game {
 
 		baseG.setColor(Color.BLACK);
 		baseG.fillRoundRect(0, 0, width, height, 10, 10);
-		for (char i = '3'; i <= '6'; i++) {
+		for (char i = '0'; i <= '6'; i++) {
 			BufferedImage clone = Risk.cloneImage(base);
 			Graphics2D g = (Graphics2D) clone.getGraphics();
 
@@ -1341,9 +1387,18 @@ public class Game {
 			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source
 					+ INPUT_ID_OFFSET);
 		}
+		main.interrupt();
 	}
 
 	private void parseButtonMessage(String str, int source) {
+		try{
+			if(source != (playerTypes[turn] == 0 ? 1 : -2) && source != -1){
+				return;
+			}
+		}
+		catch(NullPointerException e){
+
+		}
 		int i = str.charAt(0);
 		Button clicked = null;
 		for (Button b : getButtonList()) {
@@ -1356,6 +1411,14 @@ public class Game {
 	}
 
 	private void parseCountryMessage(String str, int source) {
+		try{
+			if(source != (playerTypes[turn] == 0 ? 1 : -2) && source != -1){
+				return;
+			}
+		}
+		catch(NullPointerException e){
+
+		}
 		int i = Integer.parseInt(str.substring(0, 2));
 		countryClicked(map.getCountryById(i));
 	}
