@@ -6,6 +6,7 @@ import java.awt.FontFormatException;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -222,5 +223,17 @@ public class Risk {
 		for (int i = 0; i < arr.length; i++) {
 			arr[i] = sorted[i];
 		}
+	}
+	
+	public static String read(BufferedReader i){
+		StringBuffer s = new StringBuffer();
+		try{
+			while(i.ready()){
+				s.append(i.read());
+			}
+		}
+		catch(IOException e){
+		}
+		return s.toString();
 	}
 }

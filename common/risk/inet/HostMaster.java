@@ -1,6 +1,7 @@
 package risk.inet;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class HostMaster extends Thread{
 	
 	private Object acceptingPlayersLock;
 	
-	private Game g;
+	private WeakReference<Game> g;
 	
 	private ServerSocket server;
 	
@@ -24,9 +25,9 @@ public class HostMaster extends Thread{
 		super("Server Master");
 		servers = new ArrayList<HostServer>();
 		this.acceptingPlayersLock = new Object();
-		this.g = g;
+		this.g = new WeakReference<Game>(g);
 		try {
-			this.server = new ServerSocket(4193);
+			this.server = new ServerSocket(4913);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Could not create server, abort.");
@@ -41,8 +42,9 @@ public class HostMaster extends Thread{
 			try {
 				Socket client = server.accept();
 				HostServer serv = new HostServer(client,this,index); index++;
+				serv.start();
 				servers.add(serv);
-				g.serverAdded();
+				g.get().serverAdded(client);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Could not accept client.");
@@ -60,5 +62,19 @@ public class HostMaster extends Thread{
 		synchronized(acceptingPlayersLock){
 			return acceptingPlayers;
 		}
+	}
+	
+	public void message(String message, HostServer source){
+		for(HostServer h : servers){
+			if(h != source)
+				h.writeMessage(message);
+		}
+		if(source != null){
+			g.get().message(message, 2);
+		}
+	}
+	
+	boolean running(){
+		return g.get() == null;
 	}
 }

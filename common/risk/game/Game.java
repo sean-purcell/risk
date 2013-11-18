@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -1056,7 +1057,17 @@ public class Game extends Thread{
 			switch (b.getId()) {
 			case 0:
 				mode = 1;
+				gameType = 0;
 				break;
+			case 1:
+				mode = 1;
+				setupMode = -1;
+				gameType = 1;
+				break;
+			case 2:
+				mode = 1;
+				setupMode = -2;
+				gameType = 2; 
 			}
 		case 1:
 			switch (setupMode) {
@@ -1282,7 +1293,7 @@ public class Game extends Thread{
 	}
 
 	private List<Button> createMenuButtons(RiskCanvas riskCanvas) {
-		String[] buttonStrings = { "New Game"/* ,"Host Game","Join Game" */};
+		String[] buttonStrings = { "New Game","Host Game","Join Game"};
 		List<Button> buttons = new ArrayList<Button>();
 
 		BufferedImage base = new BufferedImage(200, 100,
@@ -1461,6 +1472,15 @@ public class Game extends Thread{
 				this.resetCardButton();
 			} catch (Exception e) {
 
+			}
+		}
+	}
+	
+	public void serverAdded (Socket client){
+		if(mode == 1 && gameType == 1){
+			if(setupMode == -1){
+				numPlayers++;
+				System.out.println(client.getInetAddress() + " connected");
 			}
 		}
 	}

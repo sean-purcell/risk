@@ -2,19 +2,20 @@ package risk.inet;
 
 import java.net.Socket;
 
-public class HostServer extends Thread{
+public class HostServer extends SocketHandler{
 	
-	private Socket client;
 	private HostMaster h;
 	
 	HostServer(Socket client, HostMaster h, int id){
-		super("Server-"+Integer.toString(id));
-		this.client = client;
+		super(client,"Server-"+Integer.toString(id));
 		this.h = h;
 	}
 	
-	@Override
-	public void run(){
-		
+	protected void useMessage(String message){
+		h.message(message, this);
+	}
+	
+	protected boolean running(){
+		return h.running();
 	}
 }
