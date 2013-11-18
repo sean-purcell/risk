@@ -447,6 +447,9 @@ public class Game {
 
 	private void armyEliminated(Army eliminatee) {
 		Army current = currentArmy();
+		for(int i = armies.indexOf(eliminatee); i < playerTypes.length; i++){
+			playerTypes[i] = playerTypes[i+1];
+		}
 		armies.remove(eliminatee);
 		numPlayers--;
 		turn = armies.indexOf(current);
@@ -613,7 +616,7 @@ public class Game {
 
 	private void drawVictor(Graphics2D g) {
 		Army victor = armies.get(0);
-		String message = victor.getName() + " IS VICTORIOUS!s";
+		String message = victor.getName() + " IS VICTORIOUS!";
 		drawCenteredMessage(g, message, victor.getColour());
 	}
 
@@ -867,6 +870,12 @@ public class Game {
 	}
 
 	public void drawButtons(Graphics2D g) {
+		try{
+			if(playerTypes[turn] != 0){
+				return;
+			}
+		}
+		catch(Exception e){}
 		if (this.getButtonList() != null) {
 			for (Button b : this.getButtonList()) {
 				draw(b, g);
