@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import risk.Risk;
+import risk.ai.AI;
+import risk.ai.BasicAI;
 
 /**
  * Represents an Army
@@ -48,6 +50,10 @@ public class Army {
 	 */
 	private int type;
 
+	// 0 = locally controlled, 1 = AI controlled, 2 = non-local
+	private int controller;
+	private AI ai;
+	
 	/**
 	 * Pointer to the game object to get necessary data
 	 */
@@ -56,11 +62,16 @@ public class Army {
 	private BufferedImage soldierAttacker;
 	private BufferedImage soldierDefender;
 
-	public Army(int type, Game g) {
+	public Army(int type, Game g, int controller) {
 		units = new ArrayList<Unit>();
 		cards = new ArrayList<Card>();
 		this.setType(type);
 		this.g = g;
+		
+		this.controller = controller;
+		if(controller == 1){
+			ai = new BasicAI(g, this);
+		}
 
 		soldierAttacker = Risk.changeImageColour(soldierAttackTexture,
 				getColour());
@@ -68,6 +79,18 @@ public class Army {
 				getColour());
 	}
 
+	public void enterTurn(){
+		if(controller == 1){
+			ai.activate();
+		}
+	}
+	
+	public void exitTurn(){
+		if(controller == 1){
+			ai.deactivate();
+		}
+	}
+	
 	public int calculateContinentBonus() {
 		int bonus = 0;
 		Map map = g.getMap();

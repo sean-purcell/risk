@@ -258,7 +258,8 @@ public class Game {
 		attackTarget = null;
 		territoryConquered = false;
 		currentArmy().setFreeUnits(calculateReinforcements());
-
+		currentArmy().enterTurn();
+		
 		resetCardButton();
 	}
 
@@ -375,7 +376,7 @@ public class Game {
 				selectedCountry.getUnit().incrementTroops(-losses[0]);
 				defenders -= losses[1];
 				attackTarget.getUnit().incrementTroops(-losses[1]);
-				if (selectedCountry.getUnit().getTroops() <= 1) {
+				if (selectedCountry.getUnit().getTroops() <= 1 || attackers < 1) {
 					gameMode = 2;
 					attackTarget = null;
 				} else if (attackTarget.getUnit().getTroops() <= 0) {
@@ -462,6 +463,7 @@ public class Game {
 
 		setupMode = 4;
 		turn = 0;
+		currentArmy().enterTurn();
 
 		int startingTroops = (10 - numPlayers) * 5;
 		for (Army a : armies) {
@@ -659,9 +661,9 @@ public class Game {
 			break;
 		case 4:
 			drawSelectedCountry(g);
+			drawAttackTarget(g);
 			drawObjectiveMessage(g);
 			drawBattle(g);
-			drawAttackTarget(g);
 			drawBattleDice(g);
 			break;
 		case 1:
@@ -886,7 +888,9 @@ public class Game {
 			if (c.getUnit() == null) {
 				this.addUnit(1, currentArmy(), c);
 				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
+				currentArmy().exitTurn();
 				incrementTurn();
+				currentArmy().enterTurn();
 				numTerritoriesClaimed++;
 				if (numTerritoriesClaimed == 42) {
 					enterSetupReinforcement();
@@ -903,7 +907,9 @@ public class Game {
 					break;
 				}
 				if (numSetupTroops == 0) {
+					currentArmy().exitTurn();
 					incrementTurn();
+					currentArmy().enterTurn();
 					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
 				}
 			}
@@ -1041,6 +1047,7 @@ public class Game {
 						if (territoryConquered) {
 							currentArmy().addCard();
 						}
+						currentArmy().exitTurn();
 						enterNextTurn();
 						gameMode = 1;
 						break;
@@ -1061,7 +1068,7 @@ public class Game {
 
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
-		armies.add(new Army(b.getId(), this));
+		armies.add(new Army(b.getId(), this,1));
 		turn++;
 		System.out.println(numPlayers);
 		if (turn == numPlayers) {
@@ -1305,6 +1312,7 @@ public class Game {
 	 * @param source
 	 */
 	public void message(String message, int source) {
+		System.out.println("Message received from " + source);
 		try {
 			// Request the GAME_STATE lock to avoid concurrency issues
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
@@ -1326,7 +1334,9 @@ public class Game {
 				break;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(source != -2){
+				e.printStackTrace();
+			}
 		} finally {
 			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, source
 					+ INPUT_ID_OFFSET);
@@ -1466,5 +1476,17 @@ public class Game {
 
 	public boolean isRunning() {
 		return running;
+	}
+
+	public int getGameMode() {
+		return gameMode;
+	}
+
+	public int getMode() {
+		return mode;
+	}
+
+	public int getSetupMode() {
+		return setupMode;
 	}
 }
