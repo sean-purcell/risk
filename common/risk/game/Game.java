@@ -186,20 +186,20 @@ public class Game {
 
 					// Create the offscreen buffer containing the frame to be
 					// rendered
-					r.createFrame();
+					r.repaint();
 				} catch (Exception e) {
-
+					e.printStackTrace();
 				} finally {
 					// Release lock now that we're done with it
 					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,
 							UPDATE_THREAD_ID);
 				}
 
-				// Renders the game
-				r.repaint();
 				// Limits the game to 30 fps
-				while (System.currentTimeMillis() - time <= UPDATE_RATE)
-					;
+				try {
+					Thread.sleep(UPDATE_RATE);
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 	}

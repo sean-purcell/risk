@@ -101,7 +101,18 @@ public class RiskCanvas extends JPanel {
 		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
 			return;
 		}
-		g.drawImage(buffer, 0, 0, null);
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, 1280, 720);
+		g.setFont(army);
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+		// If resources have not been initialized yet, don't draw
+		if (ThreadLocks.checkLock(ThreadLocks.INIT_RESOURCES) != 0) {
+			return;
+		}
+
+		game.draw((Graphics2D) g);
 	}
 
 	public void createFrame() { // Creates the frame all at once in an offscreen
