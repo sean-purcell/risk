@@ -80,6 +80,6 @@ public class HostMaster extends Thread{
 	}
 	
 	boolean running(){
-		return g.get() == null;
+		return g.get() != null;
 	}
 }
