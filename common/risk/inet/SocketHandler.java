@@ -35,10 +35,12 @@ public abstract class SocketHandler extends Thread{
 				if(!buffer.isEmpty()){
 					out.write(buffer.remove(0));
 					out.flush();
+					System.out.println("Message written");
 				}
 				if(in.ready()){
 					String message = Risk.read(in);
 					useMessage(message);
+					System.out.println("Message received: " + message);
 				}
 				try {
 					Thread.sleep(100);
