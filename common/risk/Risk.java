@@ -33,7 +33,8 @@ import risk.lib.ThreadLocks;
  */
 public class Risk {
 
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
+	public static final boolean OUTPUT = true;
 
 	/**
 	 * The unique id used to hold a lock while loading resources
@@ -51,7 +52,7 @@ public class Risk {
 	public static Random r;
 
 	public static void main(String[] args) {
-		if(!DEBUG){
+		if(!OUTPUT){
 			System.setOut(new PrintStream(new OutputStream(){
 				public void write(int b){}
 				public void write(byte[] a,int i,int j){}
