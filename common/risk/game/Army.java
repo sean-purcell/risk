@@ -79,16 +79,8 @@ public class Army {
 				getColour());
 	}
 
-	public void enterTurn(){
-		if(controller == 1){
-			ai.activate();
-		}
-	}
-	
-	public void exitTurn(){
-		if(controller == 1){
-			ai.deactivate();
-		}
+	public boolean isActive(){
+		return g.getTurn() == g.getArmies().indexOf(this);
 	}
 	
 	public int calculateContinentBonus() {

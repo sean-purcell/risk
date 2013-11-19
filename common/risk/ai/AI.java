@@ -12,10 +12,6 @@ public abstract class AI extends Thread{
 	protected Game g;
 	protected WeakReference<Army> a;
 
-	private boolean active;
-
-	private Object setActiveLock;
-
 	public AI(Game g, Army a) {
 		super(a.getName());
 		this.g = g;
@@ -28,30 +24,10 @@ public abstract class AI extends Thread{
 
 	public void run() {
 		while (a.get() != null) {
-			sleepTime(100);
-			if(active){
+			if(a.get().isActive()){
 				this.interact();
 			}
-		}
-	}
-
-	public void activate() {
-		setActive(true);
-	}
-
-	public void deactivate() {
-		setActive(false);
-	}
-
-	public boolean isActive() {
-		synchronized (setActiveLock) {
-			return active;
-		}
-	}
-
-	public void setActive(boolean active) {
-		synchronized (setActiveLock) {
-			this.active = active;
+			sleepTime(100);
 		}
 	}
 	

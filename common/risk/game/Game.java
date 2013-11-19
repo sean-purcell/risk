@@ -295,7 +295,6 @@ public class Game extends Thread{
 		attackTarget = null;
 		territoryConquered = false;
 		currentArmy().setFreeUnits(calculateReinforcements());
-		currentArmy().enterTurn();
 		
 		resetCardButton();
 	}
@@ -503,7 +502,6 @@ public class Game extends Thread{
 		playerTypes = Risk.rotateArray(playerTypes,offset);
 		setupMode = 4;
 		turn = 0;
-		currentArmy().enterTurn();
 
 		int startingTroops = (10 - numPlayers) * 5;
 		for (Army a : armies) {
@@ -547,13 +545,11 @@ public class Game extends Thread{
 
 		turn = -1;
 
-		BufferedImage endTurn = Risk.loadImage("resources/endTurn.png");
-		Button endT = new Button(1225, 665, endTurn, 99);
 		endTurnList = new ArrayList<Button>();
-		endTurnList.add(endT);
+		endTurnList.add(endTurn);
 
 		battleButtonList = new ArrayList<Button>();
-		battleButtonList.add(endT);
+		battleButtonList.add(endTurn);
 
 		battleButtonTexture = Risk.loadImage("resources/battleButton.png");
 		Button rollDice = new Button(1155, 665, battleButtonTexture, 6);
@@ -564,8 +560,8 @@ public class Game extends Thread{
 		cards = new Button(450, 630, 0, 90, 7);
 
 		cardsList.add(cards);
-		cardsAndEndTurn.add(endT);
-		cardsAndEndTurn.add(endT);
+		cardsAndEndTurn.add(endTurn);
+		cardsAndEndTurn.add(endTurn);
 
 		initCardBonusIterator();
 
@@ -963,9 +959,7 @@ public class Game extends Thread{
 			if (c.getUnit() == null) {
 				this.addUnit(1, currentArmy(), c);
 				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
-				currentArmy().exitTurn();
 				incrementTurn();
-				currentArmy().enterTurn();
 				numTerritoriesClaimed++;
 				if (numTerritoriesClaimed == 42) {
 					enterSetupReinforcement();
@@ -982,9 +976,7 @@ public class Game extends Thread{
 					break;
 				}
 				if (numSetupTroops == 0) {
-					currentArmy().exitTurn();
 					incrementTurn();
-					currentArmy().enterTurn();
 					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
 				}
 			}
@@ -1143,7 +1135,6 @@ public class Game extends Thread{
 						if (territoryConquered) {
 							currentArmy().addCard();
 						}
-						currentArmy().exitTurn();
 						enterNextTurn();
 						gameMode = 1;
 						break;
@@ -1616,14 +1607,14 @@ public class Game extends Thread{
 		numPlayers++;
 		if(numPlayers == 6){
 			doneReceiving();
-			}
 		}
+	}
 	
 	private void doneReceiving(){
 		master.setAcceptingPlayers(false);
 		setupMode = 2;
 	}
-
+	
 	private void incrementTurn() {
 		turn++;
 		turn %= numPlayers;
@@ -1725,5 +1716,10 @@ public class Game extends Thread{
 
 	public int getSetupMode() {
 		return setupMode;
+	}
+	
+
+	public int getAttackers() {
+		return attackers;
 	}
 }
