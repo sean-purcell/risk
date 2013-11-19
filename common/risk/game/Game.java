@@ -1176,10 +1176,12 @@ public class Game extends Thread{
 			if(choice == JOptionPane.YES_OPTION){
 				mode = 0;
 				setupMode = 0;
+				return;
 			}else{
 				System.exit(5);
 			}
 		}
+		cl.start();
 	}
 	
 	private void startAcceptingClients(){
@@ -1503,6 +1505,15 @@ public class Game extends Thread{
 	public void message(String message, int source) {
 		System.out.println("Message received from " + source);
 		try {
+			switch(gameType){
+			case 1:
+				master.message(message, null);
+				break;
+			case 2:
+				cl.writeMessage(message);
+				break;
+			}
+			
 			// Request the GAME_STATE lock to avoid concurrency issues
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
 					+ INPUT_ID_OFFSET);

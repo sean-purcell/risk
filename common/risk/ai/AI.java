@@ -16,7 +16,6 @@ public abstract class AI extends Thread{
 		super(a.getName());
 		this.g = g;
 		this.a = new WeakReference<Army>(a);
-		this.setActiveLock = new Object();
 		
 		this.setDaemon(true);
 		this.start();
