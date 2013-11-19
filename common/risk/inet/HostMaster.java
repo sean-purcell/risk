@@ -11,6 +11,16 @@ import risk.game.Game;
 
 public class HostMaster extends Thread{
 	
+	public static HostMaster createHostMaster(Game g){
+		try {
+			return new HostMaster(g);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("Could not create server, abort.");
+			return null;
+		}
+	}
+	
 	List<HostServer> servers;
 	
 	private boolean acceptingPlayers;
@@ -21,18 +31,13 @@ public class HostMaster extends Thread{
 	
 	private ServerSocket server;
 	
-	public HostMaster(Game g){
+	public HostMaster(Game g) throws IOException{
 		super("Server Master");
 		servers = new ArrayList<HostServer>();
 		this.acceptingPlayersLock = new Object();
 		this.g = new WeakReference<Game>(g);
-		try {
-			this.server = new ServerSocket(4913);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Could not create server, abort.");
-			System.exit(-2);
-		}
+		
+		this.server = new ServerSocket(4913);
 	}
 	
 	public void run(){

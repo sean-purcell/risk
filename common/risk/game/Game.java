@@ -681,9 +681,12 @@ public class Game extends Thread{
 			drawTurn(g);
 			drawDeploySetupTroops(g);
 			break;
-		case -2:
+		case -1:
+			drawPlayersConnected(g);
 			break;
-			
+		case -2:
+			drawString(g, "Waiting for the host to begin the game", 30, 30, 645, Color.BLACK);
+			break;
 		}
 	}
 
@@ -752,6 +755,10 @@ public class Game extends Thread{
 				665, Color.BLACK);
 	}
 
+	private void drawPlayersConnected(Graphics2D g){
+		drawString(g,"Players: " + numPlayers, 40, 25,625,Color.BLACK);
+	}
+	
 	private void drawMap(Graphics2D g) {
 		try {
 			g.drawImage(this.getMap().getTexture(), 0, 0, null);
@@ -869,7 +876,7 @@ public class Game extends Thread{
 		}
 		drawString(g, "Card Bonus: " + cardBonus, 30, 930, 675, Color.BLACK);
 	}
-
+	
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		List<Country> countries = this.getMap().getCountries();
@@ -1074,7 +1081,7 @@ public class Game extends Thread{
 				mode = 1;
 				setupMode = -1;
 				gameType = 1;
-				startAcceptingPlayers();
+				startAcceptingClients();
 				break;
 			case 2:
 				mode = 1;
@@ -1180,7 +1187,26 @@ public class Game extends Thread{
 	}
 	
 	private void startAcceptingClients(){
-		this.master = new HostMaster(this);
+		this.master = HostMaster.createHostMaster(this);
+		if(master == null){
+			int choice = JOptionPane.showConfirmDialog(
+					r,
+					"Could not create server.  Return to main menu?",
+					"No Server",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.PLAIN_MESSAGE,
+					null
+					);
+			if(choice == JOptionPane.YES_OPTION){
+				mode = 0;
+				setupMode = 0;
+				return;
+			}else{
+				System.exit(5);
+			}
+		}
+		master.start();
+		numPlayers = 1;
 	}
 	
 	private void colourPicked(Button b) {
