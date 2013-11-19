@@ -16,7 +16,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
 import risk.Risk;
+import risk.inet.Client;
+import risk.inet.HostMaster;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
@@ -46,6 +51,9 @@ public class Game extends Thread{
 	private Map map;
 
 	public Thread main;
+	
+	private HostMaster master;
+	private Client cl;
 	
 	/**
 	 * Represents the type of this game, 0 means locally hosted normal game<br>
@@ -673,6 +681,9 @@ public class Game extends Thread{
 			drawTurn(g);
 			drawDeploySetupTroops(g);
 			break;
+		case -2:
+			break;
+			
 		}
 	}
 
@@ -1063,11 +1074,14 @@ public class Game extends Thread{
 				mode = 1;
 				setupMode = -1;
 				gameType = 1;
+				startAcceptingPlayers();
 				break;
 			case 2:
 				mode = 1;
 				setupMode = -2;
-				gameType = 2; 
+				gameType = 2;
+				promptIP();
+				break;
 			}
 		case 1:
 			switch (setupMode) {
@@ -1131,11 +1145,44 @@ public class Game extends Thread{
 			case 0:
 				Risk.newGame();
 				running = false;
-				Thread.currentThread().stop();
+				main.stop();
 			}
 		}
 	}
 
+	private void promptIP(){
+		String ip = (String) JOptionPane.showInputDialog(
+				r,
+				"Enter the IP of the game you would like to connect to:",
+				"Enter IP",
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				null,
+				null);
+		System.out.println(ip);
+		cl = Client.makeClient(this,ip);
+		if(cl == null){
+			int choice = JOptionPane.showConfirmDialog(
+					r,
+					"Server not found at " + ip + ".  Return to main menu?",
+					"No Server",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.PLAIN_MESSAGE,
+					null
+					);
+			if(choice == JOptionPane.YES_OPTION){
+				mode = 0;
+				setupMode = 0;
+			}else{
+				System.exit(5);
+			}
+		}
+	}
+	
+	private void startAcceptingClients(){
+		this.master = new HostMaster(this);
+	}
+	
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
 		playerTypes[turn] = turn < numPlayers - numAI ? 0 : 1;

@@ -8,7 +8,6 @@ import java.net.UnknownHostException;
 import risk.game.Game;
 
 public class Client extends SocketHandler{
-	
 	public static Client makeClient(Game g, String ip){
 		Socket server = null;
 		try {
