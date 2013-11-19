@@ -93,6 +93,8 @@ public class Game extends Thread{
 
 	private List<Button> titleScreenButtons;
 
+	private Button endTurn;
+	
 	private List<Button> numberButtons;
 	private List<Button> colourButtons;
 	private int[] dice;
@@ -176,6 +178,9 @@ public class Game extends Thread{
 		main = Thread.currentThread();
 		mode = 0;
 		running = true;
+		
+		BufferedImage endTurnImage = Risk.loadImage("resources/endTurn.png");
+		endTurn = new Button(1225, 665, endTurnImage, 99);
 	}
 
 	// MAIN GAME LOOP AND RELATED MISC
@@ -1207,6 +1212,7 @@ public class Game extends Thread{
 		}
 		master.start();
 		numPlayers = 1;
+		playerTypes = new int[6];
 	}
 	
 	private void colourPicked(Button b) {
@@ -1443,6 +1449,53 @@ public class Game extends Thread{
 		return list;
 	}
 
+	private List<Button> createReceivingPlayersButtons(RiskCanvas riskCanvas){
+		String[] buttonStrings = {"Add AI","Join Game"};
+		List<Button> buttons = new ArrayList<Button>();
+
+		BufferedImage base = new BufferedImage(200, 100,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D baseG = (Graphics2D) base.getGraphics();
+
+		baseG.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+
+		baseG.setColor(Color.BLACK);
+		baseG.fillRoundRect(0, 0, 200, 100, 10, 10);
+
+		baseG.setColor(Color.WHITE);
+		baseG.fillRoundRect(5, 5, 190, 90, 10, 10);
+
+		int index = 0;
+
+		for (String s : buttonStrings) {
+			BufferedImage clone = Risk.cloneImage(base);
+			Graphics2D g = (Graphics2D) clone.getGraphics();
+
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_OFF);
+
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+			g.setFont(riskCanvas.army.deriveFont(40f));
+			g.setColor(Color.BLACK);
+			FontMetrics fm = g.getFontMetrics();
+
+			int x = 100 - fm.stringWidth(s) / 2;
+
+			drawString(g, s, 40, x, 50 + fm.getHeight() / 2, Color.BLACK);
+
+			Button b = new Button(640
+					- ((buttonStrings.length - 1) * 205 + 200) / 2 + 205
+					* index, 615, clone, index);
+			buttons.add(b);
+			index++;
+		}
+
+		return buttons;
+	}
+	
 	private void resetCardButton() {
 		cards.setWidth(currentArmy().getCards().size() * 90);
 	}
@@ -1479,7 +1532,7 @@ public class Game extends Thread{
 				break;
 			}
 		} catch (Exception e) {
-			if(source != -2){
+			if(source != -2 || DEBUG){
 				e.printStackTrace();
 			}
 		} finally {
@@ -1552,10 +1605,23 @@ public class Game extends Thread{
 	public void serverAdded (Socket client){
 		if(mode == 1 && gameType == 1){
 			if(setupMode == -1){
-				numPlayers++;
 				System.out.println(client.getInetAddress() + " connected");
+				playerAdded(2);
 			}
 		}
+	}
+
+	private void playerAdded(int type){
+		playerTypes[numPlayers] = type;
+		numPlayers++;
+		if(numPlayers == 6){
+			doneReceiving();
+			}
+		}
+	
+	private void doneReceiving(){
+		master.setAcceptingPlayers(false);
+		setupMode = 2;
 	}
 
 	private void incrementTurn() {
