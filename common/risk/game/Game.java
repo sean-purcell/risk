@@ -293,8 +293,22 @@ public class Game extends RiskThread{
 	}
 
 	private void pickAIColor(){
-		if(turn >= numPlayers - numAI){
-			this.colourPicked(getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+		if(gameType == 0){
+			if(turn >= numPlayers - numAI){
+				this.colourPicked(getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+			}
+		}else if(gameType == 1){
+			if(playerTypes[turn] == 1){
+				(new Thread(){
+					public void run(){
+						String message = "" + (char) 1;
+						Button col = (getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+						message+=(char)col.getId();
+						message(message, -2);
+					}
+				}).start();
+				//
+			}
 		}
 	}
 	
@@ -750,14 +764,14 @@ public class Game extends RiskThread{
 	}
 
 	private void drawClaimTerritories(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		drawString(g, "Claim an unclaimed territory.", 30, 30, 645, Color.BLACK);
 	}
 
 	private void drawDeploySetupTroops(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		drawString(g, "Deploy " + numSetupTroops + " troops.", 30, 30, 645,
@@ -785,7 +799,7 @@ public class Game extends RiskThread{
 	}
 
 	private void drawObjectiveMessage(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		String message = gameMode == 5 ? "Move troops" : "Attack enemy";
@@ -871,7 +885,7 @@ public class Game extends RiskThread{
 	}
 
 	private void drawCards(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		int index = 0;
@@ -882,7 +896,7 @@ public class Game extends RiskThread{
 	}
 
 	private void drawCardBonus(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		drawString(g, "Card Bonus: " + cardBonus, 30, 930, 675, Color.BLACK);
@@ -907,7 +921,7 @@ public class Game extends RiskThread{
 
 	public void drawButtons(Graphics2D g) {
 		try{
-			if(playerTypes[turn] != 0){
+			if(!isTurn()){
 				return;
 			}
 		}
@@ -934,11 +948,31 @@ public class Game extends RiskThread{
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
 
-	private boolean isTurn(){
-		if(gameMode == 0){
-			return playerTypes[turn] == 0;
+	public boolean isTurn(){
+		if(mode == 2 || (mode == 1 && setupMode >= 2)){
+			if(gameType == 0){
+				return playerTypes[turn] == 0;
+			}else{
+				return playerNum == turn;
+			}
 		}else{
-			return playerNum == turn;
+			return true;
+		}
+	}
+	
+	public boolean correctSource(int source){
+		switch(source){
+		case -1:
+			return DEBUG;
+		case -2:
+			return playerTypes[turn] == 1;
+		case 1:
+			return isTurn();
+		case 5:
+		case 6:
+			return true;
+		default:
+			return true;
 		}
 	}
 	
@@ -1210,6 +1244,7 @@ public class Game extends RiskThread{
 				System.exit(5);
 			}
 		}
+		initSetupButtons();
 		cl.start();
 	}
 	
@@ -1236,6 +1271,7 @@ public class Game extends RiskThread{
 		
 		numPlayers = 1;
 		playerTypes = new int[6];
+		initSetupButtons();
 	}
 	
 	private void colourPicked(Button b) {
@@ -1535,6 +1571,18 @@ public class Game extends RiskThread{
 		try {
 			Risk.showMessage(message);
 
+			//If there are any exceptions here for some reason we probably don't want to send the message
+			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
+				switch(gameType){
+				case 1:
+					master.message(message, null);
+					break;
+				case 2:
+					cl.writeMessage(message);
+					break;
+				}
+			}
+			
 			if(source != -5){ //source of -5 indicates that this should not interpret it
 				// Request the GAME_STATE lock to avoid concurrency issues
 				ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
@@ -1560,19 +1608,6 @@ public class Game extends RiskThread{
 				}
 			}
 			
-			
-			//If there are any exceptions here for some reason we probably don't want to send the message
-			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
-				switch(gameType){
-				case 1:
-					master.message(message, null);
-					break;
-				case 2:
-					cl.writeMessage(message);
-					break;
-				}
-			}
-			
 		} catch (Exception e) {
 			if(source != -2 || DEBUG){
 				e.printStackTrace();
@@ -1586,7 +1621,7 @@ public class Game extends RiskThread{
 
 	private void parseButtonMessage(String str, int source) {
 		try{
-			if(source != (playerTypes[turn] == 0 ? 1 : -2) && source != -1){
+			if(!correctSource(source)){
 				return;
 			}
 		}
@@ -1606,7 +1641,7 @@ public class Game extends RiskThread{
 
 	private void parseCountryMessage(String str, int source) {
 		try{
-			if(source != (playerTypes[turn] == 0 ? 1 : -2) && source != -1){
+			if(!correctSource(source)){
 				return;
 			}
 		}
@@ -1826,5 +1861,9 @@ public class Game extends RiskThread{
 	
 	public void halt(){
 		
+	}
+
+	public int getGameType() {
+		return gameType;
 	}
 }

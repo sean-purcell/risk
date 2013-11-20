@@ -69,7 +69,7 @@ public class Army {
 		this.g = g;
 		
 		this.controller = controller;
-		if(controller == 1){
+		if(controller == 1 && g.getGameType() != 2){
 			ai = new BasicAI(g, this);
 		}
 

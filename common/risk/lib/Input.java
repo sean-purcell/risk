@@ -89,7 +89,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		int x = e.getX();
 		int y = e.getY();
 		System.out.println("Mouse Clicked: (" + x + "," + y + ")");
-		if (e.getButton() == MouseEvent.BUTTON1) {
+		if (e.getButton() == MouseEvent.BUTTON1 && g.isTurn()) {
 			Country c = getClickedCountry(x, y, true);
 			if (c != null) {
 				// g.countryClicked(c, x, y);
