@@ -203,7 +203,7 @@ public class Game extends RiskThread{
 		r.resize();
 
 		while (isRunning()) {
-			if (r.hasFocus()) { // Ensures that the game does not render when it
+			if (r.hasFocus() || Risk.DRAW_WHILE_INACTIVE) { // Ensures that the game does not render when it
 								// is not in focus
 
 				// Calculate time since last update
