@@ -252,8 +252,9 @@ public class Risk {
 	public static String read(BufferedReader i){
 		StringBuffer s = new StringBuffer();
 		try{
-			while(i.ready()){
-				s.append((char) i.read());
+			int a = 0;
+			while((a = i.read()) != '\n'){
+				s.append((char) a);
 			}
 		}
 		catch(IOException e){
