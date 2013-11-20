@@ -17,6 +17,9 @@ public abstract class SocketHandler extends Thread{
 
 	private List<String> buffer;
 
+	private PrintWriter out;
+	private BufferedReader in;
+	
 	SocketHandler(Socket client, String id){
 		super(id);
 		this.sock = client;
@@ -26,8 +29,6 @@ public abstract class SocketHandler extends Thread{
 	
 	@Override
 	public void run(){
-		PrintWriter out = null;
-		BufferedReader in = null;
 		try{
 			out = new PrintWriter(sock.getOutputStream(),true);
 			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -39,6 +40,10 @@ public abstract class SocketHandler extends Thread{
 				}
 				if(in.ready()){
 					String message = Risk.read(in);
+					if("!!!!!!!!".equals(message)){
+						System.err.println("Connected client has stopped, EXIT NOW");
+						System.exit(-10);
+					}
 					useMessage(message);
 					System.out.println("Message received: " + message);
 				}
@@ -55,6 +60,7 @@ public abstract class SocketHandler extends Thread{
 		finally{
 			out.close();
 			try {
+				in.close();
 				sock.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -69,5 +75,17 @@ public abstract class SocketHandler extends Thread{
 	public void writeMessage(String message){
 		buffer.add(message);
 		this.interrupt();
+	}
+	
+	protected void finalize(){
+		out.write("!!!!!!!!");
+		out.flush();
+		out.close();
+		try {
+			in.close();
+			sock.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
