@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import risk.Risk;
 import risk.inet.Client;
 import risk.inet.HostMaster;
+import risk.inet.HostServer;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
@@ -54,6 +55,8 @@ public class Game extends RiskThread{
 	
 	private HostMaster master;
 	private Client cl;
+	
+	private int playerNum;
 	
 	/**
 	 * Represents the type of this game, 0 means locally hosted normal game<br>
@@ -1521,27 +1524,30 @@ public class Game extends RiskThread{
 		System.out.println("Message received from " + source);
 		try {
 			Risk.showMessage(message);
-			
-			// Request the GAME_STATE lock to avoid concurrency issues
-			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
-					+ INPUT_ID_OFFSET);
-			int t = message.charAt(0);
-			switch (t) {
-			// hexadecimal used because it seemed fitting
-			case 0x1:
-				parseButtonMessage(message.substring(1), source);
-				break;
-			case 0x2:
-				parseCountryMessage(message.substring(1), source);
-				break;
-			case 0x3:
-				nullClicked();
-				break;
-			/*case 0x4:
-				parseGameInfo(message.substring(1),source);*/
-			case 0x10:
-				parseCheatMessage(message.substring(1), source);
-				break;
+
+			if(source != -5){ //source of -5 indicates that this should not interpret it
+				// Request the GAME_STATE lock to avoid concurrency issues
+				ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
+						+ INPUT_ID_OFFSET);
+				int t = message.charAt(0);
+				switch (t) {
+				// hexadecimal used because it seemed fitting
+				case 0x1:
+					parseButtonMessage(message.substring(1), source);
+					break;
+				case 0x2:
+					parseCountryMessage(message.substring(1), source);
+					break;
+				case 0x3:
+					nullClicked();
+					break;
+				case 0x4:
+					parseGameInfo(message.substring(1),source);
+					break;
+				case 0x10:
+					parseCheatMessage(message.substring(1), source);
+					break;
+				}
 			}
 			
 			
@@ -1601,6 +1607,27 @@ public class Game extends RiskThread{
 		countryClicked(map.getCountryById(i));
 	}
 
+	private void parseGameInfo(String str, int source){
+		if(source < 5){
+			System.err.println("parseGameInfo called from a source that isnt 5 or 6");
+		}
+		
+		switch(str.charAt(0)){
+		case 0x0:
+			playerNum = (int) str.charAt(1);
+			break;
+		case 0x1: // Playertypes array
+			numPlayers = (int) str.charAt(1);
+			playerTypes = Risk.deserializeIntArray(str.substring(2));
+			setupMode = 2;
+			break;
+		case 0x2: // Who goes first dice
+			break;
+		case 0x3: // Battle dice
+			break;
+		}
+	}
+	
 	private void parseCheatMessage(String str, int source) {
 		if (!DEBUG) {
 			return;
@@ -1628,10 +1655,12 @@ public class Game extends RiskThread{
 		}
 	}
 	
-	public void serverAdded (Socket client){
+	public void serverAdded (HostServer hs, Socket client){
 		if(mode == 1 && gameType == 1){
 			if(setupMode == -1){
 				System.out.println(client.getInetAddress() + " connected");
+				String message = "" + (char) 4 + (char) 0 + (char) numPlayers;
+				hs.writeMessage(message);
 				playerAdded(2);
 			}
 		}
@@ -1651,6 +1680,15 @@ public class Game extends RiskThread{
 	private void doneReceiving(){
 		master.setAcceptingPlayers(false);
 		setupMode = 2;
+		
+		transmitPlayerTypes();
+	}
+	
+	private void transmitPlayerTypes(){
+		String message = "" + (char) 4 + (char) + 1;
+		message += (char) numPlayers;
+		message += Risk.serializeIntArray(playerTypes);
+		this.message(message,-5);
 	}
 	
 	private void incrementTurn() {

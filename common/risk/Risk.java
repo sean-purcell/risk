@@ -28,6 +28,7 @@ import risk.lib.ThreadLocks;
 
 /**
  * The main class, the game entry point
+ * Also general library class
  * 
  * @author Gabriel Ip
  * @author Sean Purcell
@@ -265,5 +266,29 @@ public class Risk {
 			System.out.print(Integer.toString((int)(message.charAt(i)),16) + "-");
 		}
 		System.out.println();
+	}
+	
+	
+	public static String serializeIntArray(int[] a){
+		String arr = "";
+		for(int i = 0; i < a.length; i++){
+			arr += int16ToString(a[i]);
+		}
+		return arr;
+	}
+	
+	public static String int16ToString(int i){
+		String output = Integer.toString(i,16);
+		while(output.length() < 8) output = "0" + output;
+		return output;
+	}
+	
+	public static int[] deserializeIntArray(String arr){
+		int length = arr.length() / 8;
+		int[] a = new int[length];
+		for(int i = 0; i < length; i++){
+			a[i] = Integer.parseInt(arr.substring(i * 8, i * 8 + 8), 16);
+		}
+		return a;
 	}
 }

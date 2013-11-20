@@ -51,7 +51,7 @@ public class HostMaster extends RiskThread{
 				HostServer serv = new HostServer(client,this,index); index++;
 				serv.start();
 				servers.add(serv);
-				g.get().serverAdded(client);
+				g.get().serverAdded(serv,client);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Could not accept client.");
