@@ -38,7 +38,7 @@ public abstract class SocketHandler extends RiskThread{
 					String message = buffer.remove(0);
 					out.write(message + '\n');
 					out.flush();
-					Risk.showMessage(message);
+					//Risk.showMessage(message);
 					System.out.println("Message written");
 				}
 				if(in.ready()){
@@ -47,7 +47,7 @@ public abstract class SocketHandler extends RiskThread{
 						System.err.println("Connected client has stopped, EXIT NOW");
 						System.exit(-10);
 					}
-					Risk.showMessage(message);
+					//Risk.showMessage(message);
 					useMessage(message);
 					System.out.println("Message received: " + message);
 				}
