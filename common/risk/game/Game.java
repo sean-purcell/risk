@@ -1294,7 +1294,9 @@ public class Game extends RiskThread{
 	
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
-		playerTypes[turn] = turn < numPlayers - numAI ? 0 : 1;
+		if(gameMode == 0){
+			playerTypes[turn] = turn < numPlayers - numAI ? 0 : 1;
+		}
 		armies.add(new Army(b.getId(), this,playerTypes[turn]));
 		
 		turn++;
