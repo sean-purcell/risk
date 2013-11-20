@@ -1521,16 +1521,6 @@ public class Game extends Thread{
 		System.out.println("Message received from " + source);
 		try {
 			Risk.showMessage(message);
-			if(source < 5){ //If this is not true it was just sent over socket.  We dont want to resend it.
-				switch(gameType){
-				case 1:
-					master.message(message, null);
-					break;
-				case 2:
-					cl.writeMessage(message);
-					break;
-				}
-			}
 			
 			// Request the GAME_STATE lock to avoid concurrency issues
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
@@ -1553,6 +1543,20 @@ public class Game extends Thread{
 				parseCheatMessage(message.substring(1), source);
 				break;
 			}
+			
+			
+			//If there are any exceptions here for some reason we probably don't want to send the message
+			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
+				switch(gameType){
+				case 1:
+					master.message(message, null);
+					break;
+				case 2:
+					cl.writeMessage(message);
+					break;
+				}
+			}
+			
 		} catch (Exception e) {
 			if(source != -2 || DEBUG){
 				e.printStackTrace();
@@ -1654,6 +1658,15 @@ public class Game extends Thread{
 		turn %= numPlayers;
 	}
 
+	public boolean propogateMessage(){
+		if(mode == 1){
+			if(mode < 2){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	// SETTERS AND GETTERS
 	public List<Button> getButtonList() {
 		switch (mode) {
@@ -1666,7 +1679,6 @@ public class Game extends Thread{
 			case 2:
 				return colourButtons;
 			case -1:
-			case -2:
 				return receivingPlayersButtons;
 			}
 			break;
