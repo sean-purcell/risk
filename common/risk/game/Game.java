@@ -988,7 +988,6 @@ public class Game extends RiskThread{
 			return isTurn();
 		case 5:
 		case 6:
-			return true;
 		default:
 			return true;
 		}
