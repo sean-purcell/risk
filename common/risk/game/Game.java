@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 
 import risk.Risk;
 import risk.inet.Client;
@@ -27,6 +26,7 @@ import risk.lib.DiceTexture;
 import risk.lib.Drawable;
 import risk.lib.Input;
 import risk.lib.RiskCanvas;
+import risk.lib.RiskThread;
 import risk.lib.ThreadLocks;
 
 /**
@@ -35,7 +35,7 @@ import risk.lib.ThreadLocks;
  * @author Sean Purcell
  * 
  */
-public class Game extends Thread{
+public class Game extends RiskThread{
 
 	private final int UPDATE_THREAD_ID = 1;
 
@@ -1770,5 +1770,9 @@ public class Game extends Thread{
 
 	public int getAttackers() {
 		return attackers;
+	}
+	
+	public void halt(){
+		
 	}
 }

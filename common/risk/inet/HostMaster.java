@@ -7,9 +7,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import risk.Risk;
 import risk.game.Game;
+import risk.lib.RiskThread;
 
-public class HostMaster extends Thread{
+public class HostMaster extends RiskThread{
 	
 	public static HostMaster createHostMaster(Game g){
 		try {
@@ -81,5 +83,19 @@ public class HostMaster extends Thread{
 	
 	boolean running(){
 		return g.get() != null;
+	}
+	
+	protected void finalize(){
+		halt();
+	}
+	
+	public void halt(){
+		servers = null;
+		try {
+			server.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		server = null;
 	}
 }

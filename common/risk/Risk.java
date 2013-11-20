@@ -13,7 +13,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -21,6 +23,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import risk.game.Game;
+import risk.lib.RiskThread;
 import risk.lib.ThreadLocks;
 
 /**
@@ -36,6 +39,8 @@ public class Risk {
 	public static final boolean DEBUG = false;
 	public static final boolean OUTPUT = true;
 
+	private static List<RiskThread> threadPool; 
+	
 	/**
 	 * The unique id used to hold a lock while loading resources
 	 */
@@ -58,15 +63,32 @@ public class Risk {
 				public void write(byte[] a,int i,int j){}
 			}));
 		}
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			public void run(){
+				System.out.println("Running gc and stopping threads");
+				for(RiskThread t : threadPool){
+					t.halt();
+				}
+				System.gc();
+			}
+		});
+		
+		threadPool = Collections.synchronizedList(new ArrayList<RiskThread>());
+		
 		newGame();
 	}
 
+	//RiskThreads by default run this on construction
+	public static void addThread(RiskThread t){
+		threadPool.add(t);
+	}
+	
 	public static void newGame(){
 		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
 		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
-
 		g.start();
 	}
 	

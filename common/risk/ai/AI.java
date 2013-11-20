@@ -4,8 +4,9 @@ import java.lang.ref.WeakReference;
 
 import risk.game.Army;
 import risk.game.Game;
+import risk.lib.RiskThread;
 
-public abstract class AI extends Thread{
+public abstract class AI extends RiskThread{
 
 	protected abstract void interact();
 	
@@ -36,5 +37,10 @@ public abstract class AI extends Thread{
 		} catch (InterruptedException e) {
 			
 		}
+	}
+	
+	public void halt(){
+		g = null;
+		a = null;
 	}
 }

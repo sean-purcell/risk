@@ -10,8 +10,9 @@ import java.util.Collections;
 import java.util.List;
 
 import risk.Risk;
+import risk.lib.RiskThread;
 
-public abstract class SocketHandler extends Thread{
+public abstract class SocketHandler extends RiskThread{
 
 	private Socket sock;
 
@@ -77,7 +78,12 @@ public abstract class SocketHandler extends Thread{
 		this.interrupt();
 	}
 	
+	public void halt(){
+		finalize();
+	}
+	
 	protected void finalize(){
+		System.out.println("Sending shutdown message");
 		out.write("!!!!!!!!");
 		out.flush();
 		out.close();
