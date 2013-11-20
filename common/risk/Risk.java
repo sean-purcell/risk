@@ -262,6 +262,7 @@ public class Risk {
 	}
 	
 	public static void showMessage(String message){
+		System.out.println(message);
 		for(int i = 0; i < message.length(); i++){
 			System.out.print(Integer.toString((int)(message.charAt(i)),16) + "-");
 		}
