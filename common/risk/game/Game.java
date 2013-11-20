@@ -183,6 +183,9 @@ public class Game extends Thread{
 		
 		BufferedImage endTurnImage = Risk.loadImage("resources/endTurn.png");
 		endTurn = new Button(1225, 665, endTurnImage, 99);
+		
+		receivingPlayersButtons = createReceivingPlayersButtons(r);
+		receivingPlayersButtons.add(endTurn);
 	}
 
 	// MAIN GAME LOOP AND RELATED MISC
@@ -1217,9 +1220,6 @@ public class Game extends Thread{
 			}
 		}
 		master.start();
-		
-		receivingPlayersButtons = createReceivingPlayersButtons(r);
-		receivingPlayersButtons.add(endTurn);
 		
 		numPlayers = 1;
 		playerTypes = new int[6];
