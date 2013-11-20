@@ -1617,6 +1617,7 @@ public class Game extends RiskThread{
 		switch(str.charAt(0)){
 		case 0x0:
 			playerNum = (int) str.charAt(1);
+			break;
 		case 0x1: // Playertypes array
 			numPlayers = (int) str.charAt(1);
 			playerTypes = Risk.deserializeIntArray(str.substring(2));

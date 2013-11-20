@@ -47,6 +47,7 @@ public abstract class SocketHandler extends RiskThread{
 						System.err.println("Connected client has stopped, EXIT NOW");
 						System.exit(-10);
 					}
+					Risk.showMessage(message);
 					useMessage(message);
 					System.out.println("Message received: " + message);
 				}
