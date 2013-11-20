@@ -19,11 +19,10 @@ public abstract class AI extends RiskThread{
 		this.a = new WeakReference<Army>(a);
 		
 		this.setDaemon(true);
-		this.start();
 	}
 
 	public void run() {
-		while (a.get() != null) {
+		while (a != null && a.get() != null) {
 			if(a.get().isActive()){
 				this.interact();
 			}

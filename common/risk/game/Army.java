@@ -71,6 +71,7 @@ public class Army {
 		this.controller = controller;
 		if(controller == 1 && g.getGameType() != 2){
 			ai = new BasicAI(g, this);
+			ai.start();
 		}
 
 		soldierAttacker = Risk.changeImageColour(soldierAttackTexture,

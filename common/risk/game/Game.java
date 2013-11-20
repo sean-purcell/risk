@@ -104,6 +104,9 @@ public class Game extends RiskThread{
 	private List<Button> numberButtons;
 	private List<Button> colourButtons;
 	private int[] dice;
+	
+	private int[] diceResult;
+	
 	private int[] diceTimers;
 
 	private int diceSwitchTimer;
@@ -365,6 +368,15 @@ public class Game extends RiskThread{
 			}
 			if (first >= 0) {
 				enterTerritoryAllocateMode(first);
+			}else{
+				for(int i = 0; i < diceResult.length; i++){
+					diceResult[i] = Risk.r.nextInt(6) + 1;
+				}
+				if(gameType == 1){
+					String message = "" + (char) 4 + (char) 2 
+							+ Risk.serializeIntArray(diceResult);
+					message(message,-5);
+				}
 			}
 		}
 	}
@@ -372,6 +384,9 @@ public class Game extends RiskThread{
 	private void diceDisplayUpdate(int delta) {
 		for (int i = 0; i < diceTimers.length; i++) {
 			diceTimers[i] -= delta;
+			if(diceTimers[i] <= 0){
+				dice[i] = diceResult[i];
+			}
 		}
 		diceSwitchTimer -= delta;
 		if (diceSwitchTimer <= 0) {
@@ -524,6 +539,9 @@ public class Game extends RiskThread{
 		// Set the first army in the list to be the one designated to go first
 		Risk.rotateList(armies, offset);
 		playerTypes = Risk.rotateArray(playerTypes,offset);
+		playerNum -= first;
+		playerNum += numPlayers;
+		playerNum %= numPlayers;
 		setupMode = 4;
 		turn = 0;
 
@@ -1284,15 +1302,23 @@ public class Game extends RiskThread{
 		if (turn == numPlayers) {
 			setupMode = 3;
 			dice = new int[numPlayers];
+			if(gameType != 2)
+				diceResult = new int[numPlayers];
 			diceTimers = new int[numPlayers];
 
 			firstTurnContenders = new boolean[numPlayers];
 
 			for (int i = 0; i < numPlayers; i++) {
 				diceTimers[i] = this.createDieTimer();
+				if(gameType != 2)
+					diceResult[i] = Risk.r.nextInt(6) + 1;
 				firstTurnContenders[i] = true;
 			}
-
+			if(gameType == 1){
+				String message = "" + (char) 4 + (char) 2 
+						+ Risk.serializeIntArray(diceResult);
+				message(message,-5);
+			}
 		}
 	}
 
@@ -1667,6 +1693,7 @@ public class Game extends RiskThread{
 			setupMode = 2;
 			break;
 		case 0x2: // Who goes first dice
+			diceResult = Risk.deserializeIntArray(str.substring(1));
 			break;
 		case 0x3: // Battle dice
 			break;
