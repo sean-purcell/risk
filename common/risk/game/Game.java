@@ -97,6 +97,7 @@ public class Game extends RiskThread{
 	private List<Button> titleScreenButtons;
 
 	private List<Button> receivingPlayersButtons;
+	private List<Button> receivingPlayersButtonsNoEndT;
 	
 	private Button endTurn;
 	
@@ -187,7 +188,8 @@ public class Game extends RiskThread{
 		BufferedImage endTurnImage = Risk.loadImage("resources/endTurn.png");
 		endTurn = new Button(1225, 665, endTurnImage, 99);
 		
-		receivingPlayersButtons = createReceivingPlayersButtons(r);
+		receivingPlayersButtonsNoEndT = createReceivingPlayersButtons(r);
+		receivingPlayersButtons = (List<Button>) ((ArrayList<Button>) receivingPlayersButtonsNoEndT).clone();
 		receivingPlayersButtons.add(endTurn);
 	}
 
@@ -1615,7 +1617,6 @@ public class Game extends RiskThread{
 		switch(str.charAt(0)){
 		case 0x0:
 			playerNum = (int) str.charAt(1);
-			break;
 		case 0x1: // Playertypes array
 			numPlayers = (int) str.charAt(1);
 			playerTypes = Risk.deserializeIntArray(str.substring(2));
@@ -1698,7 +1699,7 @@ public class Game extends RiskThread{
 
 	public boolean propogateMessage(){
 		if(mode == 1){
-			if(mode < 2){
+			if(setupMode < 2){
 				return false;
 			}
 		}
@@ -1717,7 +1718,11 @@ public class Game extends RiskThread{
 			case 2:
 				return colourButtons;
 			case -1:
-				return receivingPlayersButtons;
+				if(numPlayers < 3){
+					return receivingPlayersButtonsNoEndT;
+				}else{
+					return receivingPlayersButtons;
+				}
 			}
 			break;
 		case 2:

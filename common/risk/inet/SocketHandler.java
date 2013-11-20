@@ -35,8 +35,10 @@ public abstract class SocketHandler extends RiskThread{
 			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			while(running()){
 				if(!buffer.isEmpty()){
-					out.write(buffer.remove(0));
+					String message = buffer.remove(0);
+					out.write(message);
 					out.flush();
+					Risk.showMessage(message);
 					System.out.println("Message written");
 				}
 				if(in.ready()){
