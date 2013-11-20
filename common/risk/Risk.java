@@ -230,7 +230,7 @@ public class Risk {
 		StringBuffer s = new StringBuffer();
 		try{
 			while(i.ready()){
-				s.append(i.read());
+				s.append((char) i.read());
 			}
 		}
 		catch(IOException e){

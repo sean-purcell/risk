@@ -75,7 +75,7 @@ public class HostMaster extends Thread{
 				h.writeMessage(message);
 		}
 		if(source != null){
-			g.get().message(message, 2);
+			g.get().message(message, 5);
 		}
 	}
 	

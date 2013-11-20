@@ -45,7 +45,7 @@ public abstract class SocketHandler extends Thread{
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}

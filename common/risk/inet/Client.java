@@ -31,7 +31,7 @@ public class Client extends SocketHandler{
 	}
 	
 	protected void useMessage(String message){
-		g.get().message(message, 2);
+		g.get().message(message, 6);
 	}
 	
 	protected boolean running(){
