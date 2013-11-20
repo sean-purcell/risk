@@ -538,7 +538,7 @@ public class Game extends RiskThread{
 
 		// Set the first army in the list to be the one designated to go first
 		Risk.rotateList(armies, offset);
-		playerTypes = Risk.rotateArray(playerTypes,offset);
+		playerTypes = Risk.rotateArray(playerTypes,offset, numPlayers);
 		playerNum -= first;
 		playerNum += numPlayers;
 		playerNum %= numPlayers;
