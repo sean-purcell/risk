@@ -934,6 +934,14 @@ public class Game extends RiskThread{
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
 
+	private boolean isTurn(){
+		if(gameMode == 0){
+			return playerTypes[turn] == 0;
+		}else{
+			return playerNum == turn;
+		}
+	}
+	
 	private void addUnit(int troops, Army a, Country c) {
 		// Due to the many pointers that must be consistent, this is the only
 		// method that should be used for creating units
