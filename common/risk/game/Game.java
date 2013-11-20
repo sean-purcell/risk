@@ -93,6 +93,8 @@ public class Game extends Thread{
 
 	private List<Button> titleScreenButtons;
 
+	private List<Button> receivingPlayersButtons;
+	
 	private Button endTurn;
 	
 	private List<Button> numberButtons;
@@ -1104,6 +1106,17 @@ public class Game extends Thread{
 				break;
 			case 2:
 				colourPicked(b);
+				break;
+			case -1:
+			case -2:
+				switch(b.getId()){
+				case 0:
+					playerAdded(1);
+					break;
+				case 99:
+					doneReceiving();
+					break;
+				}
 			}
 			break;
 		case 2:
@@ -1204,6 +1217,10 @@ public class Game extends Thread{
 			}
 		}
 		master.start();
+		
+		receivingPlayersButtons = createReceivingPlayersButtons(r);
+		receivingPlayersButtons.add(endTurn);
+		
 		numPlayers = 1;
 		playerTypes = new int[6];
 	}
@@ -1443,10 +1460,10 @@ public class Game extends Thread{
 	}
 
 	private List<Button> createReceivingPlayersButtons(RiskCanvas riskCanvas){
-		String[] buttonStrings = {"Add AI","Join Game"};
+		String[] buttonStrings = {"Add AI"};
 		List<Button> buttons = new ArrayList<Button>();
 
-		BufferedImage base = new BufferedImage(200, 100,
+		BufferedImage base = new BufferedImage(200, 50,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D baseG = (Graphics2D) base.getGraphics();
 
@@ -1454,10 +1471,10 @@ public class Game extends Thread{
 				RenderingHints.VALUE_ANTIALIAS_OFF);
 
 		baseG.setColor(Color.BLACK);
-		baseG.fillRoundRect(0, 0, 200, 100, 10, 10);
+		baseG.fillRoundRect(0, 0, 200, 50, 10, 10);
 
 		baseG.setColor(Color.WHITE);
-		baseG.fillRoundRect(5, 5, 190, 90, 10, 10);
+		baseG.fillRoundRect(5, 5, 190, 40, 10, 10);
 
 		int index = 0;
 
@@ -1477,11 +1494,9 @@ public class Game extends Thread{
 
 			int x = 100 - fm.stringWidth(s) / 2;
 
-			drawString(g, s, 40, x, 50 + fm.getHeight() / 2, Color.BLACK);
+			drawString(g, s, 40, x, 25 + fm.getHeight() / 2, Color.BLACK);
 
-			Button b = new Button(640
-					- ((buttonStrings.length - 1) * 205 + 200) / 2 + 205
-					* index, 615, clone, index);
+			Button b = new Button(30, 665, clone, index);
 			buttons.add(b);
 			index++;
 		}
@@ -1532,6 +1547,8 @@ public class Game extends Thread{
 			case 0x3:
 				nullClicked();
 				break;
+			/*case 0x4:
+				parseGameInfo(message.substring(1),source);*/
 			case 0x10:
 				parseCheatMessage(message.substring(1), source);
 				break;
@@ -1619,6 +1636,9 @@ public class Game extends Thread{
 	private void playerAdded(int type){
 		playerTypes[numPlayers] = type;
 		numPlayers++;
+		if(type == 1){
+			numAI++;
+		}
 		if(numPlayers == 6){
 			doneReceiving();
 		}
@@ -1645,6 +1665,9 @@ public class Game extends Thread{
 				return numberButtons;
 			case 2:
 				return colourButtons;
+			case -1:
+			case -2:
+				return receivingPlayersButtons;
 			}
 			break;
 		case 2:
