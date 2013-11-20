@@ -65,7 +65,7 @@ public class HostMaster extends Thread{
 	
 	private boolean getAcceptingPlayers(){
 		synchronized(acceptingPlayersLock){
-			return acceptingPlayers;
+			return acceptingPlayers && g.get() != null;
 		}
 	}
 	
