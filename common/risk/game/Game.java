@@ -1505,13 +1505,15 @@ public class Game extends Thread{
 	public void message(String message, int source) {
 		System.out.println("Message received from " + source);
 		try {
-			switch(gameType){
-			case 1:
-				master.message(message, null);
-				break;
-			case 2:
-				cl.writeMessage(message);
-				break;
+			if(source < 5){ //If this is not true it was just sent over socket.  We dont want to resend it.
+				switch(gameType){
+				case 1:
+					master.message(message, null);
+					break;
+				case 2:
+					cl.writeMessage(message);
+					break;
+				}
 			}
 			
 			// Request the GAME_STATE lock to avoid concurrency issues
