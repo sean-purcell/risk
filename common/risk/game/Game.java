@@ -1505,6 +1505,7 @@ public class Game extends Thread{
 	public void message(String message, int source) {
 		System.out.println("Message received from " + source);
 		try {
+			Risk.showMessage(message);
 			if(source < 5){ //If this is not true it was just sent over socket.  We dont want to resend it.
 				switch(gameType){
 				case 1:
