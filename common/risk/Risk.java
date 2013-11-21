@@ -174,7 +174,7 @@ public class Risk {
 		for(int i = 0; i < offset; i++){
 			int front = arr[0];
 			arr = shift(arr);
-			arr[arr.length-1] = front;
+			arr[len-1] = front;
 		}
 		return arr;
 	}
