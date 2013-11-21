@@ -170,6 +170,8 @@ public class Game extends RiskThread{
 
 	private List<Button> newGameList;
 
+	private int exceptionCounter;
+	
 	/**
 	 * Set to false if the game should exit
 	 */
@@ -231,8 +233,13 @@ public class Game extends RiskThread{
 					// Create the offscreen buffer containing the frame to be
 					// rendered
 					r.repaint();
+					exceptionCounter = 0;
 				} catch (Exception e) {
 					e.printStackTrace();
+					exceptionCounter++;
+					if(exceptionCounter >= 20 && gameType == 2){
+						cl.requestResync();
+					}
 				} finally {
 					// Release lock now that we're done with it
 					ThreadLocks.releaseLock(ThreadLocks.GAME_STATE,
@@ -1617,7 +1624,7 @@ public class Game extends RiskThread{
 	private void resetCardButton() {
 		cards.setWidth(currentArmy().getCards().size() * 90);
 	}
-
+	
 	/**
 	 * All input should go through this, to make it easier to combine local
 	 * multiplayer, non-local multiplayer, and AI
@@ -1780,6 +1787,31 @@ public class Game extends RiskThread{
 
 			}
 		}
+	}
+	
+	public void resyncRequested(HostServer h){
+	
+	}
+	
+	private String serializeGameData(){
+		StringBuffer gameData = new StringBuffer();
+		try{
+			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			System.err.println("Could not serialize game data.");
+		}
+		finally{
+			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x10);
+		}
+		return gameData.toString();
+	}
+	
+	private void deserializeGameData(){
+		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
+		
+		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x11);
 	}
 	
 	public void serverAdded (HostServer hs, Socket client){
