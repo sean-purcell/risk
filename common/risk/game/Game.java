@@ -1198,7 +1198,7 @@ public class Game extends RiskThread{
 		case 2:
 			switch (gameMode) {
 			case 3:
-				if (b.getId() == 6) {
+				if (b.getId() == 6 && gameType != 2) {
 					rollBattleDice();
 					break;
 				}
@@ -1370,10 +1370,11 @@ public class Game extends RiskThread{
 				defenderDiceResults[i] = Risk.r.nextInt(6) + 1;
 			}
 			
-			reRollBattleDice();
+			
 			if(gameType == 1)
 				transmitBattleData();
 		}
+		reRollBattleDice();
 
 		displayedSorted = false;
 		diceSwitchTimer = 0;
@@ -1748,6 +1749,7 @@ public class Game extends RiskThread{
 			break;
 		case 3:
 			defenderDiceTimers = Risk.deserializeIntArray(str.substring(1));
+			rollBattleDice();
 			reRollBattleDice();
 			break;
 		}
