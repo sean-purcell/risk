@@ -143,6 +143,9 @@ public class Game extends RiskThread{
 	private int[] attackerDice;
 	private int[] defenderDice;
 
+	private int[] attackerDiceResults;
+	private int[] defenderDiceResults;
+	
 	private int[] attackerDiceTimers;
 	private int[] defenderDiceTimers;
 
