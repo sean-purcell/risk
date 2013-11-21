@@ -135,8 +135,8 @@ public class BasicAI extends AI {
 					while(g.getGameMode() == 4){
 						sleepTime(250);
 					}
-					g.message(message, -2);
 					sleepTime(1000);
+					g.message(message, -2);
 				}
 			}
 		}
