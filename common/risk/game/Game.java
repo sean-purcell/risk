@@ -9,18 +9,25 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
+import javax.swing.JOptionPane;
+
 import risk.Risk;
+import risk.inet.Client;
+import risk.inet.HostMaster;
+import risk.inet.HostServer;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
 import risk.lib.Input;
 import risk.lib.RiskCanvas;
+import risk.lib.RiskThread;
 import risk.lib.ThreadLocks;
 
 /**
@@ -29,7 +36,7 @@ import risk.lib.ThreadLocks;
  * @author Sean Purcell
  * 
  */
-public class Game extends Thread{
+public class Game extends RiskThread{
 
 	private final int UPDATE_THREAD_ID = 1;
 
@@ -45,6 +52,18 @@ public class Game extends Thread{
 	private Map map;
 
 	public Thread main;
+	
+	private HostMaster master;
+	private Client cl;
+	
+	private int playerNum;
+	
+	/**
+	 * Represents the type of this game, 0 means locally hosted normal game<br>
+	 * 1 means this is the host for a non-local game<br>
+	 * 2 means this is a client for a non-local game
+	 */
+	private int gameType;
 	
 	/**
 	 * Represents the current mode that the game is in<br>
@@ -77,9 +96,17 @@ public class Game extends Thread{
 
 	private List<Button> titleScreenButtons;
 
+	private List<Button> receivingPlayersButtons;
+	private List<Button> receivingPlayersButtonsNoEndT;
+	
+	private Button endTurn;
+	
 	private List<Button> numberButtons;
 	private List<Button> colourButtons;
 	private int[] dice;
+	
+	private int[] diceResult;
+	
 	private int[] diceTimers;
 
 	private int diceSwitchTimer;
@@ -116,6 +143,9 @@ public class Game extends Thread{
 	private int[] attackerDice;
 	private int[] defenderDice;
 
+	private int[] attackerDiceResults;
+	private int[] defenderDiceResults;
+	
 	private int[] attackerDiceTimers;
 	private int[] defenderDiceTimers;
 
@@ -160,6 +190,13 @@ public class Game extends Thread{
 		main = Thread.currentThread();
 		mode = 0;
 		running = true;
+		
+		BufferedImage endTurnImage = Risk.loadImage("resources/endTurn.png");
+		endTurn = new Button(1225, 665, endTurnImage, 99);
+		
+		receivingPlayersButtonsNoEndT = createReceivingPlayersButtons(r);
+		receivingPlayersButtons = (List<Button>) ((ArrayList<Button>) receivingPlayersButtonsNoEndT).clone();
+		receivingPlayersButtons.add(endTurn);
 	}
 
 	// MAIN GAME LOOP AND RELATED MISC
@@ -172,7 +209,7 @@ public class Game extends Thread{
 		r.resize();
 
 		while (isRunning()) {
-			if (r.hasFocus()) { // Ensures that the game does not render when it
+			if (r.hasFocus() || Risk.DRAW_WHILE_INACTIVE) { // Ensures that the game does not render when it
 								// is not in focus
 
 				// Calculate time since last update
@@ -262,8 +299,22 @@ public class Game extends Thread{
 	}
 
 	private void pickAIColor(){
-		if(turn >= numPlayers - numAI){
-			this.colourPicked(getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+		if(gameType == 0){
+			if(turn >= numPlayers - numAI){
+				this.colourPicked(getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+			}
+		}else if(gameType == 1){
+			if(playerTypes[turn] == 1){
+				(new Thread(){
+					public void run(){
+						String message = "" + (char) 1;
+						Button col = (getButtonList().get(Risk.r.nextInt(getButtonList().size())));
+						message+=(char)col.getId();
+						message(message, -2);
+					}
+				}).start();
+				//
+			}
 		}
 	}
 	
@@ -274,7 +325,6 @@ public class Game extends Thread{
 		attackTarget = null;
 		territoryConquered = false;
 		currentArmy().setFreeUnits(calculateReinforcements());
-		currentArmy().enterTurn();
 		
 		resetCardButton();
 	}
@@ -321,6 +371,17 @@ public class Game extends Thread{
 			}
 			if (first >= 0) {
 				enterTerritoryAllocateMode(first);
+			}else{
+				if(gameType != 2){
+					for(int i = 0; i < diceResult.length; i++){
+						diceResult[i] = Risk.r.nextInt(6) + 1;
+					}
+					if(gameType == 1){
+						String message = "" + (char) 4 + (char) 2 
+								+ Risk.serializeIntArray(diceResult);
+						message(message,-5);
+					}
+				}
 			}
 		}
 	}
@@ -328,6 +389,9 @@ public class Game extends Thread{
 	private void diceDisplayUpdate(int delta) {
 		for (int i = 0; i < diceTimers.length; i++) {
 			diceTimers[i] -= delta;
+			if(diceTimers[i] <= 0){
+				dice[i] = diceResult[i];
+			}
 		}
 		diceSwitchTimer -= delta;
 		if (diceSwitchTimer <= 0) {
@@ -366,11 +430,15 @@ public class Game extends Thread{
 			attackerDiceTimers[i] -= delta;
 			if (attackerDiceTimers[i] > 0)
 				done = false;
+			else
+				attackerDice[i] = attackerDiceResults[i];
 		}
 		for (int i = 0; i < defenderDice.length; i++) {
 			defenderDiceTimers[i] -= delta;
 			if (defenderDiceTimers[i] > 0)
 				done = false;
+			else
+				defenderDice[i] = defenderDiceResults[i];
 		}
 		if (done) {
 			diceDisplayCountdown = 1000;
@@ -479,10 +547,12 @@ public class Game extends Thread{
 
 		// Set the first army in the list to be the one designated to go first
 		Risk.rotateList(armies, offset);
-		playerTypes = Risk.rotateArray(playerTypes,offset);
+		playerTypes = Risk.rotateArray(playerTypes,offset, numPlayers);
+		playerNum -= first;
+		playerNum += numPlayers;
+		playerNum %= numPlayers;
 		setupMode = 4;
 		turn = 0;
-		currentArmy().enterTurn();
 
 		int startingTroops = (10 - numPlayers) * 5;
 		for (Army a : armies) {
@@ -526,13 +596,11 @@ public class Game extends Thread{
 
 		turn = -1;
 
-		BufferedImage endTurn = Risk.loadImage("resources/endTurn.png");
-		Button endT = new Button(1225, 665, endTurn, 99);
 		endTurnList = new ArrayList<Button>();
-		endTurnList.add(endT);
+		endTurnList.add(endTurn);
 
 		battleButtonList = new ArrayList<Button>();
-		battleButtonList.add(endT);
+		battleButtonList.add(endTurn);
 
 		battleButtonTexture = Risk.loadImage("resources/battleButton.png");
 		Button rollDice = new Button(1155, 665, battleButtonTexture, 6);
@@ -543,8 +611,8 @@ public class Game extends Thread{
 		cards = new Button(450, 630, 0, 90, 7);
 
 		cardsList.add(cards);
-		cardsAndEndTurn.add(endT);
-		cardsAndEndTurn.add(endT);
+		cardsAndEndTurn.add(endTurn);
+		cardsAndEndTurn.add(endTurn);
 
 		initCardBonusIterator();
 
@@ -665,6 +733,12 @@ public class Game extends Thread{
 			drawTurn(g);
 			drawDeploySetupTroops(g);
 			break;
+		case -1:
+			drawPlayersConnected(g);
+			break;
+		case -2:
+			drawString(g, "Waiting for the host to begin the game", 30, 30, 645, Color.BLACK);
+			break;
 		}
 	}
 
@@ -717,14 +791,14 @@ public class Game extends Thread{
 	}
 
 	private void drawClaimTerritories(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		drawString(g, "Claim an unclaimed territory.", 30, 30, 645, Color.BLACK);
 	}
 
 	private void drawDeploySetupTroops(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		drawString(g, "Deploy " + numSetupTroops + " troops.", 30, 30, 645,
@@ -733,6 +807,10 @@ public class Game extends Thread{
 				665, Color.BLACK);
 	}
 
+	private void drawPlayersConnected(Graphics2D g){
+		drawString(g,"Players: " + numPlayers, 40, 25,625,Color.BLACK);
+	}
+	
 	private void drawMap(Graphics2D g) {
 		try {
 			g.drawImage(this.getMap().getTexture(), 0, 0, null);
@@ -748,7 +826,7 @@ public class Game extends Thread{
 	}
 
 	private void drawObjectiveMessage(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		String message = gameMode == 5 ? "Move troops" : "Attack enemy";
@@ -834,7 +912,7 @@ public class Game extends Thread{
 	}
 
 	private void drawCards(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		int index = 0;
@@ -845,12 +923,12 @@ public class Game extends Thread{
 	}
 
 	private void drawCardBonus(Graphics2D g) {
-		if(playerTypes[turn] != 0){
+		if(!isTurn()){
 			return;
 		}
 		drawString(g, "Card Bonus: " + cardBonus, 30, 930, 675, Color.BLACK);
 	}
-
+	
 	private void drawConnections(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		List<Country> countries = this.getMap().getCountries();
@@ -870,7 +948,7 @@ public class Game extends Thread{
 
 	public void drawButtons(Graphics2D g) {
 		try{
-			if(playerTypes[turn] != 0){
+			if(!isTurn()){
 				return;
 			}
 		}
@@ -890,13 +968,40 @@ public class Game extends Thread{
 	}
 
 	public int createDieTimer() {
-		return Risk.r.nextInt(2000) + 1500;
+		return 3000;
 	}
 
 	public void setFontSize(Graphics2D g, int fontSize) {
 		g.setFont(g.getFont().deriveFont((float) fontSize));
 	}
 
+	public boolean isTurn(){
+		if(mode == 2 || (mode == 1 && setupMode >= 2)){
+			if(gameType == 0){
+				return playerTypes[turn] == 0;
+			}else{
+				return playerNum == turn;
+			}
+		}else{
+			return true;
+		}
+	}
+	
+	public boolean correctSource(int source){
+		switch(source){
+		case -1:
+			return DEBUG;
+		case -2:
+			return playerTypes[turn] == 1;
+		case 1:
+			return isTurn();
+		case 5:
+		case 6:
+		default:
+			return true;
+		}
+	}
+	
 	private void addUnit(int troops, Army a, Country c) {
 		// Due to the many pointers that must be consistent, this is the only
 		// method that should be used for creating units
@@ -932,9 +1037,7 @@ public class Game extends Thread{
 			if (c.getUnit() == null) {
 				this.addUnit(1, currentArmy(), c);
 				currentArmy().setFreeUnits(currentArmy().getFreeUnits() - 1);
-				currentArmy().exitTurn();
 				incrementTurn();
-				currentArmy().enterTurn();
 				numTerritoriesClaimed++;
 				if (numTerritoriesClaimed == 42) {
 					enterSetupReinforcement();
@@ -951,9 +1054,7 @@ public class Game extends Thread{
 					break;
 				}
 				if (numSetupTroops == 0) {
-					currentArmy().exitTurn();
 					incrementTurn();
-					currentArmy().enterTurn();
 					numSetupTroops = Math.min(3, currentArmy().getFreeUnits());
 				}
 			}
@@ -1049,6 +1150,19 @@ public class Game extends Thread{
 			switch (b.getId()) {
 			case 0:
 				mode = 1;
+				gameType = 0;
+				break;
+			case 1:
+				mode = 1;
+				setupMode = -1;
+				gameType = 1;
+				startAcceptingClients();
+				break;
+			case 2:
+				mode = 1;
+				setupMode = -2;
+				gameType = 2;
+				promptIP();
 				break;
 			}
 		case 1:
@@ -1068,12 +1182,23 @@ public class Game extends Thread{
 				break;
 			case 2:
 				colourPicked(b);
+				break;
+			case -1:
+			case -2:
+				switch(b.getId()){
+				case 0:
+					playerAdded(1);
+					break;
+				case 99:
+					doneReceiving();
+					break;
+				}
 			}
 			break;
 		case 2:
 			switch (gameMode) {
 			case 3:
-				if (b.getId() == 6) {
+				if (b.getId() == 6 && gameType != 2) {
 					rollBattleDice();
 					break;
 				}
@@ -1099,7 +1224,6 @@ public class Game extends Thread{
 						if (territoryConquered) {
 							currentArmy().addCard();
 						}
-						currentArmy().exitTurn();
 						enterNextTurn();
 						gameMode = 1;
 						break;
@@ -1113,14 +1237,74 @@ public class Game extends Thread{
 			case 0:
 				Risk.newGame();
 				running = false;
-				Thread.currentThread().stop();
+				main.stop();
 			}
 		}
 	}
 
+	private void promptIP(){
+		String ip = (String) JOptionPane.showInputDialog(
+				r,
+				"Enter the IP of the game you would like to connect to:",
+				"Enter IP",
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				null,
+				null);
+		System.out.println(ip);
+		cl = Client.makeClient(this,ip);
+		if(cl == null){
+			int choice = JOptionPane.showConfirmDialog(
+					r,
+					"Server not found at " + ip + ".  Return to main menu?",
+					"No Server",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.PLAIN_MESSAGE,
+					null
+					);
+			if(choice == JOptionPane.YES_OPTION){
+				mode = 0;
+				setupMode = 0;
+				return;
+			}else{
+				System.exit(5);
+			}
+		}
+		initSetupButtons();	
+		cl.start();
+	}
+	
+	private void startAcceptingClients(){
+		this.master = HostMaster.createHostMaster(this);
+		if(master == null){
+			int choice = JOptionPane.showConfirmDialog(
+					r,
+					"Could not create server.  Return to main menu?",
+					"No Server",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.PLAIN_MESSAGE,
+					null
+					);
+			if(choice == JOptionPane.YES_OPTION){
+				mode = 0;
+				setupMode = 0;
+				return;
+			}else{
+				System.exit(5);
+			}
+		}
+		master.start();
+		
+		numPlayers = 1;
+		playerTypes = new int[6];
+		initSetupButtons();
+	}
+	
 	private void colourPicked(Button b) {
 		colourButtons.remove(b);
-		playerTypes[turn] = turn < numPlayers - numAI ? 0 : 1;
+		if(gameType == 0){
+			playerTypes[turn] = turn < numPlayers - numAI ? 0 : 1;
+		}
 		armies.add(new Army(b.getId(), this,playerTypes[turn]));
 		
 		turn++;
@@ -1128,15 +1312,23 @@ public class Game extends Thread{
 		if (turn == numPlayers) {
 			setupMode = 3;
 			dice = new int[numPlayers];
+			if(gameType != 2)
+				diceResult = new int[numPlayers];
 			diceTimers = new int[numPlayers];
 
 			firstTurnContenders = new boolean[numPlayers];
 
 			for (int i = 0; i < numPlayers; i++) {
 				diceTimers[i] = this.createDieTimer();
+				if(gameType != 2)
+					diceResult[i] = Risk.r.nextInt(6) + 1;
 				firstTurnContenders[i] = true;
 			}
-
+			if(gameType == 1){
+				String message = "" + (char) 4 + (char) 2 
+						+ Risk.serializeIntArray(diceResult);
+				message(message,-5);
+			}
 		}
 	}
 
@@ -1161,21 +1353,46 @@ public class Game extends Thread{
 		attackerDice = new int[attackerNum];
 		defenderDice = new int[defenderNum];
 
-		attackerDiceTimers = new int[Math.min(3, attackers)];
-		defenderDiceTimers = new int[Math.min(2, defenders)];
+		if(gameType != 2){
+			attackerDiceResults = new int[attackerNum];
+			defenderDiceResults = new int[defenderNum];
+			
+			attackerDiceTimers = new int[Math.min(3, attackers)];
+			defenderDiceTimers = new int[Math.min(2, defenders)];
 
-		for (int i = 0; i < attackerDiceTimers.length; i++) {
-			attackerDiceTimers[i] = createDieTimer();
+			for (int i = 0; i < attackerDiceTimers.length; i++) {
+				attackerDiceTimers[i] = 2000;
+				attackerDiceResults[i] = Risk.r.nextInt(6) + 1;
+			}
+
+			for (int i = 0; i < defenderDiceTimers.length; i++) {
+				defenderDiceTimers[i] = 2000;
+				defenderDiceResults[i] = Risk.r.nextInt(6) + 1;
+			}
+			
+			
+			if(gameType == 1)
+				transmitBattleData();
 		}
-
-		for (int i = 0; i < defenderDiceTimers.length; i++) {
-			defenderDiceTimers[i] = createDieTimer();
-		}
-
 		reRollBattleDice();
 
 		displayedSorted = false;
 		diceSwitchTimer = 0;
+	}
+	
+	private void transmitBattleData(){
+		sendDiceInfo(0,attackerDiceResults);
+		sendDiceInfo(1,defenderDiceResults);
+		sendDiceInfo(2,attackerDiceTimers);
+		sendDiceInfo(3,defenderDiceTimers);
+		int i = 0;
+	}
+	
+	private void sendDiceInfo(int i, int[] data){
+		String message = "" + (char) 4 + (char) + 3;
+		message += (char) i;
+		message += Risk.serializeIntArray(data);
+		this.message(message,-5);
 	}
 
 	private void nullClicked() {
@@ -1275,7 +1492,7 @@ public class Game extends Thread{
 	}
 
 	private List<Button> createMenuButtons(RiskCanvas riskCanvas) {
-		String[] buttonStrings = { "New Game"/* ,"Host Game","Join Game" */};
+		String[] buttonStrings = { "New Game","Host Game","Join Game"};
 		List<Button> buttons = new ArrayList<Button>();
 
 		BufferedImage base = new BufferedImage(200, 100,
@@ -1352,6 +1569,51 @@ public class Game extends Thread{
 		return list;
 	}
 
+	private List<Button> createReceivingPlayersButtons(RiskCanvas riskCanvas){
+		String[] buttonStrings = {"Add AI"};
+		List<Button> buttons = new ArrayList<Button>();
+
+		BufferedImage base = new BufferedImage(200, 50,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D baseG = (Graphics2D) base.getGraphics();
+
+		baseG.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF);
+
+		baseG.setColor(Color.BLACK);
+		baseG.fillRoundRect(0, 0, 200, 50, 10, 10);
+
+		baseG.setColor(Color.WHITE);
+		baseG.fillRoundRect(5, 5, 190, 40, 10, 10);
+
+		int index = 0;
+
+		for (String s : buttonStrings) {
+			BufferedImage clone = Risk.cloneImage(base);
+			Graphics2D g = (Graphics2D) clone.getGraphics();
+
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_OFF);
+
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+
+			g.setFont(riskCanvas.army.deriveFont(40f));
+			g.setColor(Color.BLACK);
+			FontMetrics fm = g.getFontMetrics();
+
+			int x = 100 - fm.stringWidth(s) / 2;
+
+			drawString(g, s, 40, x, 25 + fm.getHeight() / 2, Color.BLACK);
+
+			Button b = new Button(30, 665, clone, index);
+			buttons.add(b);
+			index++;
+		}
+
+		return buttons;
+	}
+	
 	private void resetCardButton() {
 		cards.setWidth(currentArmy().getCards().size() * 90);
 	}
@@ -1368,27 +1630,47 @@ public class Game extends Thread{
 	public void message(String message, int source) {
 		System.out.println("Message received from " + source);
 		try {
-			// Request the GAME_STATE lock to avoid concurrency issues
-			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
-					+ INPUT_ID_OFFSET);
-			int t = message.charAt(0);
-			switch (t) {
-			// hexadecimal used because it seemed fitting
-			case 0x1:
-				parseButtonMessage(message.substring(1), source);
-				break;
-			case 0x2:
-				parseCountryMessage(message.substring(1), source);
-				break;
-			case 0x3:
-				nullClicked();
-				break;
-			case 0x10:
-				parseCheatMessage(message.substring(1), source);
-				break;
+			Risk.showMessage(message);
+
+			//If there are any exceptions here for some reason we probably don't want to send the message
+			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
+				switch(gameType){
+				case 1:
+					master.message(message, null);
+					break;
+				case 2:
+					cl.writeMessage(message);
+					break;
+				}
 			}
+			
+			if(source != -5){ //source of -5 indicates that this should not interpret it
+				// Request the GAME_STATE lock to avoid concurrency issues
+				ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
+						+ INPUT_ID_OFFSET);
+				int t = message.charAt(0);
+				switch (t) {
+				// hexadecimal used because it seemed fitting
+				case 0x1:
+					parseButtonMessage(message.substring(1), source);
+					break;
+				case 0x2:
+					parseCountryMessage(message.substring(1), source);
+					break;
+				case 0x3:
+					nullClicked();
+					break;
+				case 0x4:
+					parseGameInfo(message.substring(1),source);
+					break;
+				case 0x10:
+					parseCheatMessage(message.substring(1), source);
+					break;
+				}
+			}
+			
 		} catch (Exception e) {
-			if(source != -2){
+			if(source != -2 || DEBUG){
 				e.printStackTrace();
 			}
 		} finally {
@@ -1400,7 +1682,7 @@ public class Game extends Thread{
 
 	private void parseButtonMessage(String str, int source) {
 		try{
-			if(source != (playerTypes[turn] == 0 ? 1 : -2) && source != -1){
+			if(!correctSource(source)){
 				return;
 			}
 		}
@@ -1420,7 +1702,7 @@ public class Game extends Thread{
 
 	private void parseCountryMessage(String str, int source) {
 		try{
-			if(source != (playerTypes[turn] == 0 ? 1 : -2) && source != -1){
+			if(!correctSource(source)){
 				return;
 			}
 		}
@@ -1431,6 +1713,48 @@ public class Game extends Thread{
 		countryClicked(map.getCountryById(i));
 	}
 
+	private void parseGameInfo(String str, int source){
+		if(source < 5){
+			System.err.println("parseGameInfo called from a source that isnt 5 or 6");
+		}
+		
+		switch(str.charAt(0)){
+		case 0x0:
+			playerNum = (int) str.charAt(1);
+			break;
+		case 0x1: // Playertypes array
+			numPlayers = (int) str.charAt(1);
+			playerTypes = Risk.deserializeIntArray(str.substring(2));
+			setupMode = 2;
+			break;
+		case 0x2: // Who goes first dice
+			diceResult = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 0x3: // Battle dice
+			parseBattleInfo(str.substring(1));
+			break;
+		}
+	}
+	
+	private void parseBattleInfo(String str){
+		switch(str.charAt(0)){
+		case 0:
+			attackerDiceResults = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 1:
+			defenderDiceResults = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 2:
+			attackerDiceTimers = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 3:
+			defenderDiceTimers = Risk.deserializeIntArray(str.substring(1));
+			rollBattleDice();
+			reRollBattleDice();
+			break;
+		}
+	}
+	
 	private void parseCheatMessage(String str, int source) {
 		if (!DEBUG) {
 			return;
@@ -1457,12 +1781,57 @@ public class Game extends Thread{
 			}
 		}
 	}
+	
+	public void serverAdded (HostServer hs, Socket client){
+		if(mode == 1 && gameType == 1){
+			if(setupMode == -1){
+				System.out.println(client.getInetAddress() + " connected");
+				String message = "" + (char) 4 + (char) 0 + (char) numPlayers;
+				hs.writeMessage(message);
+				playerAdded(2);
+			}
+		}
+	}
 
+	private void playerAdded(int type){
+		playerTypes[numPlayers] = type;
+		numPlayers++;
+		if(type == 1){
+			numAI++;
+		}
+		if(numPlayers == 6){
+			doneReceiving();
+		}
+	}
+	
+	private void doneReceiving(){
+		master.setAcceptingPlayers(false);
+		setupMode = 2;
+		
+		transmitPlayerTypes();
+	}
+	
+	private void transmitPlayerTypes(){
+		String message = "" + (char) 4 + (char) + 1;
+		message += (char) numPlayers;
+		message += Risk.serializeIntArray(playerTypes);
+		this.message(message,-5);
+	}
+	
 	private void incrementTurn() {
 		turn++;
 		turn %= numPlayers;
 	}
 
+	public boolean propogateMessage(){
+		if(mode == 1){
+			if(setupMode < 2){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	// SETTERS AND GETTERS
 	public List<Button> getButtonList() {
 		switch (mode) {
@@ -1474,6 +1843,12 @@ public class Game extends Thread{
 				return numberButtons;
 			case 2:
 				return colourButtons;
+			case -1:
+				if(numPlayers < 3){
+					return receivingPlayersButtonsNoEndT;
+				}else{
+					return receivingPlayersButtons;
+				}
 			}
 			break;
 		case 2:
@@ -1559,5 +1934,18 @@ public class Game extends Thread{
 
 	public int getSetupMode() {
 		return setupMode;
+	}
+	
+
+	public int getAttackers() {
+		return attackers;
+	}
+	
+	public void halt(){
+		
+	}
+
+	public int getGameType() {
+		return gameType;
 	}
 }

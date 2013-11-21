@@ -4,53 +4,29 @@ import java.lang.ref.WeakReference;
 
 import risk.game.Army;
 import risk.game.Game;
+import risk.lib.RiskThread;
 
-public abstract class AI extends Thread{
+public abstract class AI extends RiskThread{
 
 	protected abstract void interact();
 	
 	protected Game g;
 	protected WeakReference<Army> a;
 
-	private boolean active;
-
-	private Object setActiveLock;
-
 	public AI(Game g, Army a) {
+		super(a.getName());
 		this.g = g;
 		this.a = new WeakReference<Army>(a);
-		this.setActiveLock = new Object();
 		
 		this.setDaemon(true);
-		this.start();
 	}
 
 	public void run() {
-		while (a.get() != null) {
-			sleepTime(100);
-			if(active){
+		while (a != null && a.get() != null) {
+			if(a.get().isActive()){
 				this.interact();
 			}
-		}
-	}
-
-	public void activate() {
-		setActive(true);
-	}
-
-	public void deactivate() {
-		setActive(false);
-	}
-
-	public boolean isActive() {
-		synchronized (setActiveLock) {
-			return active;
-		}
-	}
-
-	public void setActive(boolean active) {
-		synchronized (setActiveLock) {
-			this.active = active;
+			sleepTime(100);
 		}
 	}
 	
@@ -60,5 +36,10 @@ public abstract class AI extends Thread{
 		} catch (InterruptedException e) {
 			
 		}
+	}
+	
+	public void halt(){
+		g = null;
+		a = null;
 	}
 }

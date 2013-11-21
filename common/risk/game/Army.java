@@ -69,8 +69,9 @@ public class Army {
 		this.g = g;
 		
 		this.controller = controller;
-		if(controller == 1){
+		if(controller == 1 && g.getGameType() != 2){
 			ai = new BasicAI(g, this);
+			ai.start();
 		}
 
 		soldierAttacker = Risk.changeImageColour(soldierAttackTexture,
@@ -79,16 +80,8 @@ public class Army {
 				getColour());
 	}
 
-	public void enterTurn(){
-		if(controller == 1){
-			ai.activate();
-		}
-	}
-	
-	public void exitTurn(){
-		if(controller == 1){
-			ai.deactivate();
-		}
+	public boolean isActive(){
+		return g.getTurn() == g.getArmies().indexOf(this);
 	}
 	
 	public int calculateContinentBonus() {

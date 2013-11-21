@@ -6,13 +6,16 @@ import java.awt.FontFormatException;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -20,10 +23,12 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import risk.game.Game;
+import risk.lib.RiskThread;
 import risk.lib.ThreadLocks;
 
 /**
  * The main class, the game entry point
+ * Also general library class
  * 
  * @author Gabriel Ip
  * @author Sean Purcell
@@ -34,7 +39,10 @@ public class Risk {
 
 	public static final boolean DEBUG = false;
 	public static final boolean OUTPUT = true;
+	public static final boolean DRAW_WHILE_INACTIVE = true;
 
+	private static List<RiskThread> threadPool; 
+	
 	/**
 	 * The unique id used to hold a lock while loading resources
 	 */
@@ -57,15 +65,32 @@ public class Risk {
 				public void write(byte[] a,int i,int j){}
 			}));
 		}
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			public void run(){
+				System.out.println("Running gc and stopping threads");
+				for(RiskThread t : threadPool){
+					t.halt();
+				}
+				System.gc();
+			}
+		});
+		
+		threadPool = Collections.synchronizedList(new ArrayList<RiskThread>());
+		
 		newGame();
 	}
 
+	//RiskThreads by default run this on construction
+	public static void addThread(RiskThread t){
+		threadPool.add(t);
+	}
+	
 	public static void newGame(){
 		ThreadLocks.requestLock(ThreadLocks.INIT_RESOURCES, 1);
 		r = new Random(System.currentTimeMillis());
 		g = new Game();
 		ThreadLocks.releaseLock(ThreadLocks.INIT_RESOURCES, 1);
-
 		g.start();
 	}
 	
@@ -145,11 +170,11 @@ public class Risk {
 		return list;
 	}
 	
-	public static int[] rotateArray(int[] arr, int offset){
+	public static int[] rotateArray(int[] arr, int offset, int len){
 		for(int i = 0; i < offset; i++){
 			int front = arr[0];
 			arr = shift(arr);
-			arr[arr.length-1] = front;
+			arr[len-1] = front;
 		}
 		return arr;
 	}
@@ -223,5 +248,50 @@ public class Risk {
 		for (int i = 0; i < arr.length; i++) {
 			arr[i] = sorted[i];
 		}
+	}
+	
+	public static String read(BufferedReader i){
+		StringBuffer s = new StringBuffer();
+		try{
+			int a = 0;
+			while((a = i.read()) != '\n' && a != -1){
+				s.append((char) a);
+			}
+		}
+		catch(IOException e){
+		}
+		return s.toString();
+	}
+	
+	public static void showMessage(String message){
+		System.out.println(message);
+		for(int i = 0; i < message.length(); i++){
+			System.out.print(Integer.toString((int)(message.charAt(i)),16) + "-");
+		}
+		System.out.println();
+	}
+	
+	
+	public static String serializeIntArray(int[] a){
+		String arr = "";
+		for(int i = 0; i < a.length; i++){
+			arr += int16ToString(a[i]);
+		}
+		return arr;
+	}
+	
+	public static String int16ToString(int i){
+		String output = Integer.toString(i,16);
+		while(output.length() < 8) output = "0" + output;
+		return output;
+	}
+	
+	public static int[] deserializeIntArray(String arr){
+		int length = arr.length() / 8;
+		int[] a = new int[length];
+		for(int i = 0; i < length; i++){
+			a[i] = Integer.parseInt(arr.substring(i * 8, i * 8 + 8), 16);
+		}
+		return a;
 	}
 }

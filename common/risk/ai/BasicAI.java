@@ -93,6 +93,11 @@ public class BasicAI extends AI {
 			Country selected = u.getLocation(),
 					target = null;
 			
+			{ //Clear any possible other selected countries
+				String message = "" + (char) 3;
+				g.message(message, -2);
+			}
+			
 			List<Country> connections = selected.getConnections();
 			boolean targetExists = false;
 			for(int i = 0; i < connections.size() && !targetExists; i++){
@@ -102,11 +107,6 @@ public class BasicAI extends AI {
 			if(targetExists){
 				while(target == null || target.getUnit().getArmy() == a.get()){
 					target = connections.get(Risk.r.nextInt(connections.size()));
-				}
-
-				{ //Clear any possible other selected countries
-					String message = "" + (char) 3;
-					g.message(message, -2);
 				}
 
 				{ //Select the selected country
@@ -123,7 +123,8 @@ public class BasicAI extends AI {
 					String message = "" + (char) 2 + 
 							(target.getId() < 10 ? "0" : "")
 							+ Integer.toString(target.getId());
-					for(int i = 0; i < u.getTroops(); i++){
+					g.message(message, -2);
+					while(g.getAttackers() < u.getTroops() - 1){
 						g.message(message, -2);
 						sleepTime(150);
 					}
@@ -131,8 +132,11 @@ public class BasicAI extends AI {
 				sleepTime(500);
 				while(u.getTroops() > 1 && target.getUnit().getArmy() != a.get()){
 					String message = "" + (char) 1 + (char) 6;
-					g.message(message, -2);
+					while(g.getGameMode() == 4){
+						sleepTime(250);
+					}
 					sleepTime(1000);
+					g.message(message, -2);
 				}
 			}
 		}
