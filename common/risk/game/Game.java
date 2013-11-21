@@ -372,13 +372,15 @@ public class Game extends RiskThread{
 			if (first >= 0) {
 				enterTerritoryAllocateMode(first);
 			}else{
-				for(int i = 0; i < diceResult.length; i++){
-					diceResult[i] = Risk.r.nextInt(6) + 1;
-				}
-				if(gameType == 1){
-					String message = "" + (char) 4 + (char) 2 
-							+ Risk.serializeIntArray(diceResult);
-					message(message,-5);
+				if(gameType != 2){
+					for(int i = 0; i < diceResult.length; i++){
+						diceResult[i] = Risk.r.nextInt(6) + 1;
+					}
+					if(gameType == 1){
+						String message = "" + (char) 4 + (char) 2 
+								+ Risk.serializeIntArray(diceResult);
+						message(message,-5);
+					}
 				}
 			}
 		}
@@ -428,11 +430,15 @@ public class Game extends RiskThread{
 			attackerDiceTimers[i] -= delta;
 			if (attackerDiceTimers[i] > 0)
 				done = false;
+			else
+				attackerDice[i] = attackerDiceResults[i];
 		}
 		for (int i = 0; i < defenderDice.length; i++) {
 			defenderDiceTimers[i] -= delta;
 			if (defenderDiceTimers[i] > 0)
 				done = false;
+			else
+				defenderDice[i] = defenderDiceResults[i];
 		}
 		if (done) {
 			diceDisplayCountdown = 1000;
@@ -962,7 +968,7 @@ public class Game extends RiskThread{
 	}
 
 	public int createDieTimer() {
-		return Risk.r.nextInt(2000) + 1500;
+		return 3000;
 	}
 
 	public void setFontSize(Graphics2D g, int fontSize) {
@@ -1347,21 +1353,45 @@ public class Game extends RiskThread{
 		attackerDice = new int[attackerNum];
 		defenderDice = new int[defenderNum];
 
-		attackerDiceTimers = new int[Math.min(3, attackers)];
-		defenderDiceTimers = new int[Math.min(2, defenders)];
+		if(gameType != 2){
+			attackerDiceResults = new int[attackerNum];
+			defenderDiceResults = new int[defenderNum];
+			
+			attackerDiceTimers = new int[Math.min(3, attackers)];
+			defenderDiceTimers = new int[Math.min(2, defenders)];
 
-		for (int i = 0; i < attackerDiceTimers.length; i++) {
-			attackerDiceTimers[i] = createDieTimer();
+			for (int i = 0; i < attackerDiceTimers.length; i++) {
+				attackerDiceTimers[i] = 2000;
+				attackerDiceResults[i] = Risk.r.nextInt(6) + 1;
+			}
+
+			for (int i = 0; i < defenderDiceTimers.length; i++) {
+				defenderDiceTimers[i] = 2000;
+				defenderDiceResults[i] = Risk.r.nextInt(6) + 1;
+			}
+			
+			reRollBattleDice();
+			if(gameType == 1)
+				transmitBattleData();
 		}
-
-		for (int i = 0; i < defenderDiceTimers.length; i++) {
-			defenderDiceTimers[i] = createDieTimer();
-		}
-
-		reRollBattleDice();
 
 		displayedSorted = false;
 		diceSwitchTimer = 0;
+	}
+	
+	private void transmitBattleData(){
+		sendDiceInfo(0,attackerDiceResults);
+		sendDiceInfo(1,defenderDiceResults);
+		sendDiceInfo(2,attackerDiceTimers);
+		sendDiceInfo(3,defenderDiceTimers);
+		int i = 0;
+	}
+	
+	private void sendDiceInfo(int i, int[] data){
+		String message = "" + (char) 4 + (char) + 3;
+		message += (char) i;
+		message += Risk.serializeIntArray(data);
+		this.message(message,-5);
 	}
 
 	private void nullClicked() {
@@ -1700,6 +1730,25 @@ public class Game extends RiskThread{
 			diceResult = Risk.deserializeIntArray(str.substring(1));
 			break;
 		case 0x3: // Battle dice
+			parseBattleInfo(str.substring(1));
+			break;
+		}
+	}
+	
+	private void parseBattleInfo(String str){
+		switch(str.charAt(0)){
+		case 0:
+			attackerDiceResults = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 1:
+			defenderDiceResults = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 2:
+			attackerDiceTimers = Risk.deserializeIntArray(str.substring(1));
+			break;
+		case 3:
+			defenderDiceTimers = Risk.deserializeIntArray(str.substring(1));
+			reRollBattleDice();
 			break;
 		}
 	}
