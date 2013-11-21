@@ -514,7 +514,7 @@ public class Game extends RiskThread{
 
 	private void armyEliminated(Army eliminatee) {
 		Army current = currentArmy();
-		for(int i = armies.indexOf(eliminatee); i < playerTypes.length; i++){
+		for(int i = armies.indexOf(eliminatee); i < playerTypes.length - 1; i++){
 			playerTypes[i] = playerTypes[i+1];
 		}
 		armies.remove(eliminatee);
