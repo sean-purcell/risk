@@ -1700,11 +1700,11 @@ public class Game extends RiskThread{
 					parseCheatMessage(message.substring(1), source);
 					break;
 				case 0x20:
-					new Thread(){
+					(new Thread(){
 						public void run(){
 							deserializeGameData(message.substring(1));
 						}
-					}.start();
+					}).start();
 					break;
 				}
 			}

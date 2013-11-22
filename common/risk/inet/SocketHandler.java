@@ -38,7 +38,7 @@ public abstract class SocketHandler extends RiskThread{
 					String message = buffer.remove(0);
 					out.write(message + '|');
 					out.flush();
-					//Risk.showMessage(message);
+					Risk.showMessage(message);
 					System.out.println("Message written");
 				}
 				if(in.ready()){
