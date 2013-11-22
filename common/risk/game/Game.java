@@ -1391,11 +1391,11 @@ public class Game extends RiskThread{
 	}
 	
 	private void transmitBattleData(){
+		int i = 0;
 		sendDiceInfo(0,attackerDiceResults);
 		sendDiceInfo(1,defenderDiceResults);
 		sendDiceInfo(2,attackerDiceTimers);
 		sendDiceInfo(3,defenderDiceTimers);
-		int i = 0;
 	}
 	
 	private void sendDiceInfo(int i, int[] data){
