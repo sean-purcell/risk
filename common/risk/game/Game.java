@@ -1676,6 +1676,9 @@ public class Game extends RiskThread{
 				case 0x10:
 					parseCheatMessage(message.substring(1), source);
 					break;
+				case 0x20:
+					deserializeGameData(message.substring(1));
+					break;
 				}
 			}
 			
@@ -1793,14 +1796,57 @@ public class Game extends RiskThread{
 	}
 	
 	public void resyncRequested(HostServer h){
-		String message = (char) 16 + serializeGameData();
+		String message = (char) 0x20 + serializeGameData();
 		h.writeMessage(message);
 	}
+	
+	/*
+	 * PROTOCOL:
+	 * 0=gameMode
+	 * 48=playerTypes
+	 * 1=turn
+	 * 1=selectedCountry.getId()
+	 * 1=attackTarget.getId() (0 if null)
+	 * 1=attackers
+	 * 1=defenders
+	 * attackers*8=attackerDiceResults
+	 * defenders*8=defenderDiceResults
+	 * attackers*8=attackerDiceTimers
+	 * defenders*8=defenderDiceTimers
+	 */
 	
 	private String serializeGameData(){
 		StringBuffer gameData = new StringBuffer();
 		try{
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
+			gameData.append((char) gameMode);
+			
+			gameData.append(Risk.serializeIntArray(playerTypes));
+			
+			gameData.append((char)turn);
+			
+			try{
+				gameData.append(selectedCountry.getId());
+			}
+			catch(NullPointerException e){
+				gameData.append((char) 0);
+			}
+			
+			try{
+				gameData.append(attackTarget.getId());
+			}
+			catch(NullPointerException e){
+				gameData.append((char) 0);
+			}
+			
+			gameData.append((char) attackers);
+			gameData.append((char) defenders);
+			
+			gameData.append(Risk.serializeIntArray(attackerDiceResults));
+			gameData.append(Risk.serializeIntArray(defenderDiceResults));
+			
+			gameData.append(Risk.serializeIntArray(attackerDiceTimers));
+			gameData.append(Risk.serializeIntArray(defenderDiceTimers));
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1812,8 +1858,39 @@ public class Game extends RiskThread{
 		return gameData.toString();
 	}
 	
-	private void deserializeGameData(){
+	private void deserializeGameData(String str){
 		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
+		int index = 0;
+		gameMode = (int) str.charAt(index);
+		index++;
+		playerTypes = Risk.deserializeIntArray(str.substring(index, index+48));
+		index+=48;
+		
+		turn = (int) str.charAt(index);
+		index++;
+		
+		selectedCountry = map.getCountryById(str.charAt(index));
+		index++;
+		
+		attackTarget = map.getCountryById(str.charAt(index));
+		index++;
+		
+		attackers = (int) str.charAt(index);
+		index++;
+		defenders = (int) str.charAt(index);
+		index++;
+		
+		attackerDiceResults = Risk.deserializeIntArray(str.substring(index, index + 8 * attackers));
+		index += 8 * attackers;
+		
+		defenderDiceResults = Risk.deserializeIntArray(str.substring(index, index + 8 * defenders));
+		index += 8 * defenders;
+		
+		attackerDiceTimers = Risk.deserializeIntArray(str.substring(index, index + 8 * attackers));
+		index += 8 * attackers;
+		
+		defenderDiceTimers = Risk.deserializeIntArray(str.substring(index, index + 8 * defenders));
+		index += 8 * defenders;
 		
 		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x11);
 	}
