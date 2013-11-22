@@ -12,8 +12,8 @@ public class Test {
 		int[] b = Risk.deserializeIntArray(str);
 		System.out.println("done");
 		
-		int[] c = Risk.rotateArray(a, 3);
-		c = null;
+		//int[] c = Risk.rotateArray(a, 3);
+		//c = null;
 	}
 
 }

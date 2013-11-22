@@ -12,7 +12,11 @@ public class HostServer extends SocketHandler{
 	}
 	
 	protected void useMessage(String message){
-		h.message(message, this);
+		if(message.equals("resync")){
+			h.resyncRequested(this);
+		}else{
+			h.message(message, this);
+		}
 	}
 	
 	protected boolean running(){

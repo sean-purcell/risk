@@ -37,4 +37,9 @@ public class Client extends SocketHandler{
 	protected boolean running(){
 		return g.get() != null;
 	}
+	
+	public void requestResync(){
+		String message = "resync";
+		writeMessage(message);
+	}
 }

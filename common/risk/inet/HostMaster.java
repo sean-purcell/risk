@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import risk.Risk;
 import risk.game.Game;
 import risk.lib.RiskThread;
 
@@ -79,6 +78,10 @@ public class HostMaster extends RiskThread{
 		if(source != null){
 			g.get().message(message, 5);
 		}
+	}
+	
+	protected void resyncRequested(HostServer hs){
+		g.get().resyncRequested(hs);
 	}
 	
 	boolean running(){
