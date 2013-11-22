@@ -22,6 +22,7 @@ import risk.Risk;
 import risk.inet.Client;
 import risk.inet.HostMaster;
 import risk.inet.HostServer;
+import risk.inet.MessageQueuer;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
@@ -55,6 +56,8 @@ public class Game extends RiskThread{
 	
 	private HostMaster master;
 	private Client cl;
+	
+	private MessageQueuer mq;
 	
 	private int playerNum;
 	
@@ -1281,6 +1284,7 @@ public class Game extends RiskThread{
 			}
 		}
 		initSetupButtons();	
+		mq = new MessageQueuer(this);
 		cl.start();
 	}
 	
@@ -1683,7 +1687,9 @@ public class Game extends RiskThread{
 			}
 			
 		} catch (Exception e) {
-			if(source != -2 || DEBUG){
+			if(gameMode == 4){
+				mq.addMessage(message);
+			}else if(source != -2 || DEBUG){
 				e.printStackTrace();
 			}
 		} finally {
