@@ -1790,7 +1790,8 @@ public class Game extends RiskThread{
 	}
 	
 	public void resyncRequested(HostServer h){
-	
+		String message = (char) 16 + serializeGameData();
+		h.writeMessage(message);
 	}
 	
 	private String serializeGameData(){
