@@ -1789,7 +1789,7 @@ public class Game extends RiskThread{
 		case 0x7:
 			diceDisplayCountdown = -0xFFFFFF;
 			try {
-				Thread.sleep(1500);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
