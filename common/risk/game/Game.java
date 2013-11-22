@@ -1713,7 +1713,7 @@ public class Game extends RiskThread{
 			}
 			
 		} catch (Exception e) {
-			if(gameMode == 4){
+			if(gameMode == 4  && mq != null){
 				mq.addMessage(message);
 			}else if(source != -2 || DEBUG){
 				e.printStackTrace();
