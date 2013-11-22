@@ -1278,6 +1278,7 @@ public class Game extends RiskThread{
 			if(choice == JOptionPane.YES_OPTION){
 				mode = 0;
 				setupMode = 0;
+				gameType = 0;
 				return;
 			}else{
 				System.exit(5);
@@ -1302,6 +1303,7 @@ public class Game extends RiskThread{
 			if(choice == JOptionPane.YES_OPTION){
 				mode = 0;
 				setupMode = 0;
+				gameType = 0;
 				return;
 			}else{
 				System.exit(5);
