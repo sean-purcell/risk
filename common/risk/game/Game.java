@@ -152,6 +152,8 @@ public class Game extends RiskThread{
 	private int[] attackerDiceTimers;
 	private int[] defenderDiceTimers;
 
+	private int diceDone;
+	
 	private boolean displayedSorted;
 
 	private int displayEliminatedTimer;
@@ -421,7 +423,7 @@ public class Game extends RiskThread{
 	}
 
 	private void updateBattleDice(int delta) {
-		if (diceDisplayCountdown <= 0) {
+		if (diceDisplayCountdown <= 0 && diceDisplayCountdown != -0xFFFFFF) {
 			battleDiceTimerUpdate(delta);
 		} else {
 			battleDiceTimerDone(delta);
@@ -456,7 +458,9 @@ public class Game extends RiskThread{
 	}
 
 	private void battleDiceTimerDone(int delta) {
-		diceDisplayCountdown -= delta;
+		if(gameMode == 0 || !displayedSorted){
+			diceDisplayCountdown -= delta;
+		}
 
 		if (diceDisplayCountdown <= 0) {
 			if (!displayedSorted) {
@@ -464,6 +468,19 @@ public class Game extends RiskThread{
 				Risk.sort(attackerDice);
 				Risk.sort(defenderDice);
 				displayedSorted = true;
+				switch(gameType){
+				case 1:
+					(new Thread(){
+						public void run(){
+							message("" + (char) 4 + (char) 6, 8);
+						}
+					}).start();
+					break;
+				case 2:
+					String message = "" + (char) 4 + (char) 6;
+					cl.writeMessage(message);
+					break;
+				}
 			} else {
 				int[] losses = calculateLosses();
 				attackers -= losses[0];
@@ -1362,10 +1379,13 @@ public class Game extends RiskThread{
 
 	private void rollBattleDice() {
 		gameMode = 4;
+		diceDone = 0;
 
 		int attackerNum = Math.min(3, attackers);
 		int defenderNum = Math.min(2, defenders);
 
+		diceDisplayCountdown = -1;
+		
 		attackerDice = new int[attackerNum];
 		defenderDice = new int[defenderNum];
 
@@ -1736,7 +1756,7 @@ public class Game extends RiskThread{
 
 	private void parseGameInfo(String str, int source){
 		if(source < 5){
-			System.err.println("parseGameInfo called from a source that isnt 5 or 6");
+			//System.err.println("parseGameInfo called from a source that isnt 5 or 6");
 		}
 		
 		switch(str.charAt(0)){
@@ -1753,6 +1773,26 @@ public class Game extends RiskThread{
 			break;
 		case 0x3: // Battle dice
 			parseBattleInfo(str.substring(1));
+			break;
+		case 0x6:
+			diceDone++;
+			if(diceDone == numPlayers - numAI){
+				diceDisplayCountdown = -0xFFFFFF;
+				master.message("" + (char) 4 + (char) 7, null);
+			}
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			break;
+		case 0x7:
+			diceDisplayCountdown = -0xFFFFFF;
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			break;
 		}
 	}
