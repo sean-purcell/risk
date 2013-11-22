@@ -524,6 +524,9 @@ public class Game extends RiskThread{
 		for(int i = armies.indexOf(eliminatee); i < playerTypes.length - 1; i++){
 			playerTypes[i] = playerTypes[i+1];
 		}
+		if(playerNum > armies.indexOf(eliminatee)){
+			playerNum--;
+		}
 		armies.remove(eliminatee);
 		numPlayers--;
 		turn = armies.indexOf(current);
