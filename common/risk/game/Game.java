@@ -1663,7 +1663,7 @@ public class Game extends RiskThread{
 	 *            MessageProtocol.txt
 	 * @param source
 	 */
-	public void message(String message, int source) {
+	public void message(final String message, int source) {
 		System.out.println("Message received from " + source);
 		try {
 			Risk.showMessage(message);
@@ -1703,7 +1703,11 @@ public class Game extends RiskThread{
 					parseCheatMessage(message.substring(1), source);
 					break;
 				case 0x20:
-					deserializeGameData(message.substring(1));
+					new Thread(){
+						public void run(){
+							deserializeGameData(message.substring(1));
+						}
+					}.start();
 					break;
 				}
 			}
