@@ -176,15 +176,15 @@ public final class Gamedata {
      */
     int getDefenderDiceResults(int index);
 
-    // optional int32 territoryConquered = 15;
+    // optional bool territoryConquered = 15;
     /**
-     * <code>optional int32 territoryConquered = 15;</code>
+     * <code>optional bool territoryConquered = 15;</code>
      */
     boolean hasTerritoryConquered();
     /**
-     * <code>optional int32 territoryConquered = 15;</code>
+     * <code>optional bool territoryConquered = 15;</code>
      */
-    int getTerritoryConquered();
+    boolean getTerritoryConquered();
 
     // optional int32 cardBonus = 16;
     /**
@@ -370,7 +370,7 @@ public final class Gamedata {
             }
             case 120: {
               bitField0_ |= 0x00000400;
-              territoryConquered_ = input.readInt32();
+              territoryConquered_ = input.readBool();
               break;
             }
             case 128: {
@@ -695,19 +695,19 @@ public final class Gamedata {
       return defenderDiceResults_.get(index);
     }
 
-    // optional int32 territoryConquered = 15;
+    // optional bool territoryConquered = 15;
     public static final int TERRITORYCONQUERED_FIELD_NUMBER = 15;
-    private int territoryConquered_;
+    private boolean territoryConquered_;
     /**
-     * <code>optional int32 territoryConquered = 15;</code>
+     * <code>optional bool territoryConquered = 15;</code>
      */
     public boolean hasTerritoryConquered() {
       return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
-     * <code>optional int32 territoryConquered = 15;</code>
+     * <code>optional bool territoryConquered = 15;</code>
      */
-    public int getTerritoryConquered() {
+    public boolean getTerritoryConquered() {
       return territoryConquered_;
     }
 
@@ -742,7 +742,7 @@ public final class Gamedata {
       defenders_ = 0;
       attackerDiceResults_ = java.util.Collections.emptyList();
       defenderDiceResults_ = java.util.Collections.emptyList();
-      territoryConquered_ = 0;
+      territoryConquered_ = false;
       cardBonus_ = 0;
     }
     private byte memoizedIsInitialized = -1;
@@ -800,7 +800,7 @@ public final class Gamedata {
         output.writeInt32(14, defenderDiceResults_.get(i));
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeInt32(15, territoryConquered_);
+        output.writeBool(15, territoryConquered_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         output.writeInt32(16, cardBonus_);
@@ -887,7 +887,7 @@ public final class Gamedata {
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(15, territoryConquered_);
+          .computeBoolSize(15, territoryConquered_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1042,7 +1042,7 @@ public final class Gamedata {
         bitField0_ = (bitField0_ & ~0x00001000);
         defenderDiceResults_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00002000);
-        territoryConquered_ = 0;
+        territoryConquered_ = false;
         bitField0_ = (bitField0_ & ~0x00004000);
         cardBonus_ = 0;
         bitField0_ = (bitField0_ & ~0x00008000);
@@ -2049,35 +2049,35 @@ public final class Gamedata {
         return this;
       }
 
-      // optional int32 territoryConquered = 15;
-      private int territoryConquered_ ;
+      // optional bool territoryConquered = 15;
+      private boolean territoryConquered_ ;
       /**
-       * <code>optional int32 territoryConquered = 15;</code>
+       * <code>optional bool territoryConquered = 15;</code>
        */
       public boolean hasTerritoryConquered() {
         return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
-       * <code>optional int32 territoryConquered = 15;</code>
+       * <code>optional bool territoryConquered = 15;</code>
        */
-      public int getTerritoryConquered() {
+      public boolean getTerritoryConquered() {
         return territoryConquered_;
       }
       /**
-       * <code>optional int32 territoryConquered = 15;</code>
+       * <code>optional bool territoryConquered = 15;</code>
        */
-      public Builder setTerritoryConquered(int value) {
+      public Builder setTerritoryConquered(boolean value) {
         bitField0_ |= 0x00004000;
         territoryConquered_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 territoryConquered = 15;</code>
+       * <code>optional bool territoryConquered = 15;</code>
        */
       public Builder clearTerritoryConquered() {
         bitField0_ = (bitField0_ & ~0x00004000);
-        territoryConquered_ = 0;
+        territoryConquered_ = false;
         onChanged();
         return this;
       }
@@ -3474,7 +3474,7 @@ public final class Gamedata {
       "\n\014attackTarget\030\n \001(\005\022\021\n\tattackers\030\013 \001(\005\022" +
       "\021\n\tdefenders\030\014 \001(\005\022\033\n\023attackerDiceResult" +
       "s\030\r \003(\005\022\033\n\023defenderDiceResults\030\016 \003(\005\022\032\n\022" +
-      "territoryConquered\030\017 \001(\005\022\021\n\tcardBonus\030\020 " +
+      "territoryConquered\030\017 \001(\010\022\021\n\tcardBonus\030\020 " +
       "\001(\005\"=\n\004Army\022\014\n\004type\030\001 \001(\005\022\021\n\tfreeunits\030\002",
       " \001(\005\022\024\n\005units\030\003 \003(\0132\005.Unit\"#\n\004Unit\022\013\n\003lo" +
       "c\030\001 \001(\005\022\016\n\006troops\030\002 \001(\005"

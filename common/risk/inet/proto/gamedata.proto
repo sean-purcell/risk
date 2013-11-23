@@ -18,7 +18,7 @@ message GameData{
 	repeated int32 attackerDiceResults = 13;
 	repeated int32 defenderDiceResults = 14;
 	
-	optional int32 territoryConquered = 15;
+	optional bool territoryConquered = 15;
 	optional int32 cardBonus = 16;
 }
 
