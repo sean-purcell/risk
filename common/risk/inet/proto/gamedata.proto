@@ -1,0 +1,5 @@
+message GameData{
+	required int32 turn = 1;
+	required int32 setupMode = 1;
+	
+}
