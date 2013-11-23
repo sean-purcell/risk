@@ -1,34 +1,34 @@
 message GameData{
-	required int32 turn = 1;
-	required int32 setupMode = 2;
-	required int32 gameMode = 3;
+	optional int32 mode = 1;
+	optional int32 setupMode = 2;
+	optional int32 gameMode = 3;
 	
 	repeated int32 playerTypes = 4;
-	required int32 numPlayers = 5;
-	required int32 numAI = 6;
-	required int32 turn = 7;
+	optional int32 numPlayers = 5;
+	optional int32 numAI = 6;
+	optional int32 turn = 7;
 	
 	repeated Army armies = 8;
 	
-	required int32 selectedCountry = 9;
-	required int32 attackTarget = 10;
+	optional int32 selectedCountry = 9;
+	optional int32 attackTarget = 10;
 	
-	required int32 attackers = 11;
-	required int32 defenders = 12;
+	optional int32 attackers = 11;
+	optional int32 defenders = 12;
 	repeated int32 attackerDiceResults = 13;
 	repeated int32 defenderDiceResults = 14;
 	
-	required int32 territoryConquered = 15;
-	required int32 cardBonus = 16;
+	optional int32 territoryConquered = 15;
+	optional int32 cardBonus = 16;
 }
 
 message Army{
-	required int32 type = 1;
-	required int32 freeunits = 2;
+	optional int32 type = 1;
+	optional int32 freeunits = 2;
 	repeated Unit units = 3;
 }
 
 message Unit{
-	required int32 loc = 1;
-	required int32 troops = 2;
+	optional int32 loc = 1;
+	optional int32 troops = 2;
 }
