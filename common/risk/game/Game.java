@@ -22,7 +22,6 @@ import risk.Risk;
 import risk.inet.Client;
 import risk.inet.HostMaster;
 import risk.inet.HostServer;
-import risk.inet.MessageQueuer;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
