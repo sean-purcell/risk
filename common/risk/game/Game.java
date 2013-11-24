@@ -2006,6 +2006,9 @@ public class Game extends RiskThread{
 			territoryConquered = data.getTerritoryConquered();
 			cardBonus = data.getCardBonus();
 		} catch (InvalidProtocolBufferException e) {
+			int i = 0;
+			e.printStackTrace();
+			System.out.println(i);
 		}
 	}
 	
