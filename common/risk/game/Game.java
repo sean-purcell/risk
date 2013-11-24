@@ -1232,7 +1232,17 @@ public class Game extends RiskThread{
 						break;
 					case 5:
 						if (territoryConquered) {
-							currentArmy().addCard();
+							if(gameType != 2){
+								int cardType = Risk.r.nextInt(3);
+								Card c = new Card(cardType);
+								currentArmy().getCards().add(c);
+								if(gameType == 1){
+									String message = "" + (char) 4
+											+ (char) 5
+											+ (char) turn + (char) cardType;
+									master.message(message, null);
+								}
+							}
 						}
 						enterNextTurn();
 						gameMode = 1;
@@ -1747,6 +1757,9 @@ public class Game extends RiskThread{
 			break;
 		case 0x3: // Battle dice
 			parseBattleInfo(str.substring(1));
+			break;
+		case 0x5: // Card added
+			armies.get(str.charAt(1)).getCards().add(new Card(str.charAt(2)));
 			break;
 		}
 	}
