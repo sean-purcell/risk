@@ -1896,6 +1896,7 @@ public class Game extends RiskThread{
 	 */
 	private void deserializeGameData(String str){
 		try {
+			System.out.println("deserializing game data");
 			GameData data = GameData.parseFrom(str.getBytes());
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
