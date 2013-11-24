@@ -1652,9 +1652,6 @@ public class Game extends RiskThread{
 		try {
 			Risk.showMessage(message);
 
-			// Request the GAME_STATE lock to avoid concurrency issues
-			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
-					+ INPUT_ID_OFFSET);
 			
 			//If there are any exceptions here for some reason we probably don't want to send the message
 			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
@@ -1669,6 +1666,11 @@ public class Game extends RiskThread{
 			}
 			
 			if(source != -5){ //source of -5 indicates that this should not interpret it
+				
+				// Request the GAME_STATE lock to avoid concurrency issues
+				ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
+						+ INPUT_ID_OFFSET);
+				
 				int t = message.charAt(0);
 				switch (t) {
 				// hexadecimal used because it seemed fitting
