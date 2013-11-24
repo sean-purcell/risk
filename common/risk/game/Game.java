@@ -18,11 +18,15 @@ import java.util.Queue;
 
 import javax.swing.JOptionPane;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import risk.Risk;
 import risk.inet.Client;
 import risk.inet.HostMaster;
 import risk.inet.HostServer;
 import risk.inet.MessageQueuer;
+import risk.inet.proto.Gamedata;
+import risk.inet.proto.Gamedata.GameData;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
@@ -1648,6 +1652,10 @@ public class Game extends RiskThread{
 		try {
 			Risk.showMessage(message);
 
+			// Request the GAME_STATE lock to avoid concurrency issues
+			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
+					+ INPUT_ID_OFFSET);
+			
 			//If there are any exceptions here for some reason we probably don't want to send the message
 			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
 				switch(gameType){
@@ -1661,9 +1669,6 @@ public class Game extends RiskThread{
 			}
 			
 			if(source != -5){ //source of -5 indicates that this should not interpret it
-				// Request the GAME_STATE lock to avoid concurrency issues
-				ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
-						+ INPUT_ID_OFFSET);
 				int t = message.charAt(0);
 				switch (t) {
 				// hexadecimal used because it seemed fitting
@@ -1824,37 +1829,59 @@ public class Game extends RiskThread{
 	 */
 	
 	private String serializeGameData(){
-		StringBuffer gameData = new StringBuffer();
 		try{
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
-			gameData.append((char) gameMode);
+			GameData.Builder data = GameData.newBuilder();
+			data.setMode(mode);
+			data.setSetupMode(setupMode);
+			data.setGameMode(gameMode);
 			
-			gameData.append(Risk.serializeIntArray(playerTypes));
+			for(int i : playerTypes){
+				data.addPlayerTypes(i);
+			}
+			data.setNumPlayers(numPlayers);
+			data.setNumAI(numAI);
+			data.setTurn(turn);
 			
-			gameData.append((char)turn);
+			for(Army a : armies){
+				Gamedata.Army.Builder armyData = Gamedata.Army.newBuilder();
+				armyData.setType(a.getType());
+				armyData.setFreeunits(a.getFreeUnits());
+				for(Unit u : a.getUnits()){
+					Gamedata.Unit.Builder unitData = Gamedata.Unit.newBuilder();
+					unitData.setLoc(u.getLocation().getId());
+					unitData.setTroops(u.getTroops());
+					armyData.addUnits(unitData.build());
+				}
+				data.addArmies(armyData.build());
+			}
 			
 			try{
-				gameData.append(selectedCountry.getId());
+				data.setSelectedCountry(selectedCountry.getId());
 			}
 			catch(NullPointerException e){
-				gameData.append((char) 0);
+				data.setSelectedCountry(0);
 			}
 			
 			try{
-				gameData.append(attackTarget.getId());
+				data.setAttackTarget(attackTarget.getId());
 			}
 			catch(NullPointerException e){
-				gameData.append((char) 0);
+				data.setAttackTarget(0);
 			}
 			
-			gameData.append((char) attackers);
-			gameData.append((char) defenders);
+			data.setAttackers(attackers);
+			data.setDefenders(defenders);
+			for(int i : attackerDiceResults){
+				data.addAttackerDiceResults(i);
+			}
+			for(int i : defenderDiceResults){
+				data.addDefenderDiceResults(i);
+			}
 			
-			gameData.append(Risk.serializeIntArray(attackerDiceResults));
-			gameData.append(Risk.serializeIntArray(defenderDiceResults));
-			
-			gameData.append(Risk.serializeIntArray(attackerDiceTimers));
-			gameData.append(Risk.serializeIntArray(defenderDiceTimers));
+			data.setTerritoryConquered(territoryConquered);
+			data.setCardBonus(cardBonus);
+			return data.toString();
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1863,43 +1890,38 @@ public class Game extends RiskThread{
 		finally{
 			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x10);
 		}
-		return gameData.toString();
+		return "";
 	}
 	
 	private void deserializeGameData(String str){
 		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
-		int index = 0;
-		gameMode = (int) str.charAt(index);
-		index++;
-		playerTypes = Risk.deserializeIntArray(str.substring(index, index+48));
-		index+=48;
-		
-		turn = (int) str.charAt(index);
-		index++;
-		
-		selectedCountry = map.getCountryById(str.charAt(index));
-		index++;
-		
-		attackTarget = map.getCountryById(str.charAt(index));
-		index++;
-		
-		attackers = (int) str.charAt(index);
-		index++;
-		defenders = (int) str.charAt(index);
-		index++;
-		
-		attackerDiceResults = Risk.deserializeIntArray(str.substring(index, index + 8 * attackers));
-		index += 8 * attackers;
-		
-		defenderDiceResults = Risk.deserializeIntArray(str.substring(index, index + 8 * defenders));
-		index += 8 * defenders;
-		
-		attackerDiceTimers = Risk.deserializeIntArray(str.substring(index, index + 8 * attackers));
-		index += 8 * attackers;
-		
-		defenderDiceTimers = Risk.deserializeIntArray(str.substring(index, index + 8 * defenders));
-		index += 8 * defenders;
-		
+		try {
+			GameData data = GameData.parseFrom(str.getBytes());
+			mode = data.getMode();
+			setupMode = data.getSetupMode();
+			gameMode = data.getGameMode();
+			
+			playerTypes = new int[data.getPlayerTypesCount()];
+			for(int i = 0; i < playerTypes.length; i++){
+				playerTypes[i] = data.getPlayerTypes(i);
+			}
+			numPlayers = data.getNumPlayers();
+			numAI = data.getNumAI();
+			turn = data.getTurn();
+			
+			armies = new ArrayList<Army>();
+			for(int i = 0; i < data.getArmiesCount(); i++){
+				Gamedata.Army armyData = data.getArmiesList().get(i);
+				Army a = new Army(armyData.getType(), this, playerTypes[i]);
+				a.setFreeUnits(armyData.getFreeunits());
+				for(int j = 0; j < armyData.getUnitsCount(); j++){
+					Gamedata.Unit unitData = armyData.getUnitsList().get(j);
+					
+					Unit u = new Unit();
+				}
+			}
+		} catch (InvalidProtocolBufferException e) {
+		}
 		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x11);
 	}
 	
