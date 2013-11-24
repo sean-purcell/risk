@@ -2174,6 +2174,20 @@ public final class Gamedata {
      */
     Gamedata.UnitOrBuilder getUnitsOrBuilder(
         int index);
+
+    // repeated int32 cards = 4;
+    /**
+     * <code>repeated int32 cards = 4;</code>
+     */
+    java.util.List<java.lang.Integer> getCardsList();
+    /**
+     * <code>repeated int32 cards = 4;</code>
+     */
+    int getCardsCount();
+    /**
+     * <code>repeated int32 cards = 4;</code>
+     */
+    int getCards(int index);
   }
   /**
    * Protobuf type {@code Army}
@@ -2244,6 +2258,27 @@ public final class Gamedata {
               units_.add(input.readMessage(Gamedata.Unit.PARSER, extensionRegistry));
               break;
             }
+            case 32: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                cards_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              cards_.add(input.readInt32());
+              break;
+            }
+            case 34: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008) && input.getBytesUntilLimit() > 0) {
+                cards_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                cards_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -2254,6 +2289,9 @@ public final class Gamedata {
       } finally {
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           units_ = java.util.Collections.unmodifiableList(units_);
+        }
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          cards_ = java.util.Collections.unmodifiableList(cards_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2355,10 +2393,34 @@ public final class Gamedata {
       return units_.get(index);
     }
 
+    // repeated int32 cards = 4;
+    public static final int CARDS_FIELD_NUMBER = 4;
+    private java.util.List<java.lang.Integer> cards_;
+    /**
+     * <code>repeated int32 cards = 4;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getCardsList() {
+      return cards_;
+    }
+    /**
+     * <code>repeated int32 cards = 4;</code>
+     */
+    public int getCardsCount() {
+      return cards_.size();
+    }
+    /**
+     * <code>repeated int32 cards = 4;</code>
+     */
+    public int getCards(int index) {
+      return cards_.get(index);
+    }
+
     private void initFields() {
       type_ = 0;
       freeunits_ = 0;
       units_ = java.util.Collections.emptyList();
+      cards_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2381,6 +2443,9 @@ public final class Gamedata {
       for (int i = 0; i < units_.size(); i++) {
         output.writeMessage(3, units_.get(i));
       }
+      for (int i = 0; i < cards_.size(); i++) {
+        output.writeInt32(4, cards_.get(i));
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -2401,6 +2466,15 @@ public final class Gamedata {
       for (int i = 0; i < units_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, units_.get(i));
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < cards_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(cards_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getCardsList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2529,6 +2603,8 @@ public final class Gamedata {
         } else {
           unitsBuilder_.clear();
         }
+        cards_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -2574,6 +2650,11 @@ public final class Gamedata {
         } else {
           result.units_ = unitsBuilder_.build();
         }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          cards_ = java.util.Collections.unmodifiableList(cards_);
+          bitField0_ = (bitField0_ & ~0x00000008);
+        }
+        result.cards_ = cards_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2621,6 +2702,16 @@ public final class Gamedata {
               unitsBuilder_.addAllMessages(other.units_);
             }
           }
+        }
+        if (!other.cards_.isEmpty()) {
+          if (cards_.isEmpty()) {
+            cards_ = other.cards_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureCardsIsMutable();
+            cards_.addAll(other.cards_);
+          }
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2953,6 +3044,72 @@ public final class Gamedata {
           units_ = null;
         }
         return unitsBuilder_;
+      }
+
+      // repeated int32 cards = 4;
+      private java.util.List<java.lang.Integer> cards_ = java.util.Collections.emptyList();
+      private void ensureCardsIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          cards_ = new java.util.ArrayList<java.lang.Integer>(cards_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getCardsList() {
+        return java.util.Collections.unmodifiableList(cards_);
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public int getCardsCount() {
+        return cards_.size();
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public int getCards(int index) {
+        return cards_.get(index);
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public Builder setCards(
+          int index, int value) {
+        ensureCardsIsMutable();
+        cards_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public Builder addCards(int value) {
+        ensureCardsIsMutable();
+        cards_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public Builder addAllCards(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureCardsIsMutable();
+        super.addAll(values, cards_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 cards = 4;</code>
+       */
+      public Builder clearCards() {
+        cards_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:Army)
@@ -3476,9 +3633,9 @@ public final class Gamedata {
       "\021\n\tdefenders\030\014 \001(\005\022\033\n\023attackerDiceResult" +
       "s\030\r \003(\005\022\033\n\023defenderDiceResults\030\016 \003(\005\022\032\n\022" +
       "territoryConquered\030\017 \001(\010\022\021\n\tcardBonus\030\020 " +
-      "\001(\005\"=\n\004Army\022\014\n\004type\030\001 \001(\005\022\021\n\tfreeunits\030\002",
-      " \001(\005\022\024\n\005units\030\003 \003(\0132\005.Unit\"#\n\004Unit\022\013\n\003lo" +
-      "c\030\001 \001(\005\022\016\n\006troops\030\002 \001(\005"
+      "\001(\005\"L\n\004Army\022\014\n\004type\030\001 \001(\005\022\021\n\tfreeunits\030\002",
+      " \001(\005\022\024\n\005units\030\003 \003(\0132\005.Unit\022\r\n\005cards\030\004 \003(" +
+      "\005\"#\n\004Unit\022\013\n\003loc\030\001 \001(\005\022\016\n\006troops\030\002 \001(\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3496,7 +3653,7 @@ public final class Gamedata {
           internal_static_Army_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Army_descriptor,
-              new java.lang.String[] { "Type", "Freeunits", "Units", });
+              new java.lang.String[] { "Type", "Freeunits", "Units", "Cards", });
           internal_static_Unit_descriptor =
             getDescriptor().getMessageTypes().get(2);
           internal_static_Unit_fieldAccessorTable = new

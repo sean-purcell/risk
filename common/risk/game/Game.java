@@ -1853,6 +1853,10 @@ public class Game extends RiskThread{
 					unitData.setTroops(u.getTroops());
 					armyData.addUnits(unitData.build());
 				}
+				for(Card c : a.getCards()){
+					armyData.addCards(c.getType());
+				}
+				
 				data.addArmies(armyData.build());
 			}
 			
@@ -1917,6 +1921,11 @@ public class Game extends RiskThread{
 					Gamedata.Unit unitData = armyData.getUnitsList().get(j);
 					
 					this.addUnit(unitData.getTroops(),a,map.getCountryById(unitData.getLoc()));
+				}
+				for(int j = 0; j < armyData.getCardsCount(); j++){
+					int t = armyData.getCards(j);
+					Card c = new Card(t);
+					a.getCards().add(c);
 				}
 				armies.add(a);
 			}

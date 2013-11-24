@@ -26,6 +26,7 @@ message Army{
 	optional int32 type = 1;
 	optional int32 freeunits = 2;
 	repeated Unit units = 3;
+	repeated int32 cards = 4;
 }
 
 message Unit{
