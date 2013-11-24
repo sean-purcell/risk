@@ -558,9 +558,11 @@ public class Game extends RiskThread{
 		// Set the first army in the list to be the one designated to go first
 		Risk.rotateList(armies, offset);
 		playerTypes = Risk.rotateArray(playerTypes,offset, numPlayers);
-		playerNum -= first;
-		playerNum += numPlayers;
-		playerNum %= numPlayers;
+		if(playerNum != -1){
+			playerNum -= first;
+			playerNum += numPlayers;
+			playerNum %= numPlayers;
+		}
 		setupMode = 4;
 		turn = 0;
 
@@ -1166,13 +1168,25 @@ public class Game extends RiskThread{
 				mode = 1;
 				setupMode = -1;
 				gameType = 1;
-				startAcceptingClients();
+				startAcceptingClients(0);
 				break;
 			case 2:
 				mode = 1;
 				setupMode = -2;
 				gameType = 2;
-				promptIP();
+				promptIP(0);
+				break;
+			case 3:
+				mode = 1;
+				setupMode = -1;
+				gameType = 1;
+				startAcceptingClients(1);
+				break;
+			case 4:
+				mode = 1;
+				setupMode = -2;
+				gameType = 2;
+				promptIP(1);
 				break;
 			}
 		case 1:
@@ -1252,7 +1266,7 @@ public class Game extends RiskThread{
 		}
 	}
 
-	private void promptIP(){
+	private void promptIP(int type){
 		String ip = (String) JOptionPane.showInputDialog(
 				r,
 				"Enter the IP of the game you would like to connect to:",
@@ -1262,7 +1276,7 @@ public class Game extends RiskThread{
 				null,
 				null);
 		System.out.println(ip);
-		cl = Client.makeClient(this,ip);
+		cl = Client.makeClient(this,ip,type);
 		if(cl == null){
 			int choice = JOptionPane.showConfirmDialog(
 					r,
@@ -1281,12 +1295,16 @@ public class Game extends RiskThread{
 				System.exit(5);
 			}
 		}
+		if(type == 1){
+			playerNum = -1;
+		}
 		initSetupButtons();
 		cl.start();
 	}
 	
-	private void startAcceptingClients(){
+	private void startAcceptingClients(int type){
 		this.master = HostMaster.createHostMaster(this);
+		HostMaster spectators = HostMaster.createHostMaster(this);
 		if(master == null){
 			int choice = JOptionPane.showConfirmDialog(
 					r,
@@ -1306,8 +1324,9 @@ public class Game extends RiskThread{
 			}
 		}
 		master.start();
-		
-		numPlayers = 1;
+		spectators.start();
+		numPlayers = type == 0 ? 1 : 0;
+		playerNum = type == 0 ? 0 : -1;
 		playerTypes = new int[6];
 		initSetupButtons();
 	}
@@ -1923,13 +1942,15 @@ public class Game extends RiskThread{
 		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x11);
 	}
 	
-	public void serverAdded (HostServer hs, Socket client){
+	public void serverAdded (HostServer hs, Socket client, boolean type){
 		if(mode == 1 && gameType == 1){
 			if(setupMode == -1){
 				System.out.println(client.getInetAddress() + " connected");
-				String message = "" + (char) 4 + (char) 0 + (char) numPlayers;
-				hs.writeMessage(message);
-				playerAdded(2);
+				if(!type){
+					String message = "" + (char) 4 + (char) 0 + (char) numPlayers;
+					hs.writeMessage(message);
+					playerAdded(2);
+				}
 			}
 		}
 	}
