@@ -26,7 +26,11 @@ public class Card {
 	private int type;
 
 	public Card() {
-		type = Risk.r.nextInt(3);
+		this(Risk.r.nextInt(3));
+	}
+
+	public Card(int t) {
+		this.type = t;
 	}
 
 	public void draw(Graphics2D g, int index) {
