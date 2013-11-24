@@ -24,7 +24,6 @@ import risk.Risk;
 import risk.inet.Client;
 import risk.inet.HostMaster;
 import risk.inet.HostServer;
-import risk.inet.MessageQueuer;
 import risk.inet.proto.Gamedata;
 import risk.inet.proto.Gamedata.GameData;
 import risk.lib.Button;
