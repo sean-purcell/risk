@@ -243,6 +243,7 @@ public class Game extends RiskThread{
 					exceptionCounter++;
 					if(exceptionCounter >= 20 && gameType == 2){
 						cl.requestResync();
+						exceptionCounter = 0;
 					}
 				} finally {
 					// Release lock now that we're done with it
