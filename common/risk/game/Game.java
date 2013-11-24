@@ -1504,7 +1504,7 @@ public class Game extends RiskThread{
 	}
 
 	private List<Button> createMenuButtons(RiskCanvas riskCanvas) {
-		String[] buttonStrings = { "New Game","Host Game","Join Game"};
+		String[] buttonStrings = { "New Game","Host Game","Join Game","Host Game as Spectator","Spectate Game"};
 		List<Button> buttons = new ArrayList<Button>();
 
 		BufferedImage base = new BufferedImage(200, 100,
@@ -1532,13 +1532,39 @@ public class Game extends RiskThread{
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-			g.setFont(riskCanvas.army.deriveFont(40f));
+			g.setFont(riskCanvas.army.deriveFont(38f));
 			g.setColor(Color.BLACK);
 			FontMetrics fm = g.getFontMetrics();
 
 			int x = 100 - fm.stringWidth(s) / 2;
 
-			drawString(g, s, 40, x, 50 + fm.getHeight() / 2, Color.BLACK);
+			if(x < 5){
+				String first = null, second = null;
+				int count = 0;
+				for(int i = 0; i < s.length(); i++){
+					if(s.charAt(i) == ' '){
+						count++;
+					}
+				}
+				int num = (int) Math.ceil(count / 2.0);
+				int sInd = 0;
+				for(int i = 0; i < s.length(); i++){
+					if(s.charAt(i) == ' '){
+						sInd++;
+						if(sInd == num){
+							first = s.substring(0,i);
+							second = (s.substring(i + 1));
+							break;
+						}
+					}
+				}
+				int x1 = 100-fm.stringWidth(first) / 2;
+				int x2 = 100-fm.stringWidth(second) / 2;
+				drawString(g, first, 38, x1, 50, Color.BLACK);
+				drawString(g, second, 38, x2, 50 + fm.getHeight(), Color.BLACK);
+			}else{
+				drawString(g, s, 38, x, 50 + fm.getHeight() / 2, Color.BLACK);
+			}
 
 			Button b = new Button(640
 					- ((buttonStrings.length - 1) * 205 + 200) / 2 + 205
