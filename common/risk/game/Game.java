@@ -25,6 +25,7 @@ import risk.inet.HostMaster;
 import risk.inet.HostServer;
 import risk.inet.proto.Gamedata;
 import risk.inet.proto.Gamedata.GameData;
+import risk.lib.B64;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
@@ -1906,7 +1907,7 @@ public class Game extends RiskThread{
 			
 			data.setTerritoryConquered(territoryConquered);
 			data.setCardBonus(cardBonus);
-			return new String(data.build().toByteArray(), Charset.forName("ISO-8859-1"));
+			return B64.toB64(data.build().toByteArray());
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1922,7 +1923,7 @@ public class Game extends RiskThread{
 	private void deserializeGameData(String str){
 		try {
 			System.out.println("deserializing game data");
-			GameData data = GameData.parseFrom(str.getBytes(Charset.forName("ISO-8859-1")));
+			GameData data = GameData.parseFrom(B64.fromB64(str));
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
 			gameMode = data.getGameMode();
