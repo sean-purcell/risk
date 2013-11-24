@@ -10,6 +10,7 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,8 +18,6 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.swing.JOptionPane;
-
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import risk.Risk;
 import risk.inet.Client;
@@ -33,6 +32,8 @@ import risk.lib.Input;
 import risk.lib.RiskCanvas;
 import risk.lib.RiskThread;
 import risk.lib.ThreadLocks;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * Represents the main game logic and loops
@@ -684,8 +685,13 @@ public class Game extends RiskThread{
 			}
 			drawButtons(g);
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.err.println("Frame not completed due to error");
+			exceptionCounter++;
+			if(exceptionCounter >= 20 && gameType == 2){
+				cl.requestResync();
+				exceptionCounter = 0;
+			}
 		}
 	}
 
@@ -1915,7 +1921,7 @@ public class Game extends RiskThread{
 	private void deserializeGameData(String str){
 		try {
 			System.out.println("deserializing game data");
-			GameData data = GameData.parseFrom(str.getBytes());
+			GameData data = GameData.parseFrom(str.getBytes(Charset.forName("ISO-8859-1")));
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
 			gameMode = data.getGameMode();
@@ -1959,6 +1965,8 @@ public class Game extends RiskThread{
 			territoryConquered = data.getTerritoryConquered();
 			cardBonus = data.getCardBonus();
 		} catch (InvalidProtocolBufferException e) {
+			e.printStackTrace();
+			int i = 0;
 		}
 	}
 	
