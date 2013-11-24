@@ -1809,8 +1809,10 @@ public class Game extends RiskThread{
 	}
 	
 	public void resyncRequested(HostServer h){
+		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
 		String message = (char) 0x20 + serializeGameData();
 		h.writeMessage(message);
+		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x10);
 	}
 	
 	/*
@@ -1827,10 +1829,12 @@ public class Game extends RiskThread{
 	 * attackers*8=attackerDiceTimers
 	 * defenders*8=defenderDiceTimers
 	 */
-	
+	/**
+	 * NOTE:  GAME_STATE lock MUST be owned before calling this method
+	 * @return
+	 */
 	private String serializeGameData(){
 		try{
-			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
 			GameData.Builder data = GameData.newBuilder();
 			data.setMode(mode);
 			data.setSetupMode(setupMode);
@@ -1887,24 +1891,22 @@ public class Game extends RiskThread{
 			e.printStackTrace();
 			System.err.println("Could not serialize game data.");
 		}
-		finally{
-			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x10);
-		}
 		return "";
 	}
 	
+	/**
+	 * NOTE:  GAME_STATE lock MUST be owned before calling this method
+	 * @param str
+	 */
 	private void deserializeGameData(String str){
-		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
 		try {
 			GameData data = GameData.parseFrom(str.getBytes());
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
 			gameMode = data.getGameMode();
 			
-			playerTypes = new int[data.getPlayerTypesCount()];
-			for(int i = 0; i < playerTypes.length; i++){
-				playerTypes[i] = data.getPlayerTypes(i);
-			}
+			playerTypes = listToArray(data.getPlayerTypesList());
+			
 			numPlayers = data.getNumPlayers();
 			numAI = data.getNumAI();
 			turn = data.getTurn();
@@ -1917,12 +1919,43 @@ public class Game extends RiskThread{
 				for(int j = 0; j < armyData.getUnitsCount(); j++){
 					Gamedata.Unit unitData = armyData.getUnitsList().get(j);
 					
-					Unit u = new Unit();
+					this.addUnit(unitData.getTroops(),a,map.getCountryById(unitData.getLoc()));
 				}
+				armies.add(a);
 			}
+			
+			selectedCountry = map.getCountryById(data.getSelectedCountry());
+			attackTarget = map.getCountryById(data.getAttackTarget());
+			
+			attackers = data.getAttackers();
+			defenders = data.getDefenders();
+			
+			attackerDiceResults = listToArray(data.getAttackerDiceResultsList());
+			defenderDiceResults = listToArray(data.getDefenderDiceResultsList());
+			
+			attackerDiceTimers = newFilledArray(attackers, 1000);
+			defenderDiceTimers = newFilledArray(defenders, 1000);
+			
+			territoryConquered = data.getTerritoryConquered();
+			cardBonus = data.getCardBonus();
 		} catch (InvalidProtocolBufferException e) {
 		}
-		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x11);
+	}
+	
+	private int[] listToArray(List<Integer> l){
+		int[] a = new int[l.size()];
+		for(int i = 0; i < playerTypes.length; i++){
+			a[i] = l.get(i);
+		}
+		return a;
+	}
+	
+	private int[] newFilledArray(int num, int sval){
+		int[] a = new int[num];
+		for(int i = 0; i < num; i++){
+			a[i] = sval;
+		}
+		return a;
 	}
 	
 	public void serverAdded (HostServer hs, Socket client){
