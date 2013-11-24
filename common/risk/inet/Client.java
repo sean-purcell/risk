@@ -39,6 +39,7 @@ public class Client extends SocketHandler{
 	}
 	
 	public void requestResync(){
+		System.out.println("Resync requested");
 		String message = "resync";
 		writeMessage(message);
 	}
