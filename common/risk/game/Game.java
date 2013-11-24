@@ -2124,4 +2124,8 @@ public class Game extends RiskThread{
 	public int getGameType() {
 		return gameType;
 	}
+
+	public Client getCl() {
+		return cl;
+	}
 }

@@ -157,6 +157,13 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 		} else if (e.getKeyChar() == 'a') {
 			String message = "" + (char) 0x10 + (char) 2;
 			g.message(message, -1);
+		} else if (e.getKeyChar() == 'r'){
+			try{
+				g.getCl().requestResync();
+			}
+			catch(NullPointerException npe){
+				
+			}
 		}
 
 	}
