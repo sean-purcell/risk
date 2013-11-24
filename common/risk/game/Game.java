@@ -19,14 +19,13 @@ import java.util.Queue;
 
 import javax.swing.JOptionPane;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-
 import risk.Risk;
 import risk.inet.Client;
 import risk.inet.HostMaster;
 import risk.inet.HostServer;
 import risk.inet.proto.Gamedata;
 import risk.inet.proto.Gamedata.GameData;
+import risk.lib.B64;
 import risk.lib.Button;
 import risk.lib.DiceTexture;
 import risk.lib.Drawable;
@@ -34,6 +33,8 @@ import risk.lib.Input;
 import risk.lib.RiskCanvas;
 import risk.lib.RiskThread;
 import risk.lib.ThreadLocks;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * Represents the main game logic and loops
@@ -687,8 +688,13 @@ public class Game extends RiskThread{
 			}
 			drawButtons(g);
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.err.println("Frame not completed due to error");
+			exceptionCounter++;
+			if(exceptionCounter >= 20 && gameType == 2){
+				cl.requestResync();
+				exceptionCounter = 0;
+			}
 		}
 	}
 
@@ -1946,7 +1952,7 @@ public class Game extends RiskThread{
 			
 			data.setTerritoryConquered(territoryConquered);
 			data.setCardBonus(cardBonus);
-			return new String(data.build().toByteArray(), Charset.forName("ISO-8859-1"));
+			return B64.toB64(data.build().toByteArray());
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1962,7 +1968,7 @@ public class Game extends RiskThread{
 	private void deserializeGameData(String str){
 		try {
 			System.out.println("deserializing game data");
-			GameData data = GameData.parseFrom(str.getBytes());
+			GameData data = GameData.parseFrom(B64.fromB64(str));
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
 			gameMode = data.getGameMode();
