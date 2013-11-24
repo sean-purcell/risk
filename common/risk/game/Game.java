@@ -1923,6 +1923,7 @@ public class Game extends RiskThread{
 	private void deserializeGameData(String str){
 		try {
 			System.out.println("deserializing game data");
+			System.out.println(str);
 			GameData data = GameData.parseFrom(B64.fromB64(str));
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
@@ -1974,7 +1975,7 @@ public class Game extends RiskThread{
 	
 	private int[] listToArray(List<Integer> l){
 		int[] a = new int[l.size()];
-		for(int i = 0; i < playerTypes.length; i++){
+		for(int i = 0; i < a.length; i++){
 			a[i] = l.get(i);
 		}
 		return a;

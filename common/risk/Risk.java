@@ -70,7 +70,12 @@ public class Risk {
 			public void run(){
 				System.out.println("Running gc and stopping threads");
 				for(RiskThread t : threadPool){
-					t.halt();
+					try{
+						t.halt();
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
 				}
 				System.gc();
 			}
