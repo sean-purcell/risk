@@ -250,19 +250,6 @@ public class Risk {
 		}
 	}
 	
-	public static String read(BufferedReader i){
-		StringBuffer s = new StringBuffer();
-		try{
-			int a = 0;
-			while((a = i.read()) != '|' && a != -1){
-				s.append((char) a);
-			}
-		}
-		catch(IOException e){
-		}
-		return s.toString();
-	}
-	
 	public static void showMessage(String message){
 		System.out.println(message);
 		for(int i = 0; i < message.length(); i++){

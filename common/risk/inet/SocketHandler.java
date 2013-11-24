@@ -36,13 +36,13 @@ public abstract class SocketHandler extends RiskThread{
 			while(running()){
 				if(!buffer.isEmpty()){
 					String message = buffer.remove(0);
-					out.write(message + '|');
+					out.write(to2Byte(message.length()) + message);
 					out.flush();
 					//Risk.showMessage(message);
 					System.out.println("Message written");
 				}
 				if(in.ready()){
-					String message = Risk.read(in);
+					String message = read(in);
 					if("!!!!!!!!".equals(message)){
 						System.err.println("Connected client has stopped, EXIT NOW");
 						System.exit(-10);
@@ -87,7 +87,7 @@ public abstract class SocketHandler extends RiskThread{
 	
 	protected void finalize(){
 		System.out.println("Sending shutdown message");
-		out.write("!!!!!!!!");
+		out.write("" + (char) 0 + (char) 8 + "!!!!!!!!");
 		out.flush();
 		out.close();
 		try {
@@ -96,5 +96,29 @@ public abstract class SocketHandler extends RiskThread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static String read(BufferedReader i){
+		try{
+			int size = (i.read() << 8) | i.read();
+			System.out.println(size);
+			char[] buf = new char[size];
+
+			i.read(buf);
+			return new String(buf);
+		}
+		catch(IOException e){
+		}
+		return null;
+	}
+	
+	private String to2Byte(int i){
+		if(i >= 65536){
+			System.out.println("Attemping to print message longer than 65536 bytes");
+		}
+		byte[] bytes = new byte[2];
+		bytes[0] = (byte) ((i & 0xFF00) >> 8);
+		bytes[1] = (byte) (i & 0xFF);
+		return new String(bytes);
 	}
 }
