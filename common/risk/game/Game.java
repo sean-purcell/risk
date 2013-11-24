@@ -1827,6 +1827,7 @@ public class Game extends RiskThread{
 	public void resyncRequested(HostServer h){
 		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
 		String message = (char) 0x20 + serializeGameData();
+		Risk.showMessage(message);
 		h.writeMessage(message);
 		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x10);
 	}
@@ -1905,7 +1906,7 @@ public class Game extends RiskThread{
 			
 			data.setTerritoryConquered(territoryConquered);
 			data.setCardBonus(cardBonus);
-			return data.toString();
+			return new String(data.build().toByteArray(), Charset.forName("ISO-8859-1"));
 		}
 		catch(Exception e){
 			e.printStackTrace();
