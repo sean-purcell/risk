@@ -57,8 +57,6 @@ public class Game extends RiskThread{
 	private HostMaster master;
 	private Client cl;
 	
-	private MessageQueuer mq;
-	
 	private int playerNum;
 	
 	/**
@@ -1689,9 +1687,7 @@ public class Game extends RiskThread{
 			}
 			
 		} catch (Exception e) {
-			if(gameMode == 4){
-				mq.addMessage(message);
-			}else if(source != -2 || DEBUG){
+			if(source != -2 || DEBUG){
 				e.printStackTrace();
 			}
 		} finally {
