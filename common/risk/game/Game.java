@@ -1282,8 +1282,7 @@ public class Game extends RiskThread{
 				System.exit(5);
 			}
 		}
-		initSetupButtons();	
-		mq = new MessageQueuer(this);
+		initSetupButtons();
 		cl.start();
 	}
 	
