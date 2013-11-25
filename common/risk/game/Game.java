@@ -1875,8 +1875,9 @@ public class Game extends RiskThread{
 		try {
 			byte[] out = serializeGameData();
 			byte[] len = new byte[2];
-			len[0] = (byte) (out.length >>> 8);
-			len[1] = (byte) (out.length & 0xFF);
+			int length = out.length;
+			len[0] = (byte) (length >>> 8);
+			len[1] = (byte) (length & 0xFF);
 			o.write(len);
 			o.write(0x20);
 			o.write(serializeGameData());
