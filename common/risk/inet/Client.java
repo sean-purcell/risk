@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import risk.game.Game;
+import risk.lib.ThreadLocks;
 
 public class Client extends SocketHandler{
 	public static Client makeClient(Game g, String ip){
@@ -42,5 +43,20 @@ public class Client extends SocketHandler{
 		System.out.println("Resync requested");
 		String message = "resync";
 		writeMessage(message);
+	}
+	
+	protected byte[] read(){
+		byte[] buf = super.read();
+		if(buf[0] == 0x20){
+			byte[] res = new byte[buf.length];
+			for(int i = 1; i < buf.length; i++){
+				res[i-1] = buf[i];
+			}
+			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
+			g.get().deserializeGameData(res);
+			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
+			return new byte[]{0};
+		}
+		return buf;
 	}
 }

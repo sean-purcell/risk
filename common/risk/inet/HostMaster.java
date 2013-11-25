@@ -1,6 +1,7 @@
 package risk.inet;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -80,8 +81,8 @@ public class HostMaster extends RiskThread{
 		}
 	}
 	
-	protected void resyncRequested(HostServer hs){
-		g.get().resyncRequested(hs);
+	protected void resyncRequested(HostServer hs, OutputStream o){
+		g.get().resyncRequested(hs,o);
 	}
 	
 	boolean running(){

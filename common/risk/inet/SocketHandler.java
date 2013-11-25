@@ -3,7 +3,6 @@ package risk.inet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -17,12 +16,12 @@ import risk.lib.RiskThread;
 
 public abstract class SocketHandler extends RiskThread{
 
-	private Socket sock;
+	Socket sock;
 
 	private List<String> buffer;
 
-	private OutputStream o;
-	private InputStream i;
+	OutputStream o;
+	InputStream i;
 	
 	private PrintWriter out;
 	private BufferedReader in;
@@ -48,7 +47,7 @@ public abstract class SocketHandler extends RiskThread{
 					System.out.println("Message written");
 				}
 				if(i.available() > 0){
-					String message = read();
+					String message = new String(read(), Charset.forName("UTF-8"));
 					if("!!!!!!!!".equals(message)){
 						System.err.println("Connected client has stopped, EXIT NOW");
 						System.exit(-10);
@@ -104,7 +103,7 @@ public abstract class SocketHandler extends RiskThread{
 		}
 	}
 	
-	public String read(){
+	public byte[] read(){
 		try{
 			int size = (i.read() << 8) | i.read();
 			if(size > 10)
@@ -112,15 +111,19 @@ public abstract class SocketHandler extends RiskThread{
 			byte[] buf = new byte[size];
 
 			i.read(buf);
-			return new String(buf, Charset.forName("UTF-8"));
+			return buf;
 		}
 		catch(IOException e){
 		}
 		return null;
 	}
 	
-	private void write(String str){
+	public synchronized void write(String str){
 		byte[] out = str.getBytes(Charset.forName("UTF-8"));
+		write(out);
+	}
+	
+	public synchronized void write(byte[] out){
 		byte[] len = new byte[2];
 		int length = out.length;
 		
