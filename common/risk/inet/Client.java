@@ -45,7 +45,7 @@ public class Client extends SocketHandler{
 		writeMessage(message);
 	}
 	
-	protected byte[] read(){
+	public byte[] read(){
 		byte[] buf = super.read();
 		if(buf[0] == 0x20){
 			byte[] res = new byte[buf.length];

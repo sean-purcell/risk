@@ -1705,7 +1705,6 @@ public class Game extends RiskThread{
 					parseCheatMessage(message.substring(1), source);
 					break;
 				case 0x20:
-					deserializeGameData(message.substring(1));
 					break;
 				}
 			}
