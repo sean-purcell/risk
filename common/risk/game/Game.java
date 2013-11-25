@@ -244,7 +244,7 @@ public class Game extends RiskThread{
 				} catch (Exception e) {
 					e.printStackTrace();
 					exceptionCounter++;
-					if(exceptionCounter >= 20 && gameType == 2){
+					if(exceptionCounter >= 5 && gameType == 2){
 						cl.requestResync();
 						exceptionCounter = 0;
 					}
@@ -692,7 +692,7 @@ public class Game extends RiskThread{
 			//e.printStackTrace();
 			System.out.println("Frame not completed due to error");
 			exceptionCounter++;
-			if(exceptionCounter >= 20 && gameType == 2){
+			if(exceptionCounter >= 5 && gameType == 2){
 				cl.requestResync();
 				exceptionCounter = 0;
 			}
