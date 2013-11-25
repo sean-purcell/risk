@@ -9,8 +9,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -689,7 +690,7 @@ public class Game extends RiskThread{
 			drawButtons(g);
 		} catch (RuntimeException e) {
 			//e.printStackTrace();
-			System.err.println("Frame not completed due to error");
+			System.out.println("Frame not completed due to error");
 			exceptionCounter++;
 			if(exceptionCounter >= 20 && gameType == 2){
 				cl.requestResync();
@@ -870,7 +871,7 @@ public class Game extends RiskThread{
 
 	private void drawAttackTarget(Graphics2D g) {
 		if (attackTarget == null) {
-			System.err
+			System.out
 					.println("drawAttackTarget called with no attack target.");
 			return;
 		}
@@ -1870,11 +1871,20 @@ public class Game extends RiskThread{
 		}
 	}
 	
-	public void resyncRequested(HostServer h){
+	public void resyncRequested(HostServer h, OutputStream o){
 		ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x10);
-		String message = (char) 0x20 + serializeGameData();
-		Risk.showMessage(message);
-		h.writeMessage(message);
+		try {
+			byte[] out = serializeGameData();
+			byte[] len = new byte[2];
+			len[0] = (byte) (out.length >>> 8);
+			len[1] = (byte) (out.length & 0xFF);
+			o.write(len);
+			o.write(0x20);
+			o.write(serializeGameData());
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 		ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x10);
 	}
 	
@@ -1896,7 +1906,7 @@ public class Game extends RiskThread{
 	 * NOTE:  GAME_STATE lock MUST be owned before calling this method
 	 * @return
 	 */
-	private String serializeGameData(){
+	private byte[] serializeGameData(){
 		try{
 			GameData.Builder data = GameData.newBuilder();
 			data.setMode(mode);
@@ -1952,24 +1962,26 @@ public class Game extends RiskThread{
 			
 			data.setTerritoryConquered(territoryConquered);
 			data.setCardBonus(cardBonus);
-			return B64.toB64(data.build().toByteArray());
+			GameData gd = data.build();
+			Risk.out.println(gd.toString());
+			return gd.toByteArray();
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			System.err.println("Could not serialize game data.");
 		}
-		return "";
+		return new byte[]{};
 	}
 	
 	/**
 	 * NOTE:  GAME_STATE lock MUST be owned before calling this method
 	 * @param str
 	 */
-	private void deserializeGameData(String str){
+	public void deserializeGameData(byte[] bytes){
 		try {
 			System.out.println("deserializing game data");
-			System.out.println(str);
-			GameData data = GameData.parseFrom(B64.fromB64(str));
+			System.out.println(new String(bytes));
+			GameData data = GameData.parseFrom(bytes);
 			mode = data.getMode();
 			setupMode = data.getSetupMode();
 			gameMode = data.getGameMode();

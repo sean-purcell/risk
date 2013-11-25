@@ -13,7 +13,7 @@ public class HostServer extends SocketHandler{
 	
 	protected void useMessage(String message){
 		if(message.equals("resync")){
-			h.resyncRequested(this);
+			h.resyncRequested(this, o);
 		}else{
 			h.message(message, this);
 		}

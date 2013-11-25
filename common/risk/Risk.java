@@ -38,7 +38,7 @@ import risk.lib.ThreadLocks;
 public class Risk {
 
 	public static final boolean DEBUG = false;
-	public static final boolean OUTPUT = true;
+	public static final boolean OUTPUT = false;
 	public static final boolean DRAW_WHILE_INACTIVE = true;
 
 	private static List<RiskThread> threadPool; 
@@ -58,14 +58,16 @@ public class Risk {
 	 */
 	public static Random r;
 
+	public static PrintStream out;
+	
 	public static void main(String[] args) {
+		out = System.out;
 		if(!OUTPUT){
 			System.setOut(new PrintStream(new OutputStream(){
 				public void write(int b){}
 				public void write(byte[] a,int i,int j){}
 			}));
 		}
-		
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				System.out.println("Running gc and stopping threads");

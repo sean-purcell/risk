@@ -2,9 +2,11 @@ package risk.inet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +16,13 @@ import risk.lib.RiskThread;
 
 public abstract class SocketHandler extends RiskThread{
 
-	private Socket sock;
+	Socket sock;
 
 	private List<String> buffer;
 
+	OutputStream o;
+	InputStream i;
+	
 	private PrintWriter out;
 	private BufferedReader in;
 	
@@ -31,18 +36,18 @@ public abstract class SocketHandler extends RiskThread{
 	@Override
 	public void run(){
 		try{
-			out = new PrintWriter(sock.getOutputStream(),true);
-			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			o = sock.getOutputStream();
+			i = sock.getInputStream();
 			while(running()){
 				if(!buffer.isEmpty()){
 					String message = buffer.remove(0);
-					out.write(to2Byte(message.length()) + message);
-					out.flush();
+					write(message);
+					o.flush();
 					//Risk.showMessage(message);
 					System.out.println("Message written");
 				}
-				if(in.ready()){
-					String message = read(in);
+				if(i.available() > 0){
+					String message = new String(read(), Charset.forName("UTF-8"));
 					if("!!!!!!!!".equals(message)){
 						System.err.println("Connected client has stopped, EXIT NOW");
 						System.exit(-10);
@@ -98,27 +103,39 @@ public abstract class SocketHandler extends RiskThread{
 		}
 	}
 	
-	public static String read(BufferedReader i){
+	public byte[] read(){
 		try{
 			int size = (i.read() << 8) | i.read();
-			System.out.println(size);
-			char[] buf = new char[size];
+			if(size > 10)
+			Risk.out.println("Read Length: " + size);
+			byte[] buf = new byte[size];
 
 			i.read(buf);
-			return new String(buf);
+			return buf;
 		}
 		catch(IOException e){
 		}
 		return null;
 	}
 	
-	private String to2Byte(int i){
-		if(i >= 65536){
-			System.out.println("Attemping to print message longer than 65536 bytes");
+	public synchronized void write(String str){
+		byte[] out = str.getBytes(Charset.forName("UTF-8"));
+		write(out);
+	}
+	
+	public synchronized void write(byte[] out){
+		byte[] len = new byte[2];
+		int length = out.length;
+		
+		Risk.out.println("Message Length: " + Integer.toString(length));
+		
+		len[0] = (byte) ((length & 0xFF00) >>> 8);
+		len[1] = (byte) (length & 0x00FF);
+		try {
+			o.write(len);
+			o.write(out);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		byte[] bytes = new byte[2];
-		bytes[0] = (byte) ((i & 0xFF00) >> 8);
-		bytes[1] = (byte) (i & 0xFF);
-		return new String(bytes);
 	}
 }
