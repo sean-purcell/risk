@@ -2,6 +2,7 @@ package risk.inet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -36,7 +37,8 @@ public abstract class SocketHandler extends RiskThread{
 			while(running()){
 				if(!buffer.isEmpty()){
 					String message = buffer.remove(0);
-					out.write(to2Byte(message.length()) + message);
+					writeLength(message);
+					out.write(message);
 					out.flush();
 					//Risk.showMessage(message);
 					System.out.println("Message written");
@@ -98,10 +100,11 @@ public abstract class SocketHandler extends RiskThread{
 		}
 	}
 	
-	public static String read(BufferedReader i){
+	public static String read(BufferedReader i, InputStream in){
 		try{
-			int size = (i.read() << 8) | i.read();
-			System.out.println(size);
+			int size = (in.read() << 8) | in.read();
+			if(size > 10)
+			Risk.out.println("Read Length: " + size);
 			char[] buf = new char[size];
 
 			i.read(buf);
@@ -112,13 +115,27 @@ public abstract class SocketHandler extends RiskThread{
 		return null;
 	}
 	
-	private String to2Byte(int i){
+	private void write(String str){
+		byte[] out = str.getBytes();
+		byte[] len = new byte[2];
+		int length = out.length;
+		len
+	}
+	
+	private void writeLength(String str){
+		int i = str.length();
 		if(i >= 65536){
 			System.out.println("Attemping to print message longer than 65536 bytes");
 		}
+		if(i > 10)
+		Risk.out.println("Message Length: " + Integer.toBinaryString(i));
 		byte[] bytes = new byte[2];
-		bytes[0] = (byte) ((i & 0xFF00) >> 8);
-		bytes[1] = (byte) (i & 0xFF);
-		return new String(bytes);
+		bytes[0] = (byte) ((i & 0xFF00) >>> 8);
+		bytes[1] = (byte) (i & 0x00FF);
+		try {
+			sock.getOutputStream().write(bytes);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

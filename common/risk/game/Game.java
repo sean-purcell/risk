@@ -687,7 +687,7 @@ public class Game extends RiskThread{
 			drawButtons(g);
 		} catch (RuntimeException e) {
 			//e.printStackTrace();
-			System.err.println("Frame not completed due to error");
+			System.out.println("Frame not completed due to error");
 			exceptionCounter++;
 			if(exceptionCounter >= 20 && gameType == 2){
 				cl.requestResync();
@@ -868,7 +868,7 @@ public class Game extends RiskThread{
 
 	private void drawAttackTarget(Graphics2D g) {
 		if (attackTarget == null) {
-			System.err
+			System.out
 					.println("drawAttackTarget called with no attack target.");
 			return;
 		}
@@ -1907,7 +1907,9 @@ public class Game extends RiskThread{
 			
 			data.setTerritoryConquered(territoryConquered);
 			data.setCardBonus(cardBonus);
-			return B64.toB64(data.build().toByteArray());
+			GameData gd = data.build();
+			Risk.out.println(gd.toString());
+			return B64.toB64(gd.toByteArray());
 		}
 		catch(Exception e){
 			e.printStackTrace();
