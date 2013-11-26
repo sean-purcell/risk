@@ -9,10 +9,10 @@ import risk.game.Game;
 import risk.lib.ThreadLocks;
 
 public class Client extends SocketHandler{
-	public static Client makeClient(Game g, String ip){
+	public static Client makeClient(Game g, String ip, int type){
 		Socket server = null;
 		try {
-			server = new Socket(ip, 4913);
+			server = new Socket(ip, 4913 + type);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.out.println("Server not found");

@@ -6,6 +6,7 @@ import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import risk.game.Game;
@@ -23,7 +24,7 @@ public class HostMaster extends RiskThread{
 		}
 	}
 	
-	List<HostServer> servers;
+	static List<HostServer> servers;
 	
 	private boolean acceptingPlayers;
 	
@@ -32,26 +33,34 @@ public class HostMaster extends RiskThread{
 	private WeakReference<Game> g;
 	
 	private ServerSocket server;
+	private ServerSocket spectators;
+	
+	private static boolean second;
+	private boolean type;
+	private static int index;
 	
 	public HostMaster(Game g) throws IOException{
 		super("Server Master");
-		servers = new ArrayList<HostServer>();
+		servers = Collections.synchronizedList(new ArrayList<HostServer>());
 		this.acceptingPlayersLock = new Object();
 		this.g = new WeakReference<Game>(g);
-		
-		this.server = new ServerSocket(4913);
+		type = second;
+		second = true;
+		if(!type)
+			this.server = new ServerSocket(4913);
+		else
+			this.spectators = new ServerSocket(4914);
 	}
 	
 	public void run(){
-		int index = 0;
 		setAcceptingPlayers(true);
 		while(getAcceptingPlayers()){
 			try {
-				Socket client = server.accept();
+				Socket client = (type ? spectators : server).accept();
 				HostServer serv = new HostServer(client,this,index); index++;
 				serv.start();
 				servers.add(serv);
-				g.get().serverAdded(serv,client);
+				g.get().serverAdded(serv,client,type);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Could not accept client.");
