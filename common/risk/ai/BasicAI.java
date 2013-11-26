@@ -130,7 +130,7 @@ public class BasicAI extends AI {
 					}
 				}
 				sleepTime(500);
-				while(u.getTroops() > 1 && target.getUnit().getArmy() != a.get()){
+				while(u.getTroops() > 1 && target.getUnit().getArmy() != a.get() && g.getGameMode() >= 3){
 					String message = "" + (char) 1 + (char) 6;
 					while(g.getGameMode() == 4){
 						sleepTime(250);
