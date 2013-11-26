@@ -138,4 +138,8 @@ public abstract class SocketHandler extends RiskThread{
 			e.printStackTrace();
 		}
 	}
+	
+	public OutputStream getOutputStream(){
+		return o;
+	}
 }

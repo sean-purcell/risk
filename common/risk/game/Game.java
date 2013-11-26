@@ -1666,49 +1666,40 @@ public class Game extends RiskThread{
 		System.out.println("Message received from " + source);
 		try {
 			Risk.showMessage(message);
-
 			
-			//If there are any exceptions here for some reason we probably don't want to send the message
-			if(source < 5 && propogateMessage()){ //If this is not true it was just sent over socket.  We dont want to resend it.
-				switch(gameType){
-				case 1:
-					master.message(message, null);
-					break;
-				case 2:
-					cl.writeMessage(message);
-					break;
+			if(gameType == 2){
+				cl.writeMessage(message);
+			}else{
+				if(source != -5){ //source of -5 indicates that this should not interpret it
+					
+					// Request the GAME_STATE lock to avoid concurrency issues
+					ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
+							+ INPUT_ID_OFFSET);
+					
+					int t = message.charAt(0);
+					switch (t) {
+					// hexadecimal used because it seemed fitting
+					case 0x1:
+						parseButtonMessage(message.substring(1), source);
+						break;
+					case 0x2:
+						parseCountryMessage(message.substring(1), source);
+						break;
+					case 0x3:
+						nullClicked();
+						break;
+					case 0x4:
+						parseGameInfo(message.substring(1),source);
+						break;
+					case 0x10:
+						parseCheatMessage(message.substring(1), source);
+						break;
+					case 0x20:
+						break;
+					}
 				}
+				sendData();
 			}
-			
-			if(source != -5){ //source of -5 indicates that this should not interpret it
-				
-				// Request the GAME_STATE lock to avoid concurrency issues
-				ThreadLocks.requestLock(ThreadLocks.GAME_STATE, source
-						+ INPUT_ID_OFFSET);
-				
-				int t = message.charAt(0);
-				switch (t) {
-				// hexadecimal used because it seemed fitting
-				case 0x1:
-					parseButtonMessage(message.substring(1), source);
-					break;
-				case 0x2:
-					parseCountryMessage(message.substring(1), source);
-					break;
-				case 0x3:
-					nullClicked();
-					break;
-				case 0x4:
-					parseGameInfo(message.substring(1),source);
-					break;
-				case 0x10:
-					parseCheatMessage(message.substring(1), source);
-					break;
-				case 0x20:
-					break;
-				}
-			}
-			
 		} catch (Exception e) {
 			if(source != -2 || DEBUG){
 				e.printStackTrace();
@@ -1823,6 +1814,16 @@ public class Game extends RiskThread{
 
 			}
 		}
+	}
+	
+	public void sendData(){
+		new Thread(){
+			public void run(){
+				for(HostServer h : master.getServers()){
+					resyncRequested(h,h.getOutputStream());
+				}
+			}
+		}.start();
 	}
 	
 	public void resyncRequested(HostServer h, OutputStream o){

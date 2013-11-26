@@ -102,4 +102,8 @@ public class HostMaster extends RiskThread{
 		}
 		server = null;
 	}
+
+	public List<HostServer> getServers() {
+		return servers;
+	}
 }
