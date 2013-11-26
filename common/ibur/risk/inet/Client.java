@@ -1,12 +1,12 @@
-package risk.inet;
+package ibur.risk.inet;
+
+import ibur.risk.game.Game;
+import ibur.risk.lib.ThreadLocks;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
-import risk.game.Game;
-import risk.lib.ThreadLocks;
 
 public class Client extends SocketHandler{
 	public static Client makeClient(Game g, String ip, int type){

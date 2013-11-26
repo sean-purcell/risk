@@ -1,4 +1,8 @@
-package risk.lib;
+package ibur.risk.lib;
+
+import ibur.risk.Risk;
+import ibur.risk.game.Country;
+import ibur.risk.game.Game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -7,11 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
-import risk.Risk;
-import risk.game.Country;
-import risk.game.Game;
-
-import static risk.Risk.DEBUG;
+import static ibur.risk.Risk.DEBUG;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 

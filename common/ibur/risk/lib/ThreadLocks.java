@@ -1,4 +1,4 @@
-package risk.lib;
+package ibur.risk.lib;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

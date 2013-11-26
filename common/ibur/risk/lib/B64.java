@@ -1,4 +1,4 @@
-package risk.lib;
+package ibur.risk.lib;
 
 public class B64 {
 	public static String toB64(byte[] bytes){

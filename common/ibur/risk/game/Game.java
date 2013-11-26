@@ -1,6 +1,20 @@
-package risk.game;
+package ibur.risk.game;
 
-import static risk.Risk.DEBUG;
+import static ibur.risk.Risk.DEBUG;
+import ibur.risk.Risk;
+import ibur.risk.inet.Client;
+import ibur.risk.inet.HostMaster;
+import ibur.risk.inet.HostServer;
+import ibur.risk.inet.proto.Gamedata;
+import ibur.risk.inet.proto.Gamedata.GameData;
+import ibur.risk.lib.B64;
+import ibur.risk.lib.Button;
+import ibur.risk.lib.DiceTexture;
+import ibur.risk.lib.Drawable;
+import ibur.risk.lib.Input;
+import ibur.risk.lib.RiskCanvas;
+import ibur.risk.lib.RiskThread;
+import ibur.risk.lib.ThreadLocks;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -19,21 +33,6 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.swing.JOptionPane;
-
-import risk.Risk;
-import risk.inet.Client;
-import risk.inet.HostMaster;
-import risk.inet.HostServer;
-import risk.inet.proto.Gamedata;
-import risk.inet.proto.Gamedata.GameData;
-import risk.lib.B64;
-import risk.lib.Button;
-import risk.lib.DiceTexture;
-import risk.lib.Drawable;
-import risk.lib.Input;
-import risk.lib.RiskCanvas;
-import risk.lib.RiskThread;
-import risk.lib.ThreadLocks;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 

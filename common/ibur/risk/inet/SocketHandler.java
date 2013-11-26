@@ -1,4 +1,7 @@
-package risk.inet;
+package ibur.risk.inet;
+
+import ibur.risk.Risk;
+import ibur.risk.lib.RiskThread;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +13,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import risk.Risk;
-import risk.lib.RiskThread;
 
 public abstract class SocketHandler extends RiskThread{
 

@@ -1,14 +1,13 @@
-package risk.game;
+package ibur.risk.game;
 
-import static risk.game.Unit.images;
-import static risk.game.Unit.sprites;
+import static ibur.risk.game.Unit.images;
+import static ibur.risk.game.Unit.sprites;
+import ibur.risk.Risk;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-
-import risk.Risk;
 
 public class Card {
 	private static Color BEIGE = new Color(250, 214, 165);

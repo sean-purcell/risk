@@ -1,4 +1,6 @@
-package risk.game;
+package ibur.risk.game;
+
+import ibur.risk.Risk;
 
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
@@ -7,8 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import risk.Risk;
 
 public class Map {
 

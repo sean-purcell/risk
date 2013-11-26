@@ -1,10 +1,10 @@
-package risk.game;
+package ibur.risk.game;
+
+import ibur.risk.Risk;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-
-import risk.Risk;
 
 public class Unit {
 

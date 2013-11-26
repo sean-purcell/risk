@@ -1,4 +1,7 @@
-package risk.inet;
+package ibur.risk.inet;
+
+import ibur.risk.game.Game;
+import ibur.risk.lib.RiskThread;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,9 +11,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import risk.game.Game;
-import risk.lib.RiskThread;
 
 public class HostMaster extends RiskThread{
 	

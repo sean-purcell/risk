@@ -1,5 +1,3 @@
 *.dropbox
 *.xcf
 Icon\
-Risk/
-!common/risk/

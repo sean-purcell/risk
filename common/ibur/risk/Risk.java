@@ -1,4 +1,8 @@
-package risk;
+package ibur.risk;
+
+import ibur.risk.game.Game;
+import ibur.risk.lib.RiskThread;
+import ibur.risk.lib.ThreadLocks;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -21,10 +25,6 @@ import java.util.Properties;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-
-import risk.game.Game;
-import risk.lib.RiskThread;
-import risk.lib.ThreadLocks;
 
 /**
  * The main class, the game entry point

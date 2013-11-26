@@ -1,10 +1,10 @@
-package risk.ai;
+package ibur.risk.ai;
+
+import ibur.risk.game.Army;
+import ibur.risk.game.Game;
+import ibur.risk.lib.RiskThread;
 
 import java.lang.ref.WeakReference;
-
-import risk.game.Army;
-import risk.game.Game;
-import risk.lib.RiskThread;
 
 public abstract class AI extends RiskThread{
 

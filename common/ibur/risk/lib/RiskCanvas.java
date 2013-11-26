@@ -1,4 +1,7 @@
-package risk.lib;
+package ibur.risk.lib;
+
+import ibur.risk.Risk;
+import ibur.risk.game.Game;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,9 +17,6 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import risk.Risk;
-import risk.game.Game;
 
 /**
  * 

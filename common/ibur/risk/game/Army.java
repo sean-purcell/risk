@@ -1,16 +1,15 @@
-package risk.game;
+package ibur.risk.game;
 
-import static risk.Risk.DEBUG;
+import static ibur.risk.Risk.DEBUG;
+import ibur.risk.Risk;
+import ibur.risk.ai.AI;
+import ibur.risk.ai.BasicAI;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import risk.Risk;
-import risk.ai.AI;
-import risk.ai.BasicAI;
 
 /**
  * Represents an Army

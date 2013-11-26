@@ -1,4 +1,4 @@
-package risk.lib;
+package ibur.risk.lib;
 
 import java.awt.image.BufferedImage;
 

@@ -1,12 +1,12 @@
-package risk.ai;
+package ibur.risk.ai;
+
+import ibur.risk.Risk;
+import ibur.risk.game.Army;
+import ibur.risk.game.Country;
+import ibur.risk.game.Game;
+import ibur.risk.game.Unit;
 
 import java.util.List;
-
-import risk.Risk;
-import risk.game.Army;
-import risk.game.Country;
-import risk.game.Game;
-import risk.game.Unit;
 
 public class BasicAI extends AI {
 	public BasicAI(Game g, Army a) {

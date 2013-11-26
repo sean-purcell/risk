@@ -1,4 +1,4 @@
-package risk.inet;
+package ibur.risk.inet;
 
 import java.net.Socket;
 

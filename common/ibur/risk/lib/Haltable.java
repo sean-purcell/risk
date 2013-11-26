@@ -1,4 +1,4 @@
-package risk.lib;
+package ibur.risk.lib;
 
 public interface Haltable {
 	

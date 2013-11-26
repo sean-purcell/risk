@@ -1,4 +1,6 @@
-package risk.lib;
+package ibur.risk.lib;
+
+import ibur.risk.Risk;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,8 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-
-import risk.Risk;
 
 public class DiceTexture {
 

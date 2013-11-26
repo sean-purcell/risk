@@ -1,6 +1,6 @@
-package risk.lib;
+package ibur.risk.lib;
 
-import risk.Risk;
+import ibur.risk.Risk;
 
 public abstract class RiskThread extends Thread implements Haltable {
 	
