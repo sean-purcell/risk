@@ -14,9 +14,7 @@ import java.util.List;
 /**
  * Represents an Army
  * 
- * @author Gabriel Ip
  * @author Sean Purcell
- * @author Miranda Zhou
  * 
  */
 public class Army {
@@ -32,7 +30,6 @@ public class Army {
 	}
 
 	// Colour constants for when java.awt.Color does not have a good enough
-	// colour
 	private static final Color ORANGE = new Color(224, 158, 0);
 	private static final Color PURPLE = new Color(153, 17, 153);
 	private static final Color GREEN = Color.GREEN.darker().darker();

@@ -30,9 +30,7 @@ import javax.imageio.ImageIO;
  * The main class, the game entry point
  * Also general library class
  * 
- * @author Gabriel Ip
  * @author Sean Purcell
- * @author Miranda Zhou
  * 
  */
 public class Risk {
