@@ -8,8 +8,8 @@ import ibur.risk.game.Unit;
 
 import java.util.List;
 
-public class BasicAI extends AI {
-	public BasicAI(Game g, Army a) {
+public class AtlasAI extends AI {
+	public AtlasAI(Game g, Army a) {
 		super(g,a);
 	}
 	
@@ -34,8 +34,7 @@ public class BasicAI extends AI {
 				attack();
 				break;
 			case 5:
-				String endTurnMessage = "" + (char) 1 + (char) 99;
-				g.message(endTurnMessage, -2);
+				reinforce();
 				break;
 			}
 			break;
@@ -54,9 +53,12 @@ public class BasicAI extends AI {
 	}
 	
 	private void clickOwnedCountry(){
-		Country c = a.get().getUnits().get(
-				Risk.r.nextInt(a.get().getUnits().size())
-				).getLocation();
+		Country c = null;
+		while(c == null || !a.get().hasDirectFronts(c)){
+			c = a.get().getUnits().get(
+					Risk.r.nextInt(a.get().getUnits().size())
+					).getLocation();
+		}
 		String message = "" + (char) 2 + 
 				(c.getId() < 10 ? "0" : "")
 				+ Integer.toString(c.getId());
@@ -73,7 +75,12 @@ public class BasicAI extends AI {
 		while(a.get().getFreeUnits() > 0){
 			sleepTime(100);
 			
-			Country c = units.get(Risk.r.nextInt(units.size())).getLocation();
+			Country c = null;
+			while(c == null || !a.get().hasDirectFronts(c)){
+				c = a.get().getUnits().get(
+						Risk.r.nextInt(a.get().getUnits().size())
+						).getLocation();
+			}
 			
 			String countryMessage = "" + (char) 2 + 
 					(c.getId() < 10 ? "0" : "")
@@ -88,7 +95,7 @@ public class BasicAI extends AI {
 	}
 
 	private void attack(){
-		for(int index = a.get().getUnits().size() - 1; index>=0; index--){
+		for(int index = 0; index < a.get().getUnits().size(); index++){
 			Unit u = a.get().getUnits().get(index);
 			Country selected = u.getLocation(),
 					target = null;
@@ -124,7 +131,7 @@ public class BasicAI extends AI {
 							(target.getId() < 10 ? "0" : "")
 							+ Integer.toString(target.getId());
 					g.message(message, -2);
-					while(g.getAttackers() < u.getTroops() - 1){
+					while(g.getAttackers() < u.getTroops()/4*3){
 						g.message(message, -2);
 						sleepTime(150);
 					}
@@ -137,6 +144,38 @@ public class BasicAI extends AI {
 					}
 					sleepTime(1000);
 					g.message(message, -2);
+				}
+			}
+		}
+		String endTurnMessage = "" + (char) 1 + (char) 99;
+		g.message(endTurnMessage, -2);
+	}
+	
+	private void reinforce(){
+		for(Unit u : a.get().getUnits()){
+			if(!a.get().hasDirectFronts(u.getLocation())){
+				List<Country> connectedFronts = a.get().getConnectedFronts(u);
+				Country target = connectedFronts.get(Risk.r.nextInt(connectedFronts.size()));
+				{
+					String message = "" + (char) 3;
+					g.message(message,-2);
+				}
+				sleepTime(100);
+				{
+					String message = (char) 2 +
+							(u.getLocation().getId() < 10 ? "0" : "")
+							+ Integer.toString(u.getLocation().getId());
+					g.message(message, -2);
+				}
+				{
+					String message = (char) 2 + 
+							(target.getId() < 10 ? "0" : "")
+							+ Integer.toString(target.getId());
+					
+					while(u.getTroops() > 1){
+						sleepTime(50);
+						g.message(message, -2);
+					}
 				}
 			}
 		}

@@ -3,20 +3,20 @@ package ibur.risk.game;
 import static ibur.risk.Risk.DEBUG;
 import ibur.risk.Risk;
 import ibur.risk.ai.AI;
-import ibur.risk.ai.BasicAI;
+import ibur.risk.ai.AtlasAI;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Represents an Army
  * 
- * @author Gabriel Ip
  * @author Sean Purcell
- * @author Miranda Zhou
  * 
  */
 public class Army {
@@ -32,7 +32,6 @@ public class Army {
 	}
 
 	// Colour constants for when java.awt.Color does not have a good enough
-	// colour
 	private static final Color ORANGE = new Color(224, 158, 0);
 	private static final Color PURPLE = new Color(153, 17, 153);
 	private static final Color GREEN = Color.GREEN.darker().darker();
@@ -69,7 +68,7 @@ public class Army {
 		
 		this.controller = controller;
 		if(controller == 1 && g.getGameType() != 2){
-			ai = new BasicAI(g, this);
+			ai = new AtlasAI(g, this);
 			ai.start();
 		}
 
@@ -156,6 +155,48 @@ public class Army {
 		return copy;
 	}
 
+	public List<Country> getConnectedFronts(Unit u){
+		if(u.getArmy() != this){
+			return null;
+		}
+		
+		List<Country> fronts = new ArrayList<Country>();
+		
+		Queue<Unit> q = new ArrayDeque<Unit>();
+		q.add(u);
+		
+		boolean[] visited = new boolean[43];
+		visited[u.getLocation().getId()] = true;
+		while(!q.isEmpty()){
+			Unit top = q.remove();
+			boolean hasFront = false;
+			for(Country c : top.getLocation().getConnections()){
+				if(c.getUnit().getArmy() != this){
+					hasFront = true;
+					break;
+				}else if(!visited[c.getId()]){
+					q.add(c.getUnit());
+					visited[c.getId()] = true;
+				}
+			}
+			
+			if(hasFront){
+				fronts.add(top.getLocation());
+			}
+		}
+		
+		return fronts;
+	}
+	
+	public boolean hasDirectFronts(Country co){
+		for(Country c : co.getConnections()){
+			if(c.getUnit().getArmy() != this){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public int getFreeUnits() {
 		return freeUnits;
 	}
