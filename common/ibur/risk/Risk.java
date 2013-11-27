@@ -38,7 +38,7 @@ import javax.imageio.ImageIO;
 public class Risk {
 
 	public static final boolean DEBUG = false;
-	public static final boolean OUTPUT = true;
+	public static final boolean OUTPUT = false;
 	public static final boolean DRAW_WHILE_INACTIVE = true;
 
 	private static List<RiskThread> threadPool; 

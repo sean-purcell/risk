@@ -54,6 +54,10 @@ public class Client extends SocketHandler{
 			}
 			ThreadLocks.requestLock(ThreadLocks.GAME_STATE, 0x11);
 			g.get().deserializeGameData(res);
+			try {
+				i.read();
+			} catch (IOException e) {
+			}
 			ThreadLocks.releaseLock(ThreadLocks.GAME_STATE, 0x11);
 			return new byte[]{0};
 		}
