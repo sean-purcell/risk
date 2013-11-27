@@ -46,7 +46,7 @@ public abstract class SocketHandler extends RiskThread{
 					//Risk.showMessage(message);
 					System.out.println("Message written");
 				}
-				if(i.available() > 0){
+				if(i.available() > 1){
 					String message = new String(read(), Charset.forName("UTF-8"));
 					if("!!!!!!!!".equals(message)){
 						System.err.println("Connected client has stopped, EXIT NOW");
@@ -66,10 +66,11 @@ public abstract class SocketHandler extends RiskThread{
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 		finally{
-			out.close();
 			try {
-				in.close();
 				sock.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -107,7 +108,7 @@ public abstract class SocketHandler extends RiskThread{
 		try{
 			int size = (i.read() << 8) | i.read();
 			if(size > 10)
-			Risk.out.println("Read Length: " + size);
+				Risk.out.println("Read Length: " + size);
 			byte[] buf = new byte[size];
 
 			i.read(buf);

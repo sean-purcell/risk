@@ -1831,11 +1831,12 @@ public class Game extends RiskThread{
 			byte[] out = serializeGameData();
 			byte[] len = new byte[2];
 			int length = out.length;
+			Risk.out.println("Message length: " + length);
 			len[0] = (byte) (length >>> 8);
 			len[1] = (byte) (length & 0xFF);
 			o.write(len);
 			o.write(0x20);
-			o.write(serializeGameData());
+			o.write(out);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -1908,11 +1909,15 @@ public class Game extends RiskThread{
 			
 			data.setAttackers(attackers);
 			data.setDefenders(defenders);
-			for(int i : attackerDiceResults){
-				data.addAttackerDiceResults(i);
+			try{
+				for(int i : attackerDiceResults){
+					data.addAttackerDiceResults(i);
+				}
+				for(int i : defenderDiceResults){
+					data.addDefenderDiceResults(i);
+				}
 			}
-			for(int i : defenderDiceResults){
-				data.addDefenderDiceResults(i);
+			catch(NullPointerException e){
 			}
 			
 			data.setTerritoryConquered(territoryConquered);
@@ -1982,6 +1987,9 @@ public class Game extends RiskThread{
 		} catch (InvalidProtocolBufferException e) {
 			e.printStackTrace();
 			int i = 0;
+		}
+		catch (RuntimeException e){
+			e.printStackTrace();
 		}
 	}
 	
@@ -2161,7 +2169,7 @@ public class Game extends RiskThread{
 	}
 	
 	public void halt(){
-		
+		main.stop();
 	}
 
 	public int getGameType() {
